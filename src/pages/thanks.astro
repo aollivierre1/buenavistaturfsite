@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.js';
+---
+<Base title="Thank You" description="We received your message.">
+  <section class="ph" style="min-height:52vh;display:flex;align-items:center"><div class="wrap">
+    <span class="eyebrow">Received</span>
+    <h1>Got it. We will be in touch.</h1>
+    <p class="lede">Your message is in front of our team. If it is urgent, call {site.phone} and you will reach a person.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:32px">
+      <a href="/" class="btn">Back to Home</a>
+      <a href={site.phoneHref} class="btn btn-ghost">Call {site.phone}</a>
+    </div>
+  </div></section>
+</Base>
+<style>.ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}</style>

@@ -1,0 +1,79 @@
+---
+import { site, nav } from '../data/site.js';
+---
+<div class="weatherbar">
+  <div class="wrap wb-inner">
+    <span class="wb-label">DFW Weather</span>
+    <span id="wx" class="wb-val">—</span>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap hdr-inner">
+    <a href="/" class="logo" aria-label={site.name}>
+      <svg viewBox="0 0 40 40" width="42" height="42" aria-hidden="true">
+        <path d="M20 2 L25 15 L38 15 L27.5 23 L31.5 36 L20 28 L8.5 36 L12.5 23 L2 15 L15 15 Z" fill="#3fa34d"/>
+      </svg>
+      <span class="logo-txt">
+        <strong>Buena Vista</strong>
+        <em>Texas Turf Farm</em>
+      </span>
+    </a>
+
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav" id="menuBtn">Menu</button>
+
+    <nav id="nav" class="nav" aria-label="Main">
+      {nav.map((i) => <a href={i.href}>{i.label}</a>)}
+      <a href={site.phoneHref} class="ph">{site.phone}</a>
+      <a href="/quote" class="btn">Get a Quote</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .weatherbar { background: linear-gradient(90deg, #0f1f12, #2f5c39, #0f1f12); border-bottom: 1px solid var(--line); }
+  .wb-inner { display: flex; gap: 14px; align-items: center; justify-content: center; padding: 9px 24px; font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
+  .wb-label { color: var(--gold); }
+  .wb-val { color: var(--cream); }
+
+  .hdr { background: var(--green-900); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; }
+  .hdr-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 16px; padding-bottom: 16px; flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-txt { display: flex; flex-direction: column; line-height: 1; }
+  .logo-txt strong { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: -0.02em; color: #2f8f4a; text-transform: uppercase; }
+  .logo-txt em { font-style: normal; font-size: 0.68rem; letter-spacing: 0.22em; color: #6fbf7a; text-transform: uppercase; margin-top: 4px; }
+
+  .nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+  .nav a { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; text-decoration: none; padding: 11px 13px; border: 1px solid var(--line); color: var(--cream); }
+  .nav a:hover { background: rgba(245,241,228,0.08); }
+  .nav .ph { border-color: transparent; color: var(--gold); }
+  .nav .btn { border-color: transparent; }
+
+  .menu-btn { display: none; background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 10px 16px; font-size: 0.72rem; letter-spacing: 0.11em; text-transform: uppercase; cursor: pointer; }
+  @media (max-width: 1100px) {
+    .menu-btn { display: block; }
+    .nav { display: none; width: 100%; justify-content: flex-start; }
+    .nav.open { display: flex; }
+  }
+</style>
+
+<script>
+  const b = document.getElementById('menuBtn');
+  b?.addEventListener('click', () => {
+    const n = document.getElementById('nav');
+    const open = n.classList.toggle('open');
+    b.setAttribute('aria-expanded', String(open));
+  });
+
+  // Live DFW conditions via Open-Meteo (no API key, free, no attribution required)
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=32.7767&longitude=-96.797&current=temperature_2m,wind_speed_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph')
+    .then((r) => r.json())
+    .then((d) => {
+      const c = d.current;
+      const codes = { 0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Fog',51:'Light drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Rain showers',95:'Thunderstorm' };
+      const desc = codes[c.weather_code] || 'Current conditions';
+      document.getElementById('wx').textContent =
+        `${Math.round(c.temperature_2m)}°F  ·  ${desc}  ·  Wind ${Math.round(c.wind_speed_10m)} mph`;
+    })
+    .catch(() => { document.getElementById('wx').textContent = 'Ravenna · Ivanhoe · Collinsville · Ferris'; });
+</script>

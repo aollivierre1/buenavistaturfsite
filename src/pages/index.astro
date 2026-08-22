@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import { grasses } from '../data/grasses.js';
+import { locations } from '../data/locations.js';
+import { site } from '../data/site.js';
+---
+<Base
+  title="North Texas Sod Farm | Fresh-Cut Bermuda, Zoysia & St Augustine"
+  description="Family-run North Texas sod farm. Fresh-cut Bermuda, Zoysia, and St Augustine delivered across Dallas-Fort Worth from four farm locations. Get a quote in minutes."
+>
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Field Notes / Weekly Uploads</span>
+      <h1>Fresh-cut turf proof from our farm to your jobsite.</h1>
+      <p class="lede">
+        See the standards behind every order: healthy fields, clean harvests, dependable
+        deliveries, finished customer sites, and the family-run team that stands behind the turf.
+      </p>
+      <div class="hero-cta">
+        <a href="/quote" class="btn">Build Your Quote</a>
+        <a href={site.phoneHref} class="btn btn-ghost">Call {site.phone}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-alt">
+    <div class="wrap">
+      <span class="eyebrow">Why customers choose us</span>
+      <h2>The standard is personal.</h2>
+      <p class="lede">
+        Our team grows, harvests, and delivers turf with the discipline of a field operation
+        and the accountability of a family business.
+      </p>
+      <div class="grid g3" style="margin-top:48px">
+        <div class="card">
+          <h3>Grown, not resold</h3>
+          <p>We farm our own fields across four North Texas locations. You are buying from the people who cut it.</p>
+        </div>
+        <div class="card">
+          <h3>Harvest timing that matters</h3>
+          <p>Sod is perishable. We cut to your delivery window so the pallet that reaches your site is fresh, not staged.</p>
+        </div>
+        <div class="card">
+          <h3>Someone answers</h3>
+          <p>When the job gets real and questions come up, you reach a person who knows the field and the schedule.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">Customer selection guide</span>
+      <h2>Texas-ready turf for heat, traffic, shade, and curb appeal.</h2>
+      <div class="grid g3" style="margin-top:48px">
+        {grasses.map((g) => (
+          <a class="card gcard" href={`/grasses/${g.slug}`}>
+            <h3>{g.name}</h3>
+            <p>{g.summary}</p>
+            <ul class="specs">
+              <li><span>Sun</span><span>{g.sun}</span></li>
+              <li><span>Traffic</span><span>{g.traffic}</span></li>
+              <li><span>Texture</span><span>{g.texture}</span></li>
+            </ul>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-alt">
+    <div class="wrap">
+      <span class="eyebrow">Locations</span>
+      <h2>Four farms. One customer standard.</h2>
+      <div class="grid g2" style="margin-top:48px">
+        {locations.map((l) => (
+          <div class="card">
+            <h3>{l.name}</h3>
+            <p style="color:var(--muted);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase">{l.county}</p>
+            <p>{l.blurb}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap" style="text-align:center">
+      <h2>Price your project before the first pallet rolls.</h2>
+      <p class="lede" style="margin:0 auto 32px">
+        Enter your square footage, pick your grass, and we will get you a real number and a delivery window.
+      </p>
+      <a href="/quote" class="btn">Build Your Quote</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    background:
+      linear-gradient(180deg, rgba(15,31,18,0.55), rgba(15,31,18,0.94)),
+      linear-gradient(135deg, #2f5c39, #14291a);
+    padding: clamp(80px, 13vw, 190px) 0;
+  }
+  .hero h1 { max-width: 15ch; }
+  .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px; }
+  .gcard { text-decoration: none; display: block; transition: border-color 0.15s ease, transform 0.15s ease; }
+  .gcard:hover { border-color: var(--brand); transform: translateY(-3px); }
+  .cta { background: var(--brand-dark); }
+  .cta h2 { max-width: 20ch; margin-left: auto; margin-right: auto; }
+</style>

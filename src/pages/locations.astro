@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { locations } from '../data/locations.js';
+import { site } from '../data/site.js';
+---
+<Base title="Locations" description="Four North Texas turf farms — Ravenna, Ivanhoe, Collinsville, and Ferris — serving Dallas-Fort Worth and surrounding counties.">
+  <section class="ph"><div class="wrap">
+    <span class="eyebrow">Locations</span>
+    <h1>Four turf locations serving North Texas with field-level accountability.</h1>
+    <p class="lede">Ravenna, Ivanhoe, Collinsville, and Ferris are part of one customer standard.</p>
+  </div></section>
+  <section><div class="wrap grid g2">
+    {locations.map((l) => (
+      <div class="card">
+        <h3>{l.name}</h3>
+        <p style="color:var(--muted);font-size:.76rem;letter-spacing:.13em;text-transform:uppercase">{l.county}</p>
+        <p>{l.blurb}</p>
+        <a href="/quote" class="btn btn-ghost">Quote from {l.name}</a>
+      </div>
+    ))}
+  </div></section>
+  <section class="section-alt"><div class="wrap" style="text-align:center">
+    <h2>Not sure which farm serves you?</h2>
+    <p class="lede" style="margin:0 auto 28px">Call and we will route your order to the closest field.</p>
+    <a href={site.phoneHref} class="btn">{site.phone}</a>
+  </div></section>
+</Base>
+<style>.ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}</style>

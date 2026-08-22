@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "https://buenavistaturf.com/*"
+  to = "https://www.buenavistaturf.com/:splat"
+  status = 301
+  force = true

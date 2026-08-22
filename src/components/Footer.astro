@@ -1,0 +1,46 @@
+---
+import { site, nav } from '../data/site.js';
+import { locations } from '../data/locations.js';
+import { grasses } from '../data/grasses.js';
+---
+<footer class="ft">
+  <div class="wrap ft-grid">
+    <div>
+      <h3 class="ft-logo">Buena Vista Turf Farm</h3>
+      <p class="ft-tag">{site.tagline}</p>
+      <p><a href={site.phoneHref} class="ft-phone">{site.phone}</a></p>
+      <a href="/quote" class="btn">Get a Quote</a>
+    </div>
+    <div>
+      <h4>Grasses</h4>
+      <ul>{grasses.map((g) => <li><a href={`/grasses/${g.slug}`}>{g.name}</a></li>)}</ul>
+    </div>
+    <div>
+      <h4>Locations</h4>
+      <ul>{locations.map((l) => <li><a href="/locations">{l.name}, {l.county}</a></li>)}</ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>{nav.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul>
+    </div>
+  </div>
+  <div class="wrap ft-btm">
+    <p>&copy; {new Date().getFullYear()} Buena Vista Turf Farm. Serving Dallas-Fort Worth and North Texas.</p>
+  </div>
+</footer>
+
+<style>
+  .ft { background: var(--green-800); border-top: 1px solid var(--line); padding: 72px 0 0; }
+  .ft-grid { display: grid; gap: 40px; grid-template-columns: 1fr; }
+  @media (min-width: 780px) { .ft-grid { grid-template-columns: 1.6fr 1fr 1fr 1fr; } }
+  .ft-logo { font-size: 1.4rem; margin-bottom: 6px; }
+  .ft-tag { color: var(--muted); margin-bottom: 14px; }
+  .ft-phone { font-size: 1.35rem; font-family: var(--font-display); font-weight: 800; color: var(--gold); text-decoration: none; }
+  .ft h4 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; font-family: var(--font-body); font-weight: 700; }
+  .ft ul { list-style: none; padding: 0; margin: 0; }
+  .ft li { margin-bottom: 9px; }
+  .ft li a { color: var(--cream-dim); text-decoration: none; font-size: 0.92rem; }
+  .ft li a:hover { color: var(--cream); text-decoration: underline; }
+  .ft-btm { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 24px; padding-bottom: 32px; }
+  .ft-btm p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+</style>

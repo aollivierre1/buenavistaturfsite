@@ -1,0 +1,28 @@
+---
+import Base from './Base.astro';
+const { frontmatter } = Astro.props;
+---
+<Base title={frontmatter.title} description={frontmatter.description}>
+  <section class="ph"><div class="wrap">
+    <span class="eyebrow">{frontmatter.category || 'Turf Tips'}</span>
+    <h1>{frontmatter.title}</h1>
+    <p class="lede">{frontmatter.description}</p>
+    <p style="color:var(--muted);font-size:.84rem;margin-top:18px">
+      {new Date(frontmatter.date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
+    </p>
+  </div></section>
+  <section><div class="wrap post"><slot /></div></section>
+  <section class="section-alt"><div class="wrap" style="text-align:center">
+    <h2>Ready to price your project?</h2>
+    <a href="/quote" class="btn" style="margin-top:16px">Build Your Quote</a>
+  </div></section>
+</Base>
+<style is:global>
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}
+  .post{max-width:74ch}
+  .post h2{font-size:clamp(1.6rem,2.8vw,2.2rem);margin-top:44px}
+  .post h3{margin-top:32px}
+  .post ul,.post ol{color:var(--cream-dim);padding-left:22px}
+  .post li{margin-bottom:9px}
+  .post img{max-width:100%;height:auto}
+</style>

@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/Base.astro';
+import { grasses } from '../../data/grasses.js';
+
+export function getStaticPaths() {
+  return grasses.map((g) => ({ params: { slug: g.slug }, props: { g } }));
+}
+const { g } = Astro.props;
+---
+<Base title={`${g.name} Sod`} description={g.summary}>
+  <section class="ph">
+    <div class="wrap">
+      <span class="eyebrow">{g.type}</span>
+      <h1>{g.name}</h1>
+      <p class="lede">{g.summary}</p>
+    </div>
+  </section>
+  <section>
+    <div class="wrap cols">
+      <article>
+        <p>{g.intro}</p>
+        <h2>Choosing it</h2>
+        <p>{g.selection}</p>
+        <h2>Maintenance</h2>
+        <p>{g.maintenance}</p>
+        <a href="/quote" class="btn" style="margin-top:24px">Build a quote for {g.name}</a>
+      </article>
+      <aside class="card" style="position:sticky;top:110px">
+        <h3>At a glance</h3>
+        <ul class="specs">
+          <li><span>Type</span><span>{g.type}</span></li>
+          <li><span>Sun</span><span>{g.sun}</span></li>
+          <li><span>Shade</span><span>{g.shade}</span></li>
+          <li><span>Traffic</span><span>{g.traffic}</span></li>
+          <li><span>Texture</span><span>{g.texture}</span></li>
+        </ul>
+        <h4 style="margin-top:24px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Best for</h4>
+        <ul style="padding-left:18px;color:var(--cream-dim);font-size:.92rem">
+          {g.best.map((b) => <li>{b}</li>)}
+        </ul>
+      </aside>
+    </div>
+  </section>
+</Base>
+<style>
+  .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0; }
+  .cols { display:grid; gap:44px; align-items:start; }
+  @media (min-width:940px){ .cols { grid-template-columns: 1.7fr 1fr; } }
+  article h2 { font-size: clamp(1.5rem,2.6vw,2.1rem); margin-top:36px; }
+</style>

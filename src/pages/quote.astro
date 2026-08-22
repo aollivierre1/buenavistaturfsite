@@ -1,0 +1,155 @@
+---
+import Base from '../layouts/Base.astro';
+import { grasses } from '../data/grasses.js';
+import { locations } from '../data/locations.js';
+import { pricing } from '../data/pricing.js';
+---
+<Base
+  title="Sod Calculator & Quote"
+  description="Calculate how much sod your project needs and request a quote from Buena Vista Turf Farm. Serving Dallas-Fort Worth and North Texas."
+>
+  <section class="qhero">
+    <div class="wrap">
+      <span class="eyebrow">Quote Calculator</span>
+      <h1>Price your turf project before the first pallet rolls.</h1>
+      <p class="lede">
+        Measure your area, choose your grass, and send it over. We confirm pallet count,
+        delivery window, and final pricing with a real person.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap qgrid">
+      <form
+        name="quote"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        action="/thanks"
+        id="quoteForm"
+      >
+        <input type="hidden" name="form-name" value="quote" />
+        <p hidden><label>Leave blank: <input name="bot-field" /></label></p>
+
+        <h2 class="fh">1. Your area</h2>
+        <div class="two">
+          <div>
+            <label for="length">Length (ft)</label>
+            <input type="number" id="length" min="0" step="any" inputmode="decimal" />
+          </div>
+          <div>
+            <label for="width">Width (ft)</label>
+            <input type="number" id="width" min="0" step="any" inputmode="decimal" />
+          </div>
+        </div>
+        <label for="sqft">Total square feet</label>
+        <input type="number" id="sqft" name="square_feet" min="0" step="any" inputmode="decimal" required />
+        <p class="hint">Odd-shaped yard? Break it into rectangles, add them up, and enter the total.</p>
+
+        <h2 class="fh">2. Your grass</h2>
+        <label for="grass">Grass type</label>
+        <select id="grass" name="grass_type" required>
+          <option value="">Not sure yet — help me choose</option>
+          {grasses.map((g) => <option value={g.name}>{g.name} — {g.sun}</option>)}
+        </select>
+
+        <h2 class="fh">3. Delivery</h2>
+        <label for="zone">Delivery</label>
+        <select id="zone" name="delivery" required>
+          {pricing.deliveryZones.map((z) => <option value={z.label}>{z.label}</option>)}
+        </select>
+        <label for="nearest">Nearest farm</label>
+        <select id="nearest" name="nearest_farm">
+          <option value="">No preference</option>
+          {locations.map((l) => <option value={l.name}>{l.name}, {l.county}</option>)}
+        </select>
+        <label for="when">When do you need it?</label>
+        <select id="when" name="timeline">
+          <option>Within a week</option>
+          <option>1–2 weeks</option>
+          <option>This month</option>
+          <option>Just planning / getting a number</option>
+        </select>
+
+        <h2 class="fh">4. Where do we send it?</h2>
+        <div class="two">
+          <div><label for="name">Name</label><input type="text" id="name" name="name" required /></div>
+          <div><label for="phone">Phone</label><input type="tel" id="phone" name="phone" required /></div>
+        </div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+        <label for="addr">Job site city / ZIP</label>
+        <input type="text" id="addr" name="job_site" />
+        <label for="notes">Anything we should know?</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="Access, slope, tree cover, old grass removal, tight delivery window..."></textarea>
+
+        <input type="hidden" name="calculated_pallets" id="hPallets" />
+        <input type="hidden" name="calculated_sqft_with_waste" id="hWaste" />
+
+        <button type="submit" class="btn" style="width:100%">Send My Quote Request</button>
+        <p class="hint" style="text-align:center">We reply by phone or email, usually same business day.</p>
+      </form>
+
+      <aside class="result" aria-live="polite">
+        <h2 class="fh">Your estimate</h2>
+        <div class="big"><span id="rPallets">—</span><small>pallets</small></div>
+        <ul class="specs">
+          <li><span>Measured area</span><span id="rSqft">—</span></li>
+          <li><span>With {Math.round(pricing.wasteBuffer * 100)}% waste buffer</span><span id="rWaste">—</span></li>
+          <li><span>Coverage per pallet</span><span>{pricing.sqftPerPallet} sq ft</span></li>
+        </ul>
+        <p class="hint" style="margin-top:22px">
+          Pallet counts are rounded up — partial pallets are not sold. Final count and
+          pricing are confirmed by our team before anything is scheduled.
+        </p>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .qhero { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px, 9vw, 120px) 0; }
+  .qhero h1 { max-width: 17ch; }
+  .qgrid { display: grid; gap: 44px; align-items: start; }
+  @media (min-width: 940px) { .qgrid { grid-template-columns: 1.55fr 1fr; } }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .fh { font-size: 1.05rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--gold); font-family: var(--font-body); font-weight: 700; margin: 36px 0 18px; border-top: 1px solid var(--line); padding-top: 24px; }
+  .fh:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+  .hint { font-size: 0.84rem; color: var(--muted); margin-top: -10px; }
+  .result { background: var(--green-700); border: 1px solid var(--line); padding: 32px; position: sticky; top: 110px; }
+  .big { font-family: var(--font-display); font-size: 4.5rem; font-weight: 900; line-height: 1; color: var(--cream); margin-bottom: 18px; }
+  .big small { display: block; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-family: var(--font-body); font-weight: 700; margin-top: 8px; }
+</style>
+
+<script define:vars={{ SQFT_PER_PALLET: pricing.sqftPerPallet, WASTE: pricing.wasteBuffer }}>
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+  function recalc() {
+    const l = parseFloat($('length').value) || 0;
+    const w = parseFloat($('width').value) || 0;
+    if (l > 0 && w > 0) $('sqft').value = Math.round(l * w);
+
+    const sqft = parseFloat($('sqft').value) || 0;
+    if (sqft <= 0) {
+      $('rPallets').textContent = '—';
+      $('rSqft').textContent = '—';
+      $('rWaste').textContent = '—';
+      return;
+    }
+    const withWaste = sqft * (1 + WASTE);
+    const pallets = Math.ceil(withWaste / SQFT_PER_PALLET);
+
+    $('rPallets').textContent = fmt(pallets);
+    $('rSqft').textContent = fmt(sqft) + ' sq ft';
+    $('rWaste').textContent = fmt(Math.ceil(withWaste)) + ' sq ft';
+    $('hPallets').value = pallets;
+    $('hWaste').value = Math.ceil(withWaste);
+  }
+
+  ['length', 'width', 'sqft'].forEach((id) => {
+    $(id).addEventListener('input', recalc);
+  });
+  recalc();
+</script>

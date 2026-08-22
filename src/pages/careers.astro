@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import { locations } from '../data/locations.js';
+---
+<Base title="Careers" description="Join a family-run North Texas turf farm. Field, harvest, delivery, and office roles across Ravenna, Ivanhoe, Collinsville, and Ferris.">
+  <section class="ph"><div class="wrap">
+    <span class="eyebrow">Careers</span>
+    <h1>Work where people stay.</h1>
+    <p class="lede">Our average staff longevity is over 25 years. That is not an accident — it is how we run the place.</p>
+  </div></section>
+  <section><div class="wrap cols">
+    <form name="application" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" action="/thanks">
+      <input type="hidden" name="form-name" value="application" />
+      <p hidden><label>Leave blank: <input name="bot-field" /></label></p>
+      <div class="two">
+        <div><label for="an">Full name</label><input id="an" type="text" name="name" required /></div>
+        <div><label for="ap">Phone</label><input id="ap" type="tel" name="phone" required /></div>
+      </div>
+      <label for="ae">Email</label><input id="ae" type="email" name="email" required />
+      <label for="al">Which location?</label>
+      <select id="al" name="location" required>
+        {locations.map((l) => <option>{l.name}, {l.county}</option>)}
+        <option>Any / wherever needed</option>
+      </select>
+      <label for="ar">Role you are interested in</label>
+      <select id="ar" name="role">
+        <option>Field / harvest crew</option>
+        <option>Equipment operator</option>
+        <option>CDL driver / delivery</option>
+        <option>Irrigation</option>
+        <option>Sales / customer service</option>
+        <option>Office / administration</option>
+        <option>Other</option>
+      </select>
+      <label for="ax">Relevant experience</label>
+      <textarea id="ax" name="experience" rows="5" placeholder="Farm, landscape, equipment, CDL, or anything else you want us to know."></textarea>
+      <label for="af">Resume (optional)</label>
+      <input id="af" type="file" name="resume" accept=".pdf,.doc,.docx" />
+      <button type="submit" class="btn" style="width:100%">Submit Application</button>
+      <p style="font-size:.84rem;color:var(--muted);text-align:center">Applications go straight to the hiring manager.</p>
+    </form>
+    <aside class="card" style="align-self:start">
+      <h3>What we look for</h3>
+      <p>Show up, work safe, take care of the equipment, and treat the customer's property like your own. We will train the rest.</p>
+      <ul class="specs">
+        <li><span>Longevity</span><span>25+ yrs average</span></li>
+        <li><span>Locations</span><span>4 farms</span></li>
+        <li><span>Ownership</span><span>Family-run</span></li>
+      </ul>
+    </aside>
+  </div></section>
+</Base>
+<style>
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}
+  .cols{display:grid;gap:44px}
+  @media(min-width:940px){.cols{grid-template-columns:1.6fr 1fr}}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+</style>

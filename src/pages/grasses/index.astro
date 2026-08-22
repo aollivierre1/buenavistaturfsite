@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { grasses } from '../../data/grasses.js';
+---
+<Base title="Grasses" description="Bermuda 419, Celebration, Ironcutter, St Augustine, Tahoma 31, and Zeon Zoysia — Texas-ready turf selected for heat, traffic, shade, and curb appeal.">
+  <section class="ph">
+    <div class="wrap">
+      <span class="eyebrow">Customer Selection Guide</span>
+      <h1>Texas-ready turf selected for heat, traffic, shade, and curb appeal.</h1>
+      <p class="lede">Choose grass with confidence. We help match your property, sun exposure, traffic level, maintenance expectations, and budget with sod that performs in North Texas conditions.</p>
+    </div>
+  </section>
+  <section>
+    <div class="wrap grid g3">
+      {grasses.map((g) => (
+        <a class="card gcard" href={`/grasses/${g.slug}`}>
+          <h3>{g.name}</h3>
+          <p>{g.summary}</p>
+          <ul class="specs">
+            <li><span>Sun</span><span>{g.sun}</span></li>
+            <li><span>Traffic</span><span>{g.traffic}</span></li>
+            <li><span>Shade</span><span>{g.shade}</span></li>
+          </ul>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+<style>
+  .ph { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px,9vw,120px) 0; }
+  .gcard { text-decoration:none; display:block; transition:border-color .15s, transform .15s; }
+  .gcard:hover { border-color: var(--brand); transform: translateY(-3px); }
+</style>

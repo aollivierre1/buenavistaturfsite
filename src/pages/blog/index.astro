@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+const posts = Object.values(import.meta.glob('./*.md', { eager: true }))
+  .sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+---
+<Base title="Blog" description="Field notes, grass selection guidance, and North Texas turf care from Buena Vista Turf Farm.">
+  <section class="ph"><div class="wrap">
+    <span class="eyebrow">Field Notes</span>
+    <h1>What we are seeing in the field.</h1>
+    <p class="lede">Practical guidance on grass selection, installation, watering, and getting a lawn through a North Texas summer.</p>
+  </div></section>
+  <section><div class="wrap grid g2">
+    {posts.map((p) => (
+      <a class="card gcard" href={p.url}>
+        <p style="color:var(--muted);font-size:.74rem;letter-spacing:.13em;text-transform:uppercase">
+          {new Date(p.frontmatter.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+        </p>
+        <h3>{p.frontmatter.title}</h3>
+        <p>{p.frontmatter.description}</p>
+      </a>
+    ))}
+    {posts.length === 0 && <p class="lede">First post coming shortly.</p>}
+  </div></section>
+</Base>
+<style>
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}
+  .gcard{text-decoration:none;display:block;transition:border-color .15s,transform .15s}
+  .gcard:hover{border-color:var(--brand);transform:translateY(-3px)}
+</style>
