@@ -60,5 +60,5 @@ changing a single DNS record. Rollback is putting the old values back.
 ## Still to do
 
 - Migrate image library (hero photos, field photos, Managers Pictures gallery)
-- Restore original marketing copy for 5 of 6 grass pages from the Manus archive
+- ~~Restore original marketing copy for the grass pages from the Manus archive~~ ✅ done — all six varieties now carry the verbatim original copy
 - Confirm pallet coverage and pricing in `src/data/pricing.js`
