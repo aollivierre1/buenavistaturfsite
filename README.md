@@ -57,8 +57,29 @@ Breaking them takes down company mail.
 Test the Netlify preview URL fully — especially a real quote submission — before
 changing a single DNS record. Rollback is putting the old values back.
 
+## Image library
+
+96 files in `public/images/`, recovered from the Manus host before cutover.
+They were served there from expiring signed CloudFront URLs, so this repo is
+now the only durable copy — do not delete it.
+
+| What | Where |
+|---|---|
+| Management team (9 people, names/titles/bios) | `src/data/team.js` |
+| Weekly field photos (74, with categories + captions) | `src/data/gallery.js` |
+| Logo, About headers, misc | `public/images/` |
+
+To add a photo: drop the file in `public/images/` and add an entry to
+`src/data/gallery.js`. It appears on Managers Pictures automatically.
+
 ## Still to do
 
-- Migrate image library (hero photos, field photos, Managers Pictures gallery)
-- ~~Restore original marketing copy for the grass pages from the Manus archive~~ ✅ done — all six varieties now carry the verbatim original copy
-- Confirm pallet coverage and pricing in `src/data/pricing.js`
+- ~~Migrate image library~~ ✅ done — 96 files recovered and wired in
+- ~~Restore original marketing copy for the grass pages~~ ✅ done — all six varieties carry the verbatim original copy
+- ~~Confirm pallet coverage~~ ✅ done — 450 sq ft/pallet, confirmed against the original calculator
+- **Confirm pricing before switching it on.** `src/data/pricing.js` has the
+  old published per-sq-ft rates under `recoveredPricing` for reference only;
+  nothing reads it and the site shows no prices. Verify the numbers are still
+  current, then copy them into `pricing.perPallet`.
+- Push this repo to a remote (GitHub) so Netlify can build from it
+- Deploy, test a real quote submission, then cut DNS over
