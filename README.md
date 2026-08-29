@@ -72,6 +72,25 @@ now the only durable copy — do not delete it.
 To add a photo: drop the file in `public/images/` and add an entry to
 `src/data/gallery.js`. It appears on Managers Pictures automatically.
 
+### Migration audit
+
+Every image reference across the old site — `index.html`, both JS bundles,
+the CSS, and the PWA manifest — was swept and reconciled: **100 distinct
+references, 96 migrated, 0 missing, 0 orphaned.** The two absolute CloudFront
+URLs in the bundle were confirmed byte-identical (SHA-256) to files already
+migrated, so they were duplicates, not extra assets.
+
+Two things were deliberately *not* migrated, because they were Manus’s and not
+Buena Vista’s:
+
+- **favicon** — Manus shipped a generic stock gallery icon. Replaced with
+  `public/favicon.png`, generated from the star in the logo lockup.
+- **og:image** — was a Manus auto-screenshot on `manuscdn.com`. Replaced with
+  self-hosted `public/og.jpg` (field hero + wordmark, 1200×630).
+
+Regenerate either with sharp from `buena-vista-horiz-clean-color_9e635de2.webp`
+and `buena-vista-gallery-hero.webp`.
+
 ## Still to do
 
 - ~~Migrate image library~~ ✅ done — 96 files recovered and wired in
