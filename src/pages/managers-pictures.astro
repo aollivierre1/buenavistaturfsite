@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import { gallery, galleryCategories } from '../data/gallery.js';
+import { team } from '../data/team.js';
 ---
 <Base title="Managers Pictures" description="Weekly field photos from Buena Vista Turf Farm — healthy fields, clean harvests, and finished customer sites.">
   <section class="ph"><div class="wrap">
@@ -7,11 +9,107 @@ import Base from '../layouts/Base.astro';
     <h1>Proof, posted weekly.</h1>
     <p class="lede">Healthy fields, clean harvests, dependable deliveries, and finished customer sites — photographed by the managers who run them.</p>
   </div></section>
+
   <section><div class="wrap">
-    <div class="card" style="text-align:center;padding:64px 32px">
-      <h3>Photo gallery pending image migration</h3>
-      <p style="max-width:56ch;margin:0 auto">The weekly field photos live on the current host and need to be moved over. Once the image library is transferred, this page becomes the running gallery again.</p>
+    <span class="eyebrow">The people behind the photos</span>
+    <h2>Management team.</h2>
+    <div class="team">
+      {team.map((m) => (
+        <figure class="member">
+          <img src={m.image} alt={`${m.name}, ${m.title}`} width="800" height="1100" loading="lazy" decoding="async" />
+          <figcaption>
+            <strong>{m.name}</strong>
+            <span>{m.title}</span>
+            <p>{m.bio}</p>
+          </figcaption>
+        </figure>
+      ))}
     </div>
   </div></section>
+
+  <section class="section-alt"><div class="wrap">
+    <span class="eyebrow">{gallery.length} photos from the field</span>
+    <h2>Weekly gallery.</h2>
+
+    <div class="filters" role="group" aria-label="Filter photos by category">
+      <button type="button" class="fbtn is-on" data-cat="all" aria-pressed="true">All</button>
+      {galleryCategories.map((c) => (
+        <button type="button" class="fbtn" data-cat={c} aria-pressed="false">{c}</button>
+      ))}
+    </div>
+
+    <div class="gal" id="gal">
+      {gallery.map((g, i) => (
+        <figure class="shot" data-cat={g.category}>
+          <img
+            src={g.src}
+            alt={g.caption}
+            width="800"
+            height="600"
+            loading={i < 6 ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+          <figcaption>
+            <span class="cat">{g.category}</span>
+            <p>{g.caption}</p>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+    <p class="none" id="galNone" hidden>No photos in that category yet.</p>
+  </div></section>
 </Base>
-<style>.ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}</style>
+
+<style>
+  .ph { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px, 9vw, 120px) 0; }
+
+  .team { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; margin-top: 44px; }
+  .member { margin: 0; border: 1px solid var(--line); background: rgba(255,255,255,0.02); }
+  .member img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 22%; display: block; }
+  .member figcaption { padding: 20px; }
+  .member strong { display: block; font-family: var(--font-display); font-size: 1.15rem; }
+  .member span { display: block; color: var(--gold); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; margin: 6px 0 12px; }
+  .member p { color: var(--muted); font-size: 0.9rem; margin: 0; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 36px 0 32px; }
+  .fbtn { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 10px 16px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; cursor: pointer; }
+  .fbtn:hover { background: rgba(245,241,228,0.08); }
+  .fbtn.is-on { background: var(--gold); color: #0f1f12; border-color: var(--gold); }
+
+  .gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .shot { margin: 0; border: 1px solid var(--line); background: rgba(255,255,255,0.02); }
+  .shot[hidden] { display: none; }
+  .shot img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+  .shot figcaption { padding: 14px 16px; }
+  .shot .cat { display: block; color: var(--gold); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+  .shot p { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+  .none { text-align: center; color: var(--muted); padding: 40px 0; }
+</style>
+
+<script>
+  const btns = document.querySelectorAll('.fbtn');
+  const shots = document.querySelectorAll('.shot');
+  const none = document.getElementById('galNone');
+
+  btns.forEach((b) => {
+    b.addEventListener('click', () => {
+      const cat = b.dataset.cat;
+
+      btns.forEach((o) => {
+        const on = o === b;
+        o.classList.toggle('is-on', on);
+        o.setAttribute('aria-pressed', String(on));
+      });
+
+      let shown = 0;
+      shots.forEach((s) => {
+        const match = cat === 'all' || s.dataset.cat === cat;
+        s.hidden = !match;
+        if (match) shown++;
+      });
+
+      none.hidden = shown > 0;
+    });
+  });
+</script>
