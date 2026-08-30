@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "prebuild": "node scripts/gen-thumbs.mjs",
+    "thumbs": "node scripts/gen-thumbs.mjs",
+    "predev": "node scripts/gen-thumbs.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",

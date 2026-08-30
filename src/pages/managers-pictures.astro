@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { gallery, galleryCategories } from '../data/gallery.js';
 import { team } from '../data/team.js';
+import { thumb, srcset } from '../data/img.js';
 ---
 <Base title="Managers Pictures" description="Weekly field photos from Buena Vista Turf Farm — healthy fields, clean harvests, and finished customer sites.">
   <section class="ph"><div class="wrap">
@@ -16,7 +17,13 @@ import { team } from '../data/team.js';
     <div class="team">
       {team.map((m) => (
         <figure class="member">
-          <img src={m.image} alt={`${m.name}, ${m.title}`} width="800" height="1100" loading="lazy" decoding="async" />
+          <img
+            src={thumb(m.image, 400)}
+            srcset={srcset(m.image)}
+            sizes="(max-width: 700px) 90vw, (max-width: 1100px) 45vw, 280px"
+            alt={`${m.name}, ${m.title}`}
+            width="800" height="1100" loading="lazy" decoding="async"
+          />
           <figcaption>
             <strong>{m.name}</strong>
             <span>{m.title}</span>
@@ -42,7 +49,9 @@ import { team } from '../data/team.js';
       {gallery.map((g, i) => (
         <figure class="shot" data-cat={g.category}>
           <img
-            src={g.src}
+            src={thumb(g.src, 400)}
+            srcset={srcset(g.src)}
+            sizes="(max-width: 600px) 45vw, (max-width: 1100px) 30vw, 290px"
             alt={g.caption}
             width="800"
             height="600"

@@ -73,6 +73,22 @@ now the only durable copy — do not delete it.
 To add a photo: drop the file in `public/images/` and add an entry to
 `src/data/gallery.js`. It appears on Managers Pictures automatically.
 
+### Responsive images
+
+The library is full-resolution (up to 1800px) but the grids render at ~290px.
+Serving the originals meant a 15.9MB Managers page. `scripts/gen-thumbs.mjs`
+generates 400/800/1200px webp derivatives into `public/images/w*/` and records
+what it made in `src/data/derivatives.json`; `src/data/img.js` turns that into
+`srcset`. Mobile payload for that page is now **1.6MB**.
+
+It runs automatically — `predev` before `npm run dev`, `prebuild` before
+`npm run build`, so Netlify regenerates on every deploy. Run it by hand with
+`npm run thumbs`. Existing files are skipped, so reruns are cheap, and images
+are never upscaled (a source narrower than 400px keeps its original).
+
+**Adding a photo needs no extra step** — drop it in `public/images/`, add the
+gallery entry, and the next build generates its derivatives.
+
 ### Migration audit
 
 Every image reference across the old site — `index.html`, both JS bundles,

@@ -4,6 +4,7 @@ import { grasses } from '../data/grasses.js';
 import { locations } from '../data/locations.js';
 import { site } from '../data/site.js';
 import { farmPhotos, heroImage } from '../data/farm.js';
+import { thumb, srcset } from '../data/img.js';
 ---
 <Base
   title="North Texas Sod Farm | Fresh-Cut Bermuda, Zoysia & St Augustine"
@@ -56,7 +57,13 @@ import { farmPhotos, heroImage } from '../data/farm.js';
       <div class="strip">
         {farmPhotos.map((ph, i) => (
           <figure class={i === 0 ? 'lead' : undefined}>
-            <img src={ph.src} alt={ph.alt} width="1200" height="800" loading="lazy" decoding="async" />
+            <img
+              src={thumb(ph.src, 800)}
+              srcset={srcset(ph.src)}
+              sizes={i === 0 ? '(max-width: 900px) 92vw, 590px' : '(max-width: 900px) 45vw, 290px'}
+              alt={ph.alt}
+              width="1200" height="800" loading="lazy" decoding="async"
+            />
           </figure>
         ))}
       </div>
