@@ -3,12 +3,13 @@ import Base from '../layouts/Base.astro';
 import { grasses } from '../data/grasses.js';
 import { locations } from '../data/locations.js';
 import { site } from '../data/site.js';
+import { farmPhotos, heroImage } from '../data/farm.js';
 ---
 <Base
   title="North Texas Sod Farm | Fresh-Cut Bermuda, Zoysia & St Augustine"
   description="Family-run North Texas sod farm. Fresh-cut Bermuda, Zoysia, and St Augustine delivered across Dallas-Fort Worth from four farm locations. Get a quote in minutes."
 >
-  <section class="hero">
+  <section class="hero has-photo" style={`--hero-img: url(${JSON.stringify(heroImage)})`}>
     <div class="wrap">
       <span class="eyebrow">Field Notes / Weekly Uploads</span>
       <h1>Fresh-cut turf proof from our farm to your jobsite.</h1>
@@ -44,6 +45,20 @@ import { site } from '../data/site.js';
           <h3>Someone answers</h3>
           <p>When the job gets real and questions come up, you reach a person who knows the field and the schedule.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="proof">
+    <div class="wrap">
+      <span class="eyebrow">From the fields</span>
+      <h2>This is the operation behind the pallet.</h2>
+      <div class="strip">
+        {farmPhotos.map((ph, i) => (
+          <figure class={i === 0 ? 'lead' : undefined}>
+            <img src={ph.src} alt={ph.alt} width="1200" height="800" loading="lazy" decoding="async" />
+          </figure>
+        ))}
       </div>
     </div>
   </section>
@@ -97,15 +112,33 @@ import { site } from '../data/site.js';
 
 <style>
   .hero {
+    /* Gradient stack sits over the field photo; the second gradient is the
+       fallback if the image is slow or fails to load. */
     background:
-      linear-gradient(180deg, rgba(15,31,18,0.55), rgba(15,31,18,0.94)),
+      linear-gradient(180deg, rgba(15,31,18,0.62), rgba(15,31,18,0.93)),
       linear-gradient(135deg, #2f5c39, #14291a);
     padding: clamp(80px, 13vw, 190px) 0;
+  }
+  .hero.has-photo {
+    background:
+      linear-gradient(180deg, rgba(15,31,18,0.62), rgba(15,31,18,0.93)),
+      var(--hero-img) center / cover no-repeat,
+      linear-gradient(135deg, #2f5c39, #14291a);
   }
   .hero h1 { max-width: 15ch; }
   .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px; }
   .gcard { text-decoration: none; display: block; transition: border-color 0.15s ease, transform 0.15s ease; }
   .gcard:hover { border-color: var(--brand); transform: translateY(-3px); }
+  .proof .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 44px; }
+  .proof figure { margin: 0; border: 1px solid var(--line); overflow: hidden; }
+  .proof img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
+  .proof .lead { grid-column: span 2; grid-row: span 2; }
+  .proof .lead img { height: 100%; aspect-ratio: auto; }
+  @media (max-width: 900px) {
+    .proof .strip { grid-template-columns: repeat(2, 1fr); }
+    .proof .lead { grid-column: span 2; grid-row: auto; }
+    .proof .lead img { aspect-ratio: 3 / 2; }
+  }
   .cta { background: var(--brand-dark); }
   .cta h2 { max-width: 20ch; margin-left: auto; margin-right: auto; }
 </style>

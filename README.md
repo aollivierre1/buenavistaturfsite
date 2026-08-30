@@ -67,6 +67,7 @@ now the only durable copy — do not delete it.
 |---|---|
 | Management team (9 people, names/titles/bios) | `src/data/team.js` |
 | Weekly field photos (74, with categories + captions) | `src/data/gallery.js` |
+| Farm operation photos (7) + About header + hero | `src/data/farm.js` |
 | Logo, About headers, misc | `public/images/` |
 
 To add a photo: drop the file in `public/images/` and add an entry to
@@ -90,6 +91,14 @@ Buena Vista’s:
 
 Regenerate either with sharp from `buena-vista-horiz-clean-color_9e635de2.webp`
 and `buena-vista-gallery-hero.webp`.
+
+Two recovered files are intentionally left unwired:
+
+- `buena-vista-paper-grain.webp` — a texture overlay the old site layered over
+  sections. Available if you want it; it is a look, not information.
+- `sod-pallet-cursor-64_9c50a0c6.png` — the old site replaced the mouse cursor
+  with a sod-pallet graphic. Not restored: custom cursors hurt usability and
+  accessibility for very little gain. Kept in case you disagree.
 
 ## Still to do
 

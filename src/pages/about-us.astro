@@ -1,7 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
+import { aboutHeader } from '../data/farm.js';
 ---
 <Base title="About Us" description="Family-run standards, field-tested quality. Buena Vista Turf Farm brings family accountability and proven grasses to every North Texas sod order.">
+  <figure class="hdr-photo">
+    <picture>
+      <source media="(max-width: 760px)" srcset={aboutHeader.mobile} />
+      <img src={aboutHeader.desktop} alt={aboutHeader.alt} width="1953" height="993" fetchpriority="high" decoding="async" />
+    </picture>
+  </figure>
   <section class="ph"><div class="wrap">
     <span class="eyebrow">About Buena Vista</span>
     <h1>Family-run standards, field-tested quality.</h1>
@@ -26,4 +33,9 @@ import Base from '../layouts/Base.astro';
     <p>Some customers are trying to improve curb appeal before selling a home. Some are finishing a new build. Some are repairing a field that takes heavy use. Some need grass that can carry the look of a business entrance. Our job is to help the customer choose with confidence, not overwhelm them with vague claims.</p>
   </div></section>
 </Base>
-<style>.ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}</style>
+<style>
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}
+  .hdr-photo{margin:0;border-bottom:1px solid var(--line)}
+  .hdr-photo img{width:100%;height:auto;aspect-ratio:16/7;object-fit:cover;display:block}
+  @media (max-width:760px){.hdr-photo img{aspect-ratio:5/4}}
+</style>
