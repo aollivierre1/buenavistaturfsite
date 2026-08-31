@@ -90,6 +90,9 @@ section { padding: clamp(56px, 8vw, 110px) 0; }
   padding: 30px;
 }
 .card h3 { margin-bottom: 10px; }
+/* A card heading is an h2 when it is the first heading under the page h1.
+   Keep it visually identical to a card h3. */
+.card h2 { font-size: clamp(1.35rem, 2.2vw, 1.85rem); letter-spacing: -0.02em; margin-bottom: 10px; }
 
 .specs { list-style: none; padding: 0; margin: 18px 0 0; font-size: 0.88rem; }
 .specs li {

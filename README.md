@@ -116,6 +116,22 @@ Two recovered files are intentionally left unwired:
   with a sod-pallet graphic. Not restored: custom cursors hurt usability and
   accessibility for very little gain. Kept in case you disagree.
 
+## Launch readiness
+
+Audited before cutover and fixed:
+
+- **404 page** — there was none, so a bad link fell through to Netlify default.
+  `src/pages/404.astro` now catches it with real navigation.
+- **`/thanks` was in the sitemap** — Google would have indexed the
+  post-submission page. Both it and /404 now carry `noindex` and are filtered
+  out of the sitemap (17 indexed of 19 built).
+- **Heading order** — 7 pages jumped h1 to h3, which breaks screen-reader
+  navigation. Card headings that sit directly under the page h1 are h2 now,
+  with a `.card h2` rule so they look identical to before. Footer moved to
+  h2/h3. Zero violations across all 19 pages.
+
+Titles and meta descriptions are unique per page; every page has a canonical.
+
 ## Still to do
 
 - ~~Migrate image library~~ ✅ done — 96 files recovered and wired in

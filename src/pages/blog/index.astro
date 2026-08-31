@@ -15,7 +15,7 @@ const posts = Object.values(import.meta.glob('./*.md', { eager: true }))
         <p style="color:var(--muted);font-size:.74rem;letter-spacing:.13em;text-transform:uppercase">
           {new Date(p.frontmatter.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
         </p>
-        <h3>{p.frontmatter.title}</h3>
+        <h2>{p.frontmatter.title}</h2>
         <p>{p.frontmatter.description}</p>
       </a>
     ))}

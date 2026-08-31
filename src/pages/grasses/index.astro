@@ -14,7 +14,7 @@ import { grasses } from '../../data/grasses.js';
     <div class="wrap grid g3">
       {grasses.map((g) => (
         <a class="card gcard" href={`/grasses/${g.slug}`}>
-          <h3>{g.name}</h3>
+          <h2>{g.name}</h2>
           <p>{g.summary}</p>
           <ul class="specs">
             <li><span>Sun</span><span>{g.sun}</span></li>

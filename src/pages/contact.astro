@@ -30,9 +30,9 @@ import { locations } from '../data/locations.js';
       <button type="submit" class="btn" style="width:100%">Send Message</button>
     </form>
     <aside class="card" style="align-self:start">
-      <h3>Call us</h3>
+      <h2>Call us</h2>
       <p><a href={site.phoneHref} style="font-family:var(--font-display);font-size:1.9rem;font-weight:800;color:var(--gold);text-decoration:none">{site.phone}</a></p>
-      <h4 style="margin-top:28px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Farm locations</h4>
+      <h3 style="margin-top:28px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Farm locations</h3>
       <ul class="specs">
         {locations.map((l) => <li><span>{l.name}</span><span>{l.county}</span></li>)}
       </ul>

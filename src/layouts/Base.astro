@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 import { site } from '../data/site.js';
 import { locations } from '../data/locations.js';
 
-const { title, description = site.description, image = '/og.jpg' } = Astro.props;
+const { title, description = site.description, image = '/og.jpg', noindex = false } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | North Texas Sod & Turf Delivery`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 
@@ -32,6 +32,7 @@ const schema = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />

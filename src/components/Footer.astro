@@ -6,21 +6,21 @@ import { grasses } from '../data/grasses.js';
 <footer class="ft">
   <div class="wrap ft-grid">
     <div>
-      <h3 class="ft-logo">Buena Vista Turf Farm</h3>
+      <h2 class="ft-logo">Buena Vista Turf Farm</h2>
       <p class="ft-tag">{site.tagline}</p>
       <p><a href={site.phoneHref} class="ft-phone">{site.phone}</a></p>
       <a href="/quote" class="btn">Get a Quote</a>
     </div>
     <div>
-      <h4>Grasses</h4>
+      <h3>Grasses</h3>
       <ul>{grasses.map((g) => <li><a href={`/grasses/${g.slug}`}>{g.name}</a></li>)}</ul>
     </div>
     <div>
-      <h4>Locations</h4>
+      <h3>Locations</h3>
       <ul>{locations.map((l) => <li><a href="/locations">{l.name}, {l.county}</a></li>)}</ul>
     </div>
     <div>
-      <h4>Company</h4>
+      <h3>Company</h3>
       <ul>{nav.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul>
     </div>
   </div>
@@ -36,7 +36,7 @@ import { grasses } from '../data/grasses.js';
   .ft-logo { font-size: 1.4rem; margin-bottom: 6px; }
   .ft-tag { color: var(--muted); margin-bottom: 14px; }
   .ft-phone { font-size: 1.35rem; font-family: var(--font-display); font-weight: 800; color: var(--gold); text-decoration: none; }
-  .ft h4 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; font-family: var(--font-body); font-weight: 700; }
+  .ft h3 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; font-family: var(--font-body); font-weight: 700; }
   .ft ul { list-style: none; padding: 0; margin: 0; }
   .ft li { margin-bottom: 9px; }
   .ft li a { color: var(--cream-dim); text-decoration: none; font-size: 0.92rem; }
