@@ -42,6 +42,12 @@ Submissions are also stored in the Netlify dashboard as a backup.
 Connect the repo in Netlify. `netlify.toml` already sets build command, publish
 directory, and the apex → www redirect. No manual config needed.
 
+## Headers
+
+`public/_headers` sets caching and security headers. Fingerprinted `/_astro/`
+assets are immutable for a year; photos cache for 30 days; HTML always
+revalidates so a deploy reaches people already on the site.
+
 ## DNS cutover (do this LAST)
 
 Registrar and DNS stay at GoDaddy. Nameservers do **not** change.

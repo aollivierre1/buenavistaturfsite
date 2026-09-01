@@ -6,3 +6,6 @@ dist/
 .env
 .netlify/
 public/images/w*/
+
+# stray local preview build, not part of the site
+preview-buenavistaturf.html

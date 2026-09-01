@@ -1,0 +1,24 @@
+# Netlify response headers. Lives in the publish root; Astro copies public/ to dist/.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+
+# Astro fingerprints these filenames, so a changed file gets a new name.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Photo filenames carry a content hash from the original library, and the
+# generated derivatives inherit it. Long cache, but not immutable — a replaced
+# source file would reuse its name.
+/images/*
+  Cache-Control: public, max-age=2592000
+
+# HTML must revalidate, or a deploy would not reach people already on the site.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
