@@ -16,6 +16,20 @@
 /images/*
   Cache-Control: public, max-age=2592000
 
+# Root-level static assets. Without these they fall through to Netlify default
+# no-cache, so the social card and favicons were refetched on every view.
+/og.jpg
+  Cache-Control: public, max-age=2592000
+
+/favicon.png
+  Cache-Control: public, max-age=2592000
+
+/favicon-32.png
+  Cache-Control: public, max-age=2592000
+
+/apple-touch-icon.png
+  Cache-Control: public, max-age=2592000
+
 # HTML must revalidate, or a deploy would not reach people already on the site.
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
