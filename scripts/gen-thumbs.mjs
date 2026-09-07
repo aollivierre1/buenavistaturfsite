@@ -9,7 +9,14 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 const SRC = 'public/images';
-const WIDTHS = [400, 800, 1200];
+// Widths are per-role, because 1200w only helps an image that is actually
+// rendered large. The homepage farm strip has a 589px lead tile (1178px at 2x
+// DPR) so it earns 1200w. Gallery tiles render at 290px and headshots at 275px
+// — even at 2x they never exceed 800w, so generating 1200w for them produced
+// megabytes nothing would ever request.
+const WIDTHS_LARGE = [400, 800, 1200];
+const WIDTHS_GRID = [400, 800];
+const isLarge = (f) => /^(IVO[0-9]|BuenaVista-irrigation|Trl-)/i.test(f);
 const QUALITY = 72;
 
 // Only the photos that appear in a grid; the logo and icons stay as-is.
@@ -28,7 +35,7 @@ for (const f of files) {
   origTotal += fs.statSync(src).size;
 
   manifest[f] = [];
-  for (const w of WIDTHS) {
+  for (const w of (isLarge(f) ? WIDTHS_LARGE : WIDTHS_GRID)) {
     // Never upscale.
     if (meta.width && meta.width < w) continue;
     manifest[f].push(w);
