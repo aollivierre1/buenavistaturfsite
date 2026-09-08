@@ -9,3 +9,5 @@ public/images/w*/
 
 # stray local preview build, not part of the site
 preview-buenavistaturf.html
+.deploy-trim/
+bvt-deploy.zip

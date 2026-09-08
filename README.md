@@ -48,20 +48,26 @@ directory, and the apex → www redirect. No manual config needed.
 assets are immutable for a year; photos cache for 30 days; HTML always
 revalidates so a deploy reaches people already on the site.
 
-## DNS cutover (do this LAST)
+## DNS cutover — DONE (2026-09-08)
 
-Registrar and DNS stay at GoDaddy. Nameservers do **not** change.
+buenavistaturf.com now serves from Netlify. Manus is out of the picture.
 
-| Record | Current | Change to |
-|---|---|---|
-| `www` CNAME | `cname.manus.space` | the CNAME Netlify shows in Domain settings |
-| `@` A records | `15.197.225.128`, `3.33.251.168` | Netlify's apex value |
+| Record | Value |
+|---|---|
+| apex `A` | `75.2.60.5` (Netlify) |
+| `www` CNAME | `astonishing-lokum-3cf767.netlify.app` |
 
-**Do not touch** MX, SPF, DKIM, or DMARC records — those run Microsoft 365 email.
-Breaking them takes down company mail.
+MX, SPF, both DKIM selectors and DMARC were verified intact after the change.
 
-Test the Netlify preview URL fully — especially a real quote submission — before
-changing a single DNS record. Rollback is putting the old values back.
+**The apex is canonical, not www.** Netlify refuses to make www the primary
+domain — adding "www.buenavistaturf.com" is silently rewritten to the apex, and
+"Set as primary domain" on www is accepted in the dialog then discarded. So the
+site config was aligned to the apex instead: `src/data/site.js`,
+`astro.config.mjs` and `public/robots.txt` all use the bare domain.
+
+**Do not add an apex -> www redirect to netlify.toml.** Netlify already
+redirects www -> apex. A rule pointing the other way creates a redirect loop.
+That exact loop took the site down during cutover.
 
 ## Image library
 

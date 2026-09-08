@@ -3,7 +3,7 @@ export const site = {
   shortName: 'Buena Vista Turf',
   phone: '972-226-8873',
   phoneHref: 'tel:+19722268873',
-  url: 'https://www.buenavistaturf.com',
+  url: 'https://buenavistaturf.com', // apex is canonical; Netlify redirects www -> apex
   tagline: 'Family-run standards, field-tested quality.',
   description:
     'North Texas sod farm growing Bermuda, Zoysia, and St Augustine turf. Fresh-cut delivery to DFW homeowners, landscapers, builders, and sports turf managers.',

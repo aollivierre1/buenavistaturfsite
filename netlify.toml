@@ -7,8 +7,10 @@
   # image cannot silently drop below that and fail the build.
   NODE_VERSION = "22"
 
-[[redirects]]
-  from = "https://buenavistaturf.com/*"
-  to = "https://www.buenavistaturf.com/:splat"
-  status = 301
-  force = true
+# No apex/www redirect here on purpose.
+#
+# Netlify treats buenavistaturf.com as the primary domain and redirects
+# www -> apex itself. An apex -> www rule in this file would fight that and
+# produce a redirect loop. Netlify refuses to make www primary — adding
+# "www.buenavistaturf.com" is silently rewritten to the apex — so the apex is
+# canonical and the site config matches it.
