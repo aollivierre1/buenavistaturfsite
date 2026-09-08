@@ -70,7 +70,7 @@ import { thumb, srcset } from '../data/img.js';
 </Base>
 
 <style>
-  .ph { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px, 9vw, 120px) 0; }
+  .ph { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px, 9vw, 120px) 0; padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
 
   .team { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; margin-top: 44px; }
   .member { margin: 0; border: 1px solid var(--line); background: rgba(255,255,255,0.02); }

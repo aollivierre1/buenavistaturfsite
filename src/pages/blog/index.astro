@@ -23,7 +23,7 @@ const posts = Object.values(import.meta.glob('./*.md', { eager: true }))
   </div></section>
 </Base>
 <style>
-  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
   .gcard{text-decoration:none;display:block;transition:border-color .15s,transform .15s}
   .gcard:hover{border-color:var(--brand);transform:translateY(-3px)}
 </style>

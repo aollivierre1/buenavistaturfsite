@@ -43,7 +43,7 @@ const { g } = Astro.props;
   </section>
 </Base>
 <style>
-  .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0; }
+  .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0; padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
   .cols { display:grid; gap:44px; align-items:start; }
   @media (min-width:940px){ .cols { grid-template-columns: 1.7fr 1fr; } }
   article h2 { font-size: clamp(1.5rem,2.6vw,2.1rem); margin-top:36px; }

@@ -109,7 +109,7 @@ import { pricing } from '../data/pricing.js';
 </Base>
 
 <style>
-  .qhero { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px, 9vw, 120px) 0; }
+  .qhero { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px, 9vw, 120px) 0; padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px)); }
   .qhero h1 { max-width: 17ch; }
   .qgrid { display: grid; gap: 44px; align-items: start; }
   @media (min-width: 940px) { .qgrid { grid-template-columns: 1.55fr 1fr; } }

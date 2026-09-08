@@ -1,6 +1,7 @@
 ---
 import { site, nav } from '../data/site.js';
 ---
+<div class="topbar" id="topbar">
 <div class="weatherbar">
   <div class="wrap wb-inner">
     <span class="wb-label">DFW Weather</span>
@@ -30,36 +31,61 @@ import { site, nav } from '../data/site.js';
     </nav>
   </div>
 </header>
+</div>
 
 <style>
-  .weatherbar { background: linear-gradient(90deg, #0f1f12, #2f5c39, #0f1f12); border-bottom: 1px solid var(--line); }
+  /* The bar sits over the hero photo, so it is translucent rather than solid.
+     When scrolled past the hero it goes solid so the nav stays readable. */
+  /* A scrim, not a solid bar: the photo still reads through, but the logo and
+     nav keep contrast even where the sky behind them is bright. Without this
+     the green wordmark vanishes against the sunrise. */
+  .topbar { position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+    background: linear-gradient(180deg, rgba(9,18,11,0.82) 0%, rgba(9,18,11,0.55) 55%, rgba(9,18,11,0) 100%); }
+  .topbar.is-stuck { position: fixed; background-image: none; background-color: var(--green-900); border-bottom: 1px solid var(--line); box-shadow: 0 2px 20px rgba(0,0,0,0.35); }
+  .topbar.is-stuck .weatherbar { border-bottom-color: var(--line); }
+
+  .weatherbar { background: rgba(15,31,18,0.34); border-bottom: 1px solid rgba(245,241,228,0.12); backdrop-filter: blur(2px); }
   .wb-inner { display: flex; gap: 14px; align-items: center; justify-content: center; padding: 9px 24px; font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
   .wb-label { color: var(--gold); }
   .wb-val { color: var(--cream); }
 
-  .hdr { background: var(--green-900); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; }
+  .hdr { background: transparent; border-bottom: none; }
   .hdr-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 16px; padding-bottom: 16px; flex-wrap: wrap; }
   .logo { display: flex; align-items: center; text-decoration: none; }
   /* Wordmark is mid-green, header is near-black — lift the mark off the
      background instead of letting it sink into it. */
-  .logo img { height: 52px; width: auto; display: block; filter: brightness(1.3) saturate(1.05); }
+  .logo img { height: 52px; width: auto; display: block; filter: brightness(1.32) saturate(1.05) drop-shadow(0 2px 6px rgba(0,0,0,0.75)); }
   @media (max-width: 520px) { .logo img { height: 42px; } }
 
   .nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
-  .nav a { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; text-decoration: none; padding: 11px 13px; border: 1px solid var(--line); color: var(--cream); }
-  .nav a:hover { background: rgba(245,241,228,0.08); }
-  .nav .ph { border-color: transparent; color: var(--gold); }
-  .nav .btn { border-color: transparent; }
+  .nav a { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; text-decoration: none; padding: 11px 13px; border: 1px solid rgba(245,241,228,0.45); color: var(--cream); background: rgba(15,31,18,0.28); text-shadow: 0 1px 3px rgba(0,0,0,0.55); }
+  .nav a:hover { background: rgba(15,31,18,0.6); border-color: var(--cream); }
+  .nav .ph { border-color: transparent; background: transparent; color: var(--gold); }
+  .nav .btn { border-color: transparent; background: var(--brand); text-shadow: none; }
+  .nav .btn:hover { background: var(--brand-dark); border-color: transparent; }
 
-  .menu-btn { display: none; background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 10px 16px; font-size: 0.72rem; letter-spacing: 0.11em; text-transform: uppercase; cursor: pointer; }
+  .menu-btn { display: none; background: rgba(15,31,18,0.5); border: 1px solid rgba(245,241,228,0.45); color: var(--cream); padding: 10px 16px; font-size: 0.72rem; letter-spacing: 0.11em; text-transform: uppercase; cursor: pointer; }
   @media (max-width: 1100px) {
     .menu-btn { display: block; }
-    .nav { display: none; width: 100%; justify-content: flex-start; }
+    .nav { display: none; width: 100%; justify-content: flex-start; padding-bottom: 14px; }
     .nav.open { display: flex; }
   }
 </style>
 
 <script>
+  // Sections need to know how tall the overlaying bar is so their content
+  // does not start underneath it.
+  const bar = document.getElementById('topbar');
+  const publishHeight = () => document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
+  publishHeight();
+  addEventListener('resize', publishHeight);
+
+  // Solid background once the hero has scrolled away, or the nav becomes
+  // unreadable over page content.
+  const onScroll = () => bar.classList.toggle('is-stuck', scrollY > bar.offsetHeight);
+  onScroll();
+  addEventListener('scroll', onScroll, { passive: true });
+
   const b = document.getElementById('menuBtn');
   b?.addEventListener('click', () => {
     const n = document.getElementById('nav');

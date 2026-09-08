@@ -2,11 +2,17 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { site } from '../data/site.js';
+import { site, socials, analytics } from '../data/site.js';
 import { locations } from '../data/locations.js';
 
 const { title, description = site.description, image = '/og.jpg', noindex = false } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | North Texas Sod & Turf Delivery`;
+const chatbaseSnippet = analytics.chatbase
+  ? '(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...a)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(a)};window.chatbase=new Proxy(window.chatbase,{get(t,p){if(p==="q"){return t.q}return(...ar)=>t(p,...ar)}})}var onLoad=function(){var s=document.createElement("script");s.src="https://www.chatbase.co/embed.min.js";s.id="'
+    + analytics.chatbase
+    + '";s.domain="www.chatbase.co";document.body.appendChild(s)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();'
+  : null;
+
 const canonical = new URL(Astro.url.pathname, site.url).href;
 
 const schema = {
@@ -17,6 +23,7 @@ const schema = {
   url: site.url,
   image: new URL("/og.jpg", site.url).href,
   telephone: site.phone,
+  sameAs: socials.map((s) => s.href),
   areaServed: site.serviceArea.map((a) => ({ '@type': 'Place', name: a })),
   location: locations.map((l) => ({
     '@type': 'Place',
@@ -51,11 +58,24 @@ const schema = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+    {analytics.ga4 && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.ga4}`}></script>
+        <script is:inline set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${analytics.ga4}')`}></script>
+      </>
+    )}
+    {analytics.metaPixel && (
+      <>
+        <script is:inline set:html={`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${analytics.metaPixel}');fbq('track','PageView')`}></script>
+        <noscript set:html={`<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${analytics.metaPixel}&ev=PageView&noscript=1"/>`}></noscript>
+      </>
+    )}
   </head>
   <body>
     <a href="#main" class="skip">Skip to content</a>
     <Header />
     <main id="main"><slot /></main>
     <Footer />
+    {chatbaseSnippet && <script is:inline set:html={chatbaseSnippet}></script>}
   </body>
 </html>
