@@ -2,6 +2,11 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # Astro 7 requires Node >= 22.12.0. Pinned so a change to Netlify's default
+  # image cannot silently drop below that and fail the build.
+  NODE_VERSION = "22"
+
 [[redirects]]
   from = "https://buenavistaturf.com/*"
   to = "https://www.buenavistaturf.com/:splat"
