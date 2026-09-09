@@ -1,0 +1,211 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base
+  title="Admin"
+  description="Private dashboard for Buena Vista Turf Farm."
+  noindex={true}
+>
+  <section class="ph"><div class="wrap">
+    <span class="eyebrow">Private</span>
+    <h1>Dashboard.</h1>
+    <p class="lede">Quote requests, contact messages, and job applications as they come in.</p>
+  </div></section>
+
+  <section><div class="wrap">
+    <div id="gate" class="card gate">
+      <h2>Sign in</h2>
+      <p>This page is for the Buena Vista team.</p>
+      <form id="loginForm">
+        <label for="pw">Password</label>
+        <input type="password" id="pw" autocomplete="current-password" required />
+        <button type="submit" class="btn">Sign in</button>
+      </form>
+      <p id="loginErr" class="err" hidden></p>
+    </div>
+
+    <div id="panel" hidden>
+      <div class="tiles" id="tiles"></div>
+
+      <div class="bar">
+        <div class="tabs" id="tabs" role="tablist"></div>
+        <div class="bar-right">
+          <input type="search" id="search" placeholder="Search name, email, phone..." aria-label="Search submissions" />
+          <button type="button" class="btn btn-ghost" id="csvBtn">Export CSV</button>
+          <button type="button" class="btn btn-ghost" id="outBtn">Sign out</button>
+        </div>
+      </div>
+
+      <p class="meta" id="meta"></p>
+      <div id="list"></div>
+    </div>
+  </div></section>
+</Base>
+
+<style>
+  .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0; padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px)); }
+  .gate { max-width: 420px; }
+  .gate form { display: grid; gap: 10px; margin-top: 18px; }
+  .gate label { font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
+  input[type=password], input[type=search] { background: var(--green-900); border: 1px solid var(--line); color: var(--cream); padding: 12px 14px; font: inherit; font-size: .95rem; }
+  input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .err { color: #ff9c8a; margin-top: 12px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 14px; margin-bottom: 34px; }
+  .tile { border: 1px solid var(--line); background: var(--green-700); padding: 18px 20px; }
+  .tile b { display: block; font-family: var(--font-display); font-size: 2.1rem; line-height: 1; }
+  .tile span { display: block; margin-top: 8px; font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .bar-right { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 9px 15px; font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  .tab.on { background: var(--gold); color: #0f1f12; border-color: var(--gold); }
+  .meta { color: var(--muted); font-size: .82rem; }
+
+  .sub { border: 1px solid var(--line); background: var(--green-700); padding: 20px 22px; margin-bottom: 12px; }
+  .sub-top { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: baseline; }
+  .sub-top strong { font-family: var(--font-display); font-size: 1.15rem; }
+  .sub-top time { color: var(--muted); font-size: .78rem; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 10px 26px; margin-top: 14px; }
+  .f { border-top: 1px solid var(--line); padding-top: 8px; }
+  .f span { display: block; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+  .f p { margin: 4px 0 0; font-size: .92rem; overflow-wrap: anywhere; }
+  .f a { color: var(--gold); }
+  .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+</style>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const API = '/api/admin';
+  let forms = [];
+  let active = null;
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const pretty = (k) => k.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const when = (iso) => new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+
+  // Netlify keeps the honeypot and its own bookkeeping in the payload; the team
+  // does not need to see either.
+  const HIDE = new Set(['bot-field', 'form-name', 'ip', 'user_agent', 'referrer']);
+
+  const nameOf = (d) => d.name || d.email || d.phone || 'Submission';
+
+  function render() {
+    const form = forms.find((f) => f.name === active);
+    const q = $('search').value.trim().toLowerCase();
+    let subs = form ? form.submissions : [];
+    if (q) subs = subs.filter((s) => JSON.stringify(s.data).toLowerCase().includes(q));
+
+    $('meta').textContent = subs.length
+      ? subs.length + (subs.length === 1 ? ' submission' : ' submissions') + (q ? ' matching "' + q + '"' : '')
+      : '';
+
+    if (!subs.length) {
+      $('list').innerHTML = '<p class="empty">' + (q ? 'Nothing matches that search.' : 'No submissions yet.') + '</p>';
+      return;
+    }
+
+    $('list').innerHTML = subs.map((s) => {
+      const fields = Object.entries(s.data)
+        .filter(([k, v]) => !HIDE.has(k) && v !== '' && v != null)
+        .map(([k, v]) => {
+          const val = /^https?:\/\//.test(String(v))
+            ? '<a href="' + esc(v) + '" target="_blank" rel="noopener">Open file</a>'
+            : esc(v);
+          return '<div class="f"><span>' + esc(pretty(k)) + '</span><p>' + val + '</p></div>';
+        }).join('');
+      return '<article class="sub"><div class="sub-top"><strong>' + esc(nameOf(s.data)) +
+        '</strong><time>' + esc(when(s.created_at)) + '</time></div><div class="fields">' + fields + '</div></article>';
+    }).join('');
+  }
+
+  function renderChrome() {
+    const total = forms.reduce((n, f) => n + f.submissions.length, 0);
+    const since = (days) => {
+      const cut = Date.now() - days * 86400000;
+      return forms.reduce((n, f) => n + f.submissions.filter((s) => new Date(s.created_at).getTime() > cut).length, 0);
+    };
+    const count = (n) => { const f = forms.find((x) => x.name === n); return f ? f.submissions.length : 0; };
+
+    $('tiles').innerHTML = [
+      [total, 'All submissions'],
+      [since(7), 'Last 7 days'],
+      [since(30), 'Last 30 days'],
+      [count('quote'), 'Quote requests'],
+      [count('application'), 'Applications'],
+      [count('contact'), 'Contact messages'],
+    ].map((row) => '<div class="tile"><b>' + row[0] + '</b><span>' + row[1] + '</span></div>').join('');
+
+    $('tabs').innerHTML = forms.map((f) =>
+      '<button type="button" class="tab' + (f.name === active ? ' on' : '') + '" data-form="' + esc(f.name) + '">' +
+      esc(pretty(f.name)) + ' (' + f.submissions.length + ')</button>'
+    ).join('');
+
+    $('tabs').querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => {
+      active = b.dataset.form;
+      renderChrome();
+      render();
+    }));
+  }
+
+  function show(signedIn) {
+    $('gate').hidden = signedIn;
+    $('panel').hidden = !signedIn;
+  }
+
+  async function load() {
+    const res = await fetch(API + '?action=data');
+    if (res.status === 401) { show(false); return; }
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      show(true);
+      $('list').innerHTML = '<p class="empty">' + esc(body.error || 'Could not load submissions.') + '</p>';
+      return;
+    }
+    forms = (body.forms || []).sort((a, b) => b.submissions.length - a.submissions.length);
+    // Applications first when present — that is what the team checks most.
+    active = forms.some((f) => f.name === 'application') ? 'application' : (forms[0] && forms[0].name);
+    show(true);
+    renderChrome();
+    render();
+  }
+
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('loginErr').hidden = true;
+    const res = await fetch(API + '?action=login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: $('pw').value }),
+    });
+    if (res.ok) { $('pw').value = ''; load(); }
+    else {
+      const b = await res.json().catch(() => ({}));
+      $('loginErr').textContent = b.error || 'Sign in failed.';
+      $('loginErr').hidden = false;
+    }
+  });
+
+  $('outBtn').addEventListener('click', async () => { await fetch(API + '?action=logout'); show(false); });
+  $('search').addEventListener('input', render);
+
+  $('csvBtn').addEventListener('click', () => {
+    const form = forms.find((f) => f.name === active);
+    if (!form || !form.submissions.length) return;
+    const cols = [...new Set(form.submissions.flatMap((s) => Object.keys(s.data)))].filter((c) => !HIDE.has(c));
+    const cell = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const rows = [['submitted'].concat(cols).map(cell).join(',')];
+    for (const s of form.submissions) {
+      rows.push([s.created_at].concat(cols.map((c) => s.data[c])).map(cell).join(','));
+    }
+    const url = URL.createObjectURL(new Blob([rows.join('\n')], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = form.name + '-submissions.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  load();
+</script>
