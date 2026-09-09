@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { locations } from '../data/locations.js';
 ---
 <Base
   title="Admin"
@@ -9,7 +10,7 @@ import Base from '../layouts/Base.astro';
   <section class="ph"><div class="wrap">
     <span class="eyebrow">Private</span>
     <h1>Dashboard.</h1>
-    <p class="lede">Quote requests, contact messages, and job applications as they come in.</p>
+    <p class="lede">Quote requests, contact messages, job applications, and the roles you have open.</p>
   </div></section>
 
   <section><div class="wrap">
@@ -25,31 +26,59 @@ import Base from '../layouts/Base.astro';
     </div>
 
     <div id="panel" hidden>
-      <div class="tiles" id="tiles"></div>
-
-      <div class="bar">
-        <div class="tabs" id="tabs" role="tablist"></div>
-        <div class="bar-right">
-          <input type="search" id="search" placeholder="Search name, email, phone..." aria-label="Search submissions" />
-          <button type="button" class="btn btn-ghost" id="csvBtn">Export CSV</button>
-          <button type="button" class="btn btn-ghost" id="outBtn">Sign out</button>
+      <div class="viewbar">
+        <div class="tabs">
+          <button type="button" class="tab on" data-view="inbox">Inbox</button>
+          <button type="button" class="tab" data-view="jobs">Open roles</button>
         </div>
+        <button type="button" class="btn btn-ghost" id="outBtn">Sign out</button>
       </div>
 
-      <p class="meta" id="meta"></p>
-      <div id="list"></div>
+      <div id="view-inbox">
+        <div class="tiles" id="tiles"></div>
+        <div class="bar">
+          <div class="tabs" id="tabs" role="tablist"></div>
+          <div class="bar-right">
+            <input type="search" id="search" placeholder="Search name, email, phone..." aria-label="Search submissions" />
+            <button type="button" class="btn btn-ghost" id="csvBtn">Export CSV</button>
+          </div>
+        </div>
+        <p class="meta" id="meta"></p>
+        <div id="list"></div>
+      </div>
+
+      <div id="view-jobs" hidden>
+        <p class="meta">Roles you switch on here appear on the Careers page and in its application form. Changes go live as soon as you save — no redeploy.</p>
+        <div id="jobs"></div>
+        <div class="jobs-actions">
+          <button type="button" class="btn btn-ghost" id="addJob">Add a role</button>
+          <button type="button" class="btn" id="saveJobs">Save changes</button>
+          <span class="meta" id="jobsMsg"></span>
+        </div>
+      </div>
     </div>
   </div></section>
 </Base>
+
+<script type="application/json" id="bvt-locations" set:html={JSON.stringify(locations.map((l) => l.name + ', ' + l.county))}></script>
 
 <style>
   .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0; padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px)); }
   .gate { max-width: 420px; }
   .gate form { display: grid; gap: 10px; margin-top: 18px; }
   .gate label { font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
-  input[type=password], input[type=search] { background: var(--green-900); border: 1px solid var(--line); color: var(--cream); padding: 12px 14px; font: inherit; font-size: .95rem; }
-  input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  input[type=password], input[type=search], input[type=text], textarea, select {
+    background: var(--green-900); border: 1px solid var(--line); color: var(--cream);
+    padding: 11px 13px; font: inherit; font-size: .93rem; width: 100%;
+  }
+  textarea { min-height: 76px; resize: vertical; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
   .err { color: #ff9c8a; margin-top: 12px; }
+
+  .viewbar { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 9px 15px; font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  .tab.on { background: var(--gold); color: #0f1f12; border-color: var(--gold); }
 
   .tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 14px; margin-bottom: 34px; }
   .tile { border: 1px solid var(--line); background: var(--green-700); padding: 18px 20px; }
@@ -57,10 +86,8 @@ import Base from '../layouts/Base.astro';
   .tile span { display: block; margin-top: 8px; font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
 
   .bar { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .bar-right { display: flex; gap: 8px; flex-wrap: wrap; }
-  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-  .tab { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 9px 15px; font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
-  .tab.on { background: var(--gold); color: #0f1f12; border-color: var(--gold); }
+  .bar-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .bar-right input { width: auto; min-width: 220px; }
   .meta { color: var(--muted); font-size: .82rem; }
 
   .sub { border: 1px solid var(--line); background: var(--green-700); padding: 20px 22px; margin-bottom: 12px; }
@@ -73,13 +100,28 @@ import Base from '../layouts/Base.astro';
   .f p { margin: 4px 0 0; font-size: .92rem; overflow-wrap: anywhere; }
   .f a { color: var(--gold); }
   .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+
+  .job { border: 1px solid var(--line); background: var(--green-700); padding: 20px 22px; margin-bottom: 12px; }
+  .job-grid { display: grid; gap: 12px 18px; grid-template-columns: 1fr; }
+  @media (min-width: 780px) { .job-grid { grid-template-columns: 2fr 1.4fr 1fr; } }
+  .job-grid label { display: block; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  .job-wide { grid-column: 1 / -1; }
+  .job-foot { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .live { display: flex; gap: 9px; align-items: center; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cream); }
+  .live input { width: auto; }
+  .rm { background: transparent; border: 1px solid var(--line); color: #ff9c8a; padding: 8px 14px; font-size: .68rem; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  .jobs-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 20px; }
 </style>
 
 <script>
   const $ = (id) => document.getElementById(id);
-  const API = '/api/admin';
+  const ADMIN = '/api/admin';
+  const JOBS = '/api/openings';
   let forms = [];
   let active = null;
+  let openings = [];
+
+  const LOCATIONS = JSON.parse($('bvt-locations').textContent || '[]');
 
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pretty = (k) => k.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -88,8 +130,9 @@ import Base from '../layouts/Base.astro';
   // Netlify keeps the honeypot and its own bookkeeping in the payload; the team
   // does not need to see either.
   const HIDE = new Set(['bot-field', 'form-name', 'ip', 'user_agent', 'referrer']);
-
   const nameOf = (d) => d.name || d.email || d.phone || 'Submission';
+
+  /* ---------- inbox ---------- */
 
   function render() {
     const form = forms.find((f) => f.name === active);
@@ -149,18 +192,118 @@ import Base from '../layouts/Base.astro';
     }));
   }
 
+  /* ---------- open roles ---------- */
+
+  function renderJobs() {
+    if (!openings.length) {
+      $('jobs').innerHTML = '<p class="empty">No roles yet. Add one and it appears on the Careers page.</p>';
+      return;
+    }
+    const opts = LOCATIONS.concat(['Any / wherever needed'])
+      .map((l) => '<option value="' + esc(l) + '"></option>').join('');
+
+    $('jobs').innerHTML = openings.map((o, i) => `
+      <article class="job" data-i="${i}">
+        <div class="job-grid">
+          <div>
+            <label for="t${i}">Role title</label>
+            <input type="text" id="t${i}" data-k="title" value="${esc(o.title)}" placeholder="CDL driver" />
+          </div>
+          <div>
+            <label for="l${i}">Location</label>
+            <input type="text" id="l${i}" data-k="location" list="bvt-locs" value="${esc(o.location)}" placeholder="Ravenna, Fannin County" />
+          </div>
+          <div>
+            <label for="y${i}">Type</label>
+            <input type="text" id="y${i}" data-k="type" value="${esc(o.type)}" placeholder="Full-time" />
+          </div>
+          <div class="job-wide">
+            <label for="s${i}">Short description</label>
+            <textarea id="s${i}" data-k="summary" placeholder="What the job involves, hours, what you are looking for.">${esc(o.summary)}</textarea>
+          </div>
+        </div>
+        <div class="job-foot">
+          <label class="live"><input type="checkbox" data-k="active" ${o.active ? 'checked' : ''} /> Show on Careers page</label>
+          <button type="button" class="rm" data-rm="${i}">Remove</button>
+        </div>
+      </article>`).join('') + '<datalist id="bvt-locs">' + opts + '</datalist>';
+
+    $('jobs').querySelectorAll('[data-k]').forEach((el) => {
+      el.addEventListener('input', () => {
+        const i = Number(el.closest('.job').dataset.i);
+        openings[i][el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+    });
+    $('jobs').querySelectorAll('[data-rm]').forEach((b) => {
+      b.addEventListener('click', () => {
+        openings.splice(Number(b.dataset.rm), 1);
+        renderJobs();
+      });
+    });
+  }
+
+  async function loadJobs() {
+    try {
+      const res = await fetch(JOBS);
+      const body = await res.json().catch(() => ({}));
+      openings = body.openings || [];
+    } catch { openings = []; }
+    renderJobs();
+  }
+
+  $('addJob').addEventListener('click', () => {
+    openings.push({ title: '', location: '', type: 'Full-time', summary: '', active: true });
+    renderJobs();
+    const last = $('jobs').querySelector('.job:last-of-type input');
+    if (last) last.focus();
+  });
+
+  $('saveJobs').addEventListener('click', async () => {
+    const keep = openings.filter((o) => String(o.title || '').trim());
+    $('jobsMsg').textContent = 'Saving...';
+    try {
+      const res = await fetch(JOBS, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ openings: keep }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) { $('jobsMsg').textContent = body.error || 'Could not save.'; return; }
+      openings = body.openings || keep;
+      renderJobs();
+      $('jobsMsg').textContent = 'Saved. The Careers page is updated.';
+      setTimeout(() => { $('jobsMsg').textContent = ''; }, 4000);
+    } catch {
+      $('jobsMsg').textContent = 'Could not reach the server.';
+    }
+  });
+
+  /* ---------- shell ---------- */
+
   function show(signedIn) {
     $('gate').hidden = signedIn;
     $('panel').hidden = !signedIn;
   }
 
+  function showGateError(msg) {
+    show(false);
+    if (msg) { $('loginErr').textContent = msg; $('loginErr').hidden = false; }
+  }
+
+  document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-view]').forEach((x) => x.classList.toggle('on', x === b));
+    $('view-inbox').hidden = b.dataset.view !== 'inbox';
+    $('view-jobs').hidden = b.dataset.view !== 'jobs';
+  }));
+
   async function load() {
-    const res = await fetch(API + '?action=data');
-    if (res.status === 401) { show(false); return; }
+    let res;
+    try { res = await fetch(ADMIN + '?action=data'); }
+    catch { showGateError('Cannot reach the server. Is the site deployed with functions enabled?'); return; }
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      show(true);
-      $('list').innerHTML = '<p class="empty">' + esc(body.error || 'Could not load submissions.') + '</p>';
+      // 401 is the ordinary signed-out case; anything else is worth naming.
+      showGateError(res.status === 401 ? null : (body.error || 'Could not load submissions (' + res.status + ').'));
       return;
     }
     forms = (body.forms || []).sort((a, b) => b.submissions.length - a.submissions.length);
@@ -169,12 +312,13 @@ import Base from '../layouts/Base.astro';
     show(true);
     renderChrome();
     render();
+    loadJobs();
   }
 
   $('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     $('loginErr').hidden = true;
-    const res = await fetch(API + '?action=login', {
+    const res = await fetch(ADMIN + '?action=login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ password: $('pw').value }),
@@ -187,7 +331,7 @@ import Base from '../layouts/Base.astro';
     }
   });
 
-  $('outBtn').addEventListener('click', async () => { await fetch(API + '?action=logout'); show(false); });
+  $('outBtn').addEventListener('click', async () => { await fetch(ADMIN + '?action=logout'); show(false); });
   $('search').addEventListener('input', render);
 
   $('csvBtn').addEventListener('click', () => {

@@ -8,6 +8,12 @@ import { locations } from '../data/locations.js';
     <h1>Work where people stay.</h1>
     <p class="lede">Our average staff longevity is over 25 years. That is not an accident — it is how we run the place.</p>
   </div></section>
+  <section id="openings" hidden><div class="wrap">
+    <span class="eyebrow">Open roles</span>
+    <h2>What we are hiring for right now.</h2>
+    <div class="roles" id="rolesList"></div>
+  </div></section>
+
   <section><div class="wrap cols">
     <form name="application" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" action="/thanks">
       <input type="hidden" name="form-name" value="application" />
@@ -50,7 +56,50 @@ import { locations } from '../data/locations.js';
     </aside>
   </div></section>
 </Base>
+
+<script>
+  // Roles are managed from /admin and stored server-side, so posting or closing
+  // one does not need a code change. If the endpoint is unavailable the page
+  // simply keeps the built-in role list and hides the openings section.
+  (async () => {
+    let openings = [];
+    try {
+      const res = await fetch('/api/openings');
+      if (res.ok) openings = (await res.json()).openings || [];
+    } catch { /* stay with the static fallback */ }
+    if (!openings.length) return;
+
+    const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    document.getElementById('rolesList').innerHTML = openings.map((o) =>
+      '<article class="role"><h3>' + esc(o.title) + '</h3>' +
+      '<span class="where">' + esc([o.location, o.type].filter(Boolean).join(' · ')) + '</span>' +
+      (o.summary ? '<p>' + esc(o.summary) + '</p>' : '') + '</article>'
+    ).join('');
+    document.getElementById('openings').hidden = false;
+
+    // Let applicants pick an actual posted role, keeping the generic options
+    // underneath for speculative applications.
+    const sel = document.getElementById('ar');
+    if (sel) {
+      const seen = new Set();
+      const posted = openings.map((o) => o.title).filter((t) => t && !seen.has(t) && seen.add(t));
+      for (const t of posted.reverse()) {
+        const opt = document.createElement('option');
+        opt.textContent = t;
+        sel.insertBefore(opt, sel.firstChild);
+      }
+      sel.selectedIndex = 0;
+    }
+  })();
+</script>
 <style>
+  .roles { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 40px; }
+  .role { border: 1px solid var(--line); background: var(--green-700); padding: 24px 26px; }
+  .role h3 { margin-bottom: 6px; }
+  .role .where { display: block; color: var(--gold); font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 12px; }
+  .role p { color: var(--cream-dim); font-size: .93rem; margin: 0; }
+
   .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
   .cols{display:grid;gap:44px}
   @media(min-width:940px){.cols{grid-template-columns:1.6fr 1fr}}
