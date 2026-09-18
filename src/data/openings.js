@@ -90,6 +90,7 @@ export const openings = [
     title: 'CDL Driver / Delivery',
     slug: 'cdl-driver-delivery',
     type: 'Full-time',
+    locations: ['Ravenna', 'Collinsville', 'Ferris'],
     summary:
       'Run fresh-cut pallets from our farms to job sites across Dallas-Fort Worth. Valid CDL required.',
     about:
@@ -141,15 +142,17 @@ export const openings = [
   },
   {
     ...officeAdministrator,
-    slug: 'farm-office-administrator-fannin-county',
-    location: 'Fannin County farm',
-    // No locationOption: the application form already lists the Fannin County
-    // farms, and the county covers two of them, so the applicant picks.
+    slug: 'farm-office-administrator-ravenna',
+    locations: ['Ravenna'],
+    locationOption: 'Ravenna, Fannin County',
+    // Spanish is asked for at Ravenna only - this desk coordinates daily with
+    // the field crews - so it is added here rather than to the shared write-up.
+    requirements: [...officeAdministrator.requirements, 'Able to speak Spanish'],
   },
   {
     ...officeAdministrator,
     slug: 'farm-office-administrator-blue-ridge',
-    location: 'Blue Ridge \u2014 corporate office',
+    locations: ['Blue Ridge — corporate office'],
     // Blue Ridge is the corporate office, not a farm, so it is not in
     // locations.js. It still needs an option on the application form.
     locationOption: 'Blue Ridge (corporate office)',
@@ -158,8 +161,9 @@ export const openings = [
     title: 'Farm Help',
     slug: 'farm-help',
     type: 'Full-time',
+    locations: ['Ravenna', 'Ivanhoe', 'Ferris'],
     summary:
-      'General field work across our four farms — planting, irrigation, harvest, and keeping the fields and equipment in shape. No experience required; we train.',
+      'General field work — planting, irrigation, harvest, and keeping the fields and equipment in shape. No experience required; we train.',
     about:
       'Farm help is where most of our long-tenured team started. Show up, work safe, take care of the equipment, and we will train you on the rest.',
     sections: [

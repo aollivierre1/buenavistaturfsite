@@ -31,7 +31,7 @@ const otherLocations = [...new Set(openings.map((o) => o.locationOption).filter(
         // Roles written up in full get their own page; the rest go straight to
         // the form with the role preselected.
         const detail = o.slug && o.sections?.length ? `/careers/${o.slug}/` : null;
-        const where = [o.location, o.type].filter(Boolean).join(' \u00b7 ');
+        const where = [o.locations?.join(', '), o.type].filter(Boolean).join(' \u00b7 ');
         return (
           <a class="role" href={detail || '#apply'} data-role={detail ? null : o.title}>
             <h3>{o.title}</h3>
@@ -142,7 +142,9 @@ const otherLocations = [...new Set(openings.map((o) => o.locationOption).filter(
     const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
     rolesList.innerHTML = openings.map((o) => {
-      const where = [o.location, o.type].filter(Boolean).join(' \u00b7 ');
+      // /admin posts a single location; the built-in roles carry a list
+      const places = Array.isArray(o.locations) ? o.locations.join(', ') : o.location;
+      const where = [places, o.type].filter(Boolean).join(' \u00b7 ');
       return '<a class="role" href="#apply" data-role="' + esc(o.title) + '">' +
         '<h3>' + esc(o.title) + '</h3>' +
         (where ? '<span class="where">' + esc(where) + '</span>' : '') +

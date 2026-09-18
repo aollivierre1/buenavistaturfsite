@@ -11,7 +11,7 @@ export function getStaticPaths() {
 }
 
 const { role } = Astro.props;
-const where = [role.location, role.type].filter(Boolean).join(' · ');
+const where = [role.locations?.join(', '), role.type].filter(Boolean).join(' · ');
 // Two sites can post the same role, so the location travels with it.
 const applyQuery = new URLSearchParams({ role: role.title });
 if (role.locationOption) applyQuery.set('location', role.locationOption);
