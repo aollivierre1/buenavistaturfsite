@@ -122,11 +122,21 @@ export const openings = [
       },
     ],
     requirements: [
-      'Valid CDL and a clean driving record',
+      'Valid Texas CDL — Class A or B, matched to the truck and trailer on your route',
+      'At least 21 years old for routes crossing state lines; 18 for routes that stay inside Texas',
+      'Current medical examiner’s certificate from an examiner on the FMCSA National Registry, renewed at least every two years',
+      'Medical certificate and self-certification category on file with Texas DPS',
+      'No air brake (L) restriction if your assigned truck has air brakes',
+      'Clean motor vehicle record',
+      'Pass a pre-employment DOT drug test and stay in the random testing pool',
+      'Registered with the FMCSA Drug & Alcohol Clearinghouse, and able to consent to a pre-employment full query and annual checks',
       'Forklift experience, or willingness to be trained',
       'Able to work outdoors in Texas heat and lift repeatedly',
       'Dependable, on time, and straightforward with customers',
       'Early starts through the growing season',
+    ],
+    notes: [
+      'No CDL yet? First-time applicants complete entry-level driver training (ELDT) with a provider on the FMCSA registry, hold a commercial learner permit for at least 14 days, then pass the skills test. Get in touch anyway — we would still like to hear from you.',
     ],
   },
   {
