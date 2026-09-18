@@ -1,6 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import { locations } from '../data/locations.js';
+import { openings, roleCategories } from '../data/openings.js';
+
+// Posted roles head the dropdown; drop any generic category a posted role
+// already covers so the same job is not offered twice under two names.
+const postedTitles = openings.map((o) => o.title);
+const posted = new Set(postedTitles.map((t) => t.toLowerCase()));
+const otherCategories = roleCategories.filter((r) => !posted.has(r.toLowerCase()));
 ---
 <Base title="Careers" description="Join a family-run North Texas turf farm. Field, harvest, delivery, and office roles across Ravenna, Ivanhoe, Collinsville, and Ferris.">
   <section class="ph"><div class="wrap">
@@ -8,13 +15,24 @@ import { locations } from '../data/locations.js';
     <h1>Work where people stay.</h1>
     <p class="lede">Our average staff longevity is over 25 years. That is not an accident — it is how we run the place.</p>
   </div></section>
-  <section id="openings" hidden><div class="wrap">
+  <section id="openings" hidden={openings.length === 0}><div class="wrap">
     <span class="eyebrow">Open roles</span>
     <h2>What we are hiring for right now.</h2>
-    <div class="roles" id="rolesList"></div>
+    <div class="roles" id="rolesList">
+      {openings.map((o) => (
+        <a class="role" href="#apply" data-role={o.title}>
+          <h3>{o.title}</h3>
+          {[o.location, o.type].filter(Boolean).length > 0 && (
+            <span class="where">{[o.location, o.type].filter(Boolean).join(' \u00b7 ')}</span>
+          )}
+          {o.summary && <p>{o.summary}</p>}
+          <span class="role-cta">Apply for this role &rarr;</span>
+        </a>
+      ))}
+    </div>
   </div></section>
 
-  <section><div class="wrap cols">
+  <section id="apply"><div class="wrap cols">
     <form name="application" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" action="/thanks">
       <input type="hidden" name="form-name" value="application" />
       <p hidden><label>Leave blank: <input name="bot-field" /></label></p>
@@ -30,13 +48,8 @@ import { locations } from '../data/locations.js';
       </select>
       <label for="ar">Role you are interested in</label>
       <select id="ar" name="role">
-        <option>Field / harvest crew</option>
-        <option>Equipment operator</option>
-        <option>CDL driver / delivery</option>
-        <option>Irrigation</option>
-        <option>Sales / customer service</option>
-        <option>Office / administration</option>
-        <option>Other</option>
+        {postedTitles.map((t) => <option>{t}</option>)}
+        {otherCategories.map((r) => <option>{r}</option>)}
       </select>
       <label for="ax">Relevant experience</label>
       <textarea id="ax" name="experience" rows="5" placeholder="Farm, landscape, equipment, CDL, or anything else you want us to know."></textarea>
@@ -58,47 +71,92 @@ import { locations } from '../data/locations.js';
 </Base>
 
 <script>
-  // Roles are managed from /admin and stored server-side, so posting or closing
-  // one does not need a code change. If the endpoint is unavailable the page
-  // simply keeps the built-in role list and hides the openings section.
+  // Roles render server-side from src/data/openings.js. Roles posted from /admin
+  // are served by /api/openings and replace that list here, so posting or closing
+  // one needs no code change. If the endpoint is unavailable the page simply keeps
+  // the roles it was built with.
+  const rolesList = document.getElementById('rolesList');
+  const roleSelect = document.getElementById('ar');
+
+  // Clicking a role card sends the applicant to the form with that role chosen.
+  function selectRole(title) {
+    if (!roleSelect || !title) return;
+    const want = title.trim().toLowerCase();
+    let opt = Array.from(roleSelect.options).find(
+      (o) => o.textContent.trim().toLowerCase() === want
+    );
+    if (!opt) {
+      opt = document.createElement('option');
+      opt.textContent = title;
+      roleSelect.insertBefore(opt, roleSelect.firstChild);
+    }
+    opt.selected = true;
+    roleSelect.classList.add('picked');
+    setTimeout(() => roleSelect.classList.remove('picked'), 1400);
+  }
+
+  function bindRoleCards() {
+    if (!rolesList) return;
+    for (const card of rolesList.querySelectorAll('[data-role]')) {
+      card.addEventListener('click', () => selectRole(card.dataset.role));
+    }
+  }
+  bindRoleCards();
+
   (async () => {
     let openings = [];
     try {
       const res = await fetch('/api/openings');
       if (res.ok) openings = (await res.json()).openings || [];
-    } catch { /* stay with the static fallback */ }
-    if (!openings.length) return;
+    } catch { /* stay with the roles the page was built with */ }
+    if (!openings.length || !rolesList) return;
 
     const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-    document.getElementById('rolesList').innerHTML = openings.map((o) =>
-      '<article class="role"><h3>' + esc(o.title) + '</h3>' +
-      '<span class="where">' + esc([o.location, o.type].filter(Boolean).join(' · ')) + '</span>' +
-      (o.summary ? '<p>' + esc(o.summary) + '</p>' : '') + '</article>'
-    ).join('');
+    rolesList.innerHTML = openings.map((o) => {
+      const where = [o.location, o.type].filter(Boolean).join(' \u00b7 ');
+      return '<a class="role" href="#apply" data-role="' + esc(o.title) + '">' +
+        '<h3>' + esc(o.title) + '</h3>' +
+        (where ? '<span class="where">' + esc(where) + '</span>' : '') +
+        (o.summary ? '<p>' + esc(o.summary) + '</p>' : '') +
+        '<span class="role-cta">Apply for this role \u2192</span></a>';
+    }).join('');
     document.getElementById('openings').hidden = false;
+    bindRoleCards();
 
-    // Let applicants pick an actual posted role, keeping the generic options
-    // underneath for speculative applications.
-    const sel = document.getElementById('ar');
-    if (sel) {
+    // Posted roles head the dropdown, keeping the generic categories underneath
+    // for speculative applications.
+    if (roleSelect) {
       const seen = new Set();
-      const posted = openings.map((o) => o.title).filter((t) => t && !seen.has(t) && seen.add(t));
-      for (const t of posted.reverse()) {
+      const titles = openings.map((o) => o.title).filter((t) => t && !seen.has(t) && seen.add(t));
+      const live = new Set(titles.map((t) => t.toLowerCase()));
+      for (const o of Array.from(roleSelect.options)) {
+        if (live.has(o.textContent.trim().toLowerCase())) o.remove();
+      }
+      for (const t of titles.slice().reverse()) {
         const opt = document.createElement('option');
         opt.textContent = t;
-        sel.insertBefore(opt, sel.firstChild);
+        roleSelect.insertBefore(opt, roleSelect.firstChild);
       }
-      sel.selectedIndex = 0;
+      roleSelect.selectedIndex = 0;
     }
   })();
 </script>
 <style>
   .roles { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 40px; }
-  .role { border: 1px solid var(--line); background: var(--green-700); padding: 24px 26px; }
+  .role { display: block; border: 1px solid var(--line); background: var(--green-700); padding: 24px 26px;
+    color: inherit; text-decoration: none; transition: border-color .15s, background .15s, transform .15s; }
+  .role:hover, .role:focus-visible { border-color: var(--green-400, #3fae5f); background: var(--green-600, #1c3d24); transform: translateY(-2px); }
+  .role:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .role h3 { margin-bottom: 6px; }
   .role .where { display: block; color: var(--gold); font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 12px; }
   .role p { color: var(--cream-dim); font-size: .93rem; margin: 0; }
+  .role-cta { display: inline-block; margin-top: 16px; color: var(--green-400, #3fae5f);
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
+  .role:hover .role-cta { text-decoration: underline; }
+
+  /* brief cue that the click landed on the right dropdown */
+  #ar.picked { outline: 2px solid var(--gold); outline-offset: 2px; }
 
   .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
   .cols{display:grid;gap:44px}
