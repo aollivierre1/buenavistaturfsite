@@ -88,9 +88,46 @@ const officeAdministrator = {
 export const openings = [
   {
     title: 'CDL Driver / Delivery',
+    slug: 'cdl-driver-delivery',
     type: 'Full-time',
     summary:
       'Run fresh-cut pallets from our farms to job sites across Dallas-Fort Worth. Valid CDL required.',
+    about:
+      'Sod is perishable, so the delivery is part of the product. We are looking for a dependable CDL driver who takes care of the load, the equipment, and the customer’s property.',
+    sections: [
+      {
+        heading: 'Driving & delivery',
+        items: [
+          'Deliver pallets of fresh-cut sod to homeowner, landscaper, builder, and sports turf job sites',
+          'Work to the cut and delivery schedule so sod reaches the customer fresh',
+          'Unload safely and place pallets where the crew needs them',
+          'Represent the farm well with customers on site',
+        ],
+      },
+      {
+        heading: 'Equipment & safety',
+        items: [
+          'Complete daily vehicle inspection reports',
+          'Keep the truck, trailer, and forklift clean and in safe working order',
+          'Wear and maintain required safety equipment',
+          'Report any accident, damage, or mechanical issue the same day',
+        ],
+      },
+      {
+        heading: 'Paperwork',
+        items: [
+          'Keep delivery tickets and signatures accurate and complete',
+          'Keep license, medical card, and vehicle permits current',
+        ],
+      },
+    ],
+    requirements: [
+      'Valid CDL and a clean driving record',
+      'Forklift experience, or willingness to be trained',
+      'Able to work outdoors in Texas heat and lift repeatedly',
+      'Dependable, on time, and straightforward with customers',
+      'Early starts through the growing season',
+    ],
   },
   {
     ...officeAdministrator,
@@ -104,9 +141,46 @@ export const openings = [
   },
   {
     title: 'Farm Help',
+    slug: 'farm-help',
     type: 'Full-time',
     summary:
       'General field work across our four farms — planting, irrigation, harvest, and keeping the fields and equipment in shape. No experience required; we train.',
+    about:
+      'Farm help is where most of our long-tenured team started. Show up, work safe, take care of the equipment, and we will train you on the rest.',
+    sections: [
+      {
+        heading: 'Field work',
+        items: [
+          'Plant, maintain, and harvest turf across our fields',
+          'Move and stack pallets of fresh-cut sod for loading',
+          'Help with irrigation lines, sprinklers, and watering',
+          'Keep fields, roads, and yards clear and in order',
+        ],
+      },
+      {
+        heading: 'Equipment',
+        items: [
+          'Operate farm equipment once trained — mowers, harvesters, tractors, forklifts',
+          'Run daily checks and basic upkeep on assigned equipment',
+          'Report mechanical problems before they become breakdowns',
+        ],
+      },
+      {
+        heading: 'How we work',
+        items: [
+          'Follow safety procedures on every task',
+          'Treat farm property and customer property with the same care',
+          'Work as part of a crew and pitch in where the day requires',
+        ],
+      },
+    ],
+    requirements: [
+      'No experience required — we train',
+      'Able to work outdoors in all weather and lift repeatedly',
+      'Dependable attendance and reliable transportation',
+      'Willing to learn equipment operation',
+      'Early starts, and some weekend work through the growing season',
+    ],
   },
 ];
 
