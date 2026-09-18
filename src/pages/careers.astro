@@ -11,11 +11,11 @@ const postedTitles = [...new Set(openings.map((o) => o.title))];
 const posted = new Set(postedTitles.map((t) => t.toLowerCase()));
 const otherCategories = roleCategories.filter((r) => !posted.has(r.toLowerCase()));
 
-// Applicants must be able to pick the place they are applying to, so any site
-// with an open role that is not one of the public farm locations is offered too.
+// Applicants must be able to pick the place they are applying to. A site that is
+// not one of the public farm locations - the corporate office, say - names its
+// own form option, rather than the option being guessed from a display label.
 const farmLocations = locations.map((l) => `${l.name}, ${l.county}`);
-const hiringLocations = [...new Set(openings.map((o) => o.location).filter(Boolean))]
-  .filter((loc) => !farmLocations.some((f) => f.toLowerCase().includes(loc.toLowerCase())));
+const otherLocations = [...new Set(openings.map((o) => o.locationOption).filter(Boolean))];
 ---
 <Base title="Careers" description="Join a family-run North Texas turf farm. Field, harvest, delivery, and office roles across Ravenna, Ivanhoe, Collinsville, and Ferris.">
   <section class="ph"><div class="wrap">
@@ -56,7 +56,7 @@ const hiringLocations = [...new Set(openings.map((o) => o.location).filter(Boole
       <label for="al">Which location?</label>
       <select id="al" name="location" required>
         {farmLocations.map((l) => <option>{l}</option>)}
-        {hiringLocations.map((l) => <option>{l}</option>)}
+        {otherLocations.map((l) => <option>{l}</option>)}
         <option>Any / wherever needed</option>
       </select>
       <label for="ar">Role you are interested in</label>

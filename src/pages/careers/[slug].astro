@@ -14,7 +14,7 @@ const { role } = Astro.props;
 const where = [role.location, role.type].filter(Boolean).join(' · ');
 // Two sites can post the same role, so the location travels with it.
 const applyQuery = new URLSearchParams({ role: role.title });
-if (role.location) applyQuery.set('location', role.location);
+if (role.locationOption) applyQuery.set('location', role.locationOption);
 const applyHref = `/careers/?${applyQuery}#apply`;
 ---
 <Base

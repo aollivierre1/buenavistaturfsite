@@ -142,12 +142,17 @@ export const openings = [
   {
     ...officeAdministrator,
     slug: 'farm-office-administrator-fannin-county',
-    location: 'Fannin County',
+    location: 'Fannin County farm',
+    // No locationOption: the application form already lists the Fannin County
+    // farms, and the county covers two of them, so the applicant picks.
   },
   {
     ...officeAdministrator,
     slug: 'farm-office-administrator-blue-ridge',
-    location: 'Blue Ridge',
+    location: 'Blue Ridge \u2014 corporate office',
+    // Blue Ridge is the corporate office, not a farm, so it is not in
+    // locations.js. It still needs an option on the application form.
+    locationOption: 'Blue Ridge (corporate office)',
   },
   {
     title: 'Farm Help',
