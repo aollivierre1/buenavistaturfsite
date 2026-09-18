@@ -32,6 +32,10 @@ import { grasses } from '../data/grasses.js';
   </div>
   <div class="wrap ft-btm">
     <p>&copy; {new Date().getFullYear()} Buena Vista Turf Farm. Serving Dallas-Fort Worth and North Texas.</p>
+    <!-- Kept deliberately quiet and out of the main nav: the dashboard is for
+         the team, and there is no reason to advertise it to customers. It is
+         password-gated either way. -->
+    <a class="ft-staff" href="/admin" rel="nofollow">Staff sign-in</a>
   </div>
 </footer>
 
@@ -47,6 +51,9 @@ import { grasses } from '../data/grasses.js';
   .ft li { margin-bottom: 9px; }
   .ft li a { color: var(--cream-dim); text-decoration: none; font-size: 0.92rem; }
   .ft li a:hover { color: var(--cream); text-decoration: underline; }
-  .ft-btm { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 24px; padding-bottom: 32px; }
+  .ft-btm { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 24px; padding-bottom: 32px;
+    display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: baseline; justify-content: space-between; }
   .ft-btm p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+  .ft-staff { font-size: 0.78rem; color: var(--muted); text-decoration: none; white-space: nowrap; }
+  .ft-staff:hover { color: var(--cream); text-decoration: underline; }
 </style>
