@@ -19,16 +19,20 @@ const otherCategories = roleCategories.filter((r) => !posted.has(r.toLowerCase()
     <span class="eyebrow">Open roles</span>
     <h2>What we are hiring for right now.</h2>
     <div class="roles" id="rolesList">
-      {openings.map((o) => (
-        <a class="role" href="#apply" data-role={o.title}>
-          <h3>{o.title}</h3>
-          {[o.location, o.type].filter(Boolean).length > 0 && (
-            <span class="where">{[o.location, o.type].filter(Boolean).join(' \u00b7 ')}</span>
-          )}
-          {o.summary && <p>{o.summary}</p>}
-          <span class="role-cta">Apply for this role &rarr;</span>
-        </a>
-      ))}
+      {openings.map((o) => {
+        // Roles written up in full get their own page; the rest go straight to
+        // the form with the role preselected.
+        const detail = o.slug && o.sections?.length ? `/careers/${o.slug}/` : null;
+        const where = [o.location, o.type].filter(Boolean).join(' \u00b7 ');
+        return (
+          <a class="role" href={detail || '#apply'} data-role={detail ? null : o.title}>
+            <h3>{o.title}</h3>
+            {where && <span class="where">{where}</span>}
+            {o.summary && <p>{o.summary}</p>}
+            <span class="role-cta">{detail ? 'View role & apply' : 'Apply for this role'} &rarr;</span>
+          </a>
+        );
+      })}
     </div>
   </div></section>
 
@@ -102,6 +106,10 @@ const otherCategories = roleCategories.filter((r) => !posted.has(r.toLowerCase()
     }
   }
   bindRoleCards();
+
+  // Arriving from a job page: /careers/?role=<title>#apply
+  const wantedRole = new URLSearchParams(location.search).get('role');
+  if (wantedRole) selectRole(wantedRole);
 
   (async () => {
     let openings = [];

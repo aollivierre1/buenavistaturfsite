@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+import { openings } from '../../data/openings.js';
+
+// Only roles written up in full get a page of their own. The rest link straight
+// to the application form from the Careers index.
+export function getStaticPaths() {
+  return openings
+    .filter((o) => o.slug && o.sections?.length)
+    .map((o) => ({ params: { slug: o.slug }, props: { role: o } }));
+}
+
+const { role } = Astro.props;
+const where = [role.location, role.type].filter(Boolean).join(' · ');
+const applyHref = `/careers/?role=${encodeURIComponent(role.title)}#apply`;
+---
+<Base
+  title={`${role.title} — Careers`}
+  description={role.summary || role.about}
+>
+  <section class="ph"><div class="wrap">
+    <a class="back" href="/careers/">&larr; All open roles</a>
+    <span class="eyebrow">Now hiring</span>
+    <h1>{role.title}</h1>
+    {where && <p class="where">{where}</p>}
+    {role.summary && <p class="lede">{role.summary}</p>}
+    <a class="btn" href={applyHref}>Apply for this role</a>
+  </div></section>
+
+  <section><div class="wrap jd">
+    {role.about && (
+      <>
+        <h2>About us</h2>
+        <p>{role.about}</p>
+      </>
+    )}
+
+    <h2>Key responsibilities</h2>
+    {role.sections.map((s) => (
+      <div class="block">
+        <h3>{s.heading}</h3>
+        <ul>{s.items.map((i) => <li>{i}</li>)}</ul>
+      </div>
+    ))}
+
+    {role.requirements?.length > 0 && (
+      <div class="block">
+        <h2>Requirements</h2>
+        <ul>{role.requirements.map((r) => <li>{r}</li>)}</ul>
+      </div>
+    )}
+
+    {role.notes?.length > 0 && (
+      <p class="note">{role.notes.join(' ')}</p>
+    )}
+
+    <div class="cta">
+      <h2>Ready to apply?</h2>
+      <p>The form takes a couple of minutes. Applications go straight to the hiring manager.</p>
+      <a class="btn" href={applyHref}>Apply for this role</a>
+    </div>
+  </div></section>
+</Base>
+
+<style>
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;
+    padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
+  .back{display:inline-block;margin-bottom:22px;color:var(--cream-dim);text-decoration:none;
+    font-size:.78rem;letter-spacing:.12em;text-transform:uppercase}
+  .back:hover{color:var(--cream)}
+  .ph .where{color:var(--gold);font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;margin:10px 0 0}
+  .ph .lede{margin-top:18px}
+  .ph .btn{margin-top:32px}
+
+  .jd{max-width:820px}
+  .jd h2{margin-top:8px}
+  .jd > p{color:var(--cream-dim)}
+  .block{margin-top:38px}
+  .block h3{font-size:1.05rem;margin-bottom:14px;color:var(--cream)}
+  .jd ul{margin:0;padding-left:20px;display:grid;gap:9px}
+  .jd li{color:var(--cream-dim);font-size:.95rem;line-height:1.55}
+  .note{margin-top:34px;padding:14px 18px;border-left:3px solid var(--gold);
+    background:var(--green-700);color:var(--cream-dim);font-size:.9rem}
+  .cta{margin-top:56px;padding-top:40px;border-top:1px solid var(--line)}
+  .cta p{color:var(--cream-dim);margin-bottom:24px}
+</style>
