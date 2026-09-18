@@ -17,6 +17,12 @@ export const openings = [
     summary:
       'Order entry, delivery scheduling, and customer calls — the person who keeps the paperwork and the routes straight.',
   },
+  {
+    title: 'Farm Help',
+    type: 'Full-time',
+    summary:
+      'General field work across our four farms — planting, irrigation, harvest, and keeping the fields and equipment in shape. No experience required; we train.',
+  },
 ];
 
 // Generic interest categories, kept underneath the posted roles so people can
