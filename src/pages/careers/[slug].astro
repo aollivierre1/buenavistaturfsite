@@ -12,7 +12,10 @@ export function getStaticPaths() {
 
 const { role } = Astro.props;
 const where = [role.location, role.type].filter(Boolean).join(' · ');
-const applyHref = `/careers/?role=${encodeURIComponent(role.title)}#apply`;
+// Two sites can post the same role, so the location travels with it.
+const applyQuery = new URLSearchParams({ role: role.title });
+if (role.location) applyQuery.set('location', role.location);
+const applyHref = `/careers/?${applyQuery}#apply`;
 ---
 <Base
   title={`${role.title} — Careers`}

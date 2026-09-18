@@ -4,10 +4,18 @@ import { locations } from '../data/locations.js';
 import { openings, roleCategories } from '../data/openings.js';
 
 // Posted roles head the dropdown; drop any generic category a posted role
-// already covers so the same job is not offered twice under two names.
-const postedTitles = openings.map((o) => o.title);
+// already covers so the same job is not offered twice under two names. The same
+// role posted at two sites is one dropdown entry - the location field below
+// records which site.
+const postedTitles = [...new Set(openings.map((o) => o.title))];
 const posted = new Set(postedTitles.map((t) => t.toLowerCase()));
 const otherCategories = roleCategories.filter((r) => !posted.has(r.toLowerCase()));
+
+// Applicants must be able to pick the place they are applying to, so any site
+// with an open role that is not one of the public farm locations is offered too.
+const farmLocations = locations.map((l) => `${l.name}, ${l.county}`);
+const hiringLocations = [...new Set(openings.map((o) => o.location).filter(Boolean))]
+  .filter((loc) => !farmLocations.some((f) => f.toLowerCase().includes(loc.toLowerCase())));
 ---
 <Base title="Careers" description="Join a family-run North Texas turf farm. Field, harvest, delivery, and office roles across Ravenna, Ivanhoe, Collinsville, and Ferris.">
   <section class="ph"><div class="wrap">
@@ -47,7 +55,8 @@ const otherCategories = roleCategories.filter((r) => !posted.has(r.toLowerCase()
       <label for="ae">Email</label><input id="ae" type="email" name="email" required />
       <label for="al">Which location?</label>
       <select id="al" name="location" required>
-        {locations.map((l) => <option>{l.name}, {l.county}</option>)}
+        {farmLocations.map((l) => <option>{l}</option>)}
+        {hiringLocations.map((l) => <option>{l}</option>)}
         <option>Any / wherever needed</option>
       </select>
       <label for="ar">Role you are interested in</label>
@@ -107,9 +116,20 @@ const otherCategories = roleCategories.filter((r) => !posted.has(r.toLowerCase()
   }
   bindRoleCards();
 
-  // Arriving from a job page: /careers/?role=<title>#apply
-  const wantedRole = new URLSearchParams(location.search).get('role');
+  // Arriving from a job page: /careers/?role=<title>&location=<site>#apply
+  const params = new URLSearchParams(location.search);
+  const wantedRole = params.get('role');
   if (wantedRole) selectRole(wantedRole);
+
+  // Only an exact match; a county covering two farms stays the applicant's choice.
+  const wantedPlace = params.get('location');
+  if (wantedPlace) {
+    const sel = document.getElementById('al');
+    const opt = sel && Array.from(sel.options).find(
+      (o) => o.textContent.trim().toLowerCase() === wantedPlace.trim().toLowerCase()
+    );
+    if (opt) opt.selected = true;
+  }
 
   (async () => {
     let openings = [];
