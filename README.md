@@ -31,11 +31,26 @@ npm run build    # outputs to dist/
 
 Three Netlify forms are wired: `quote`, `contact`, `application` (with resume upload).
 
-**After the first deploy**, turn on email notifications:
-Netlify → Site configuration → Forms → Form notifications → Add notification →
-Email notification → send to the Microsoft 365 inbox. Do this once per form.
+**After the first deploy**, turn on email notifications — this is a Netlify
+setting, not something the repo can carry:
 
-Submissions are also stored in the Netlify dashboard as a backup.
+Netlify → Site configuration → Forms → Form notifications → Add notification →
+**Email notification**, then for each of the three forms:
+
+| Field | Value |
+|---|---|
+| Event to listen for | New form submission |
+| Form | `quote`, then `contact`, then `application` |
+| Email to notify | `alfredo@buenavistaturf.com` |
+
+Add it three times, once per form — a notification is bound to a single form, so
+one entry does not cover the other two.
+
+Resumes arrive as a download link in the email rather than an attachment; the
+file itself stays in Netlify.
+
+Submissions are also stored in the Netlify dashboard, and readable from /admin,
+so a missed email never means a lost lead.
 
 ## Deploy
 
