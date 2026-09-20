@@ -19,11 +19,23 @@ async function netlify(path) {
   const res = await fetch(API + path, {
     headers: { Authorization: `Bearer ${process.env.NETLIFY_API_TOKEN}` },
   });
-  if (!res.ok) throw new Error(`Netlify API ${res.status} on ${path}`);
+  if (!res.ok) {
+    const hint = res.status === 401 || res.status === 403
+      ? ' - the NETLIFY_API_TOKEN is wrong, expired, or lacks access to this site'
+      : res.status === 404 ? ' - no such site or form for this token' : '';
+    throw new Error(`Netlify API ${res.status} on ${path}${hint}`);
+  }
   return res.json();
 }
 
-export default async (req) => {
+// Netlify does not reliably put SITE_ID in the Functions runtime the way it does
+// in the build, and an undefined id silently becomes /sites/undefined/forms - a
+// 404 that reads like the API is broken. Functions v2 hands us the site on the
+// context object, so prefer that and fall back to the environment.
+const siteIdFrom = (context) =>
+  context?.site?.id || process.env.SITE_ID || process.env.NETLIFY_SITE_ID || '';
+
+export default async (req, context) => {
   const action = new URL(req.url).searchParams.get('action');
 
   if (!adminKey()) {
@@ -51,8 +63,12 @@ export default async (req) => {
     if (!process.env.NETLIFY_API_TOKEN) {
       return json(500, { error: 'NETLIFY_API_TOKEN is not set. Add it in Netlify → Environment variables.' });
     }
+    const siteId = siteIdFrom(context);
+    if (!siteId) {
+      return json(500, { error: 'Could not work out which Netlify site to read. Set SITE_ID in Netlify → Environment variables.' });
+    }
     try {
-      const forms = await netlify(`/sites/${process.env.SITE_ID}/forms`);
+      const forms = await netlify(`/sites/${siteId}/forms`);
       const out = [];
       for (const form of forms) {
         const subs = await netlify(`/forms/${form.id}/submissions?per_page=200`);
