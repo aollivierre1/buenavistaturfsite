@@ -83,6 +83,14 @@ in the repo, and the dashboard cannot work without them:
 |---|---|
 | `ADMIN_PASSWORD` | the passcode for /admin |
 | `NETLIFY_API_TOKEN` | a Netlify personal access token with read access, used server-side to read form submissions |
+| `RESEND_API_KEY` | an API key from resend.com, so submissions email out as "New application" / "New quote" |
+| `NOTIFY_EMAIL` | optional - where those emails go (defaults to alfredo@buenavistaturf.com) |
+| `NOTIFY_FROM` | optional - the sender. Defaults to Resend's shared test sender, which only delivers to the Resend account owner's own address. Set it to an address at a domain verified in Resend to send anywhere. |
+
+`netlify/functions/submission-created.mjs` is what sends them - Netlify calls it
+on every verified submission because of the file name, so do not rename it.
+Without `RESEND_API_KEY` it logs and exits quietly; submissions are still stored
+either way, so a mail problem never costs a lead.
 
 ## Headers
 
