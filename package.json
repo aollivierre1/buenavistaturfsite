@@ -9,7 +9,9 @@
     "preview": "astro preview",
     "prebuild": "node scripts/gen-thumbs.mjs",
     "thumbs": "node scripts/gen-thumbs.mjs",
-    "predev": "node scripts/gen-thumbs.mjs"
+    "predev": "node scripts/gen-thumbs.mjs",
+    "deploy": "npm run build && npx -y netlify-cli deploy --prod --dir=dist --functions=netlify/functions",
+    "deploy:preview": "npm run build && npx -y netlify-cli deploy --dir=dist --functions=netlify/functions"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",

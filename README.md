@@ -54,8 +54,35 @@ so a missed email never means a lost lead.
 
 ## Deploy
 
-Connect the repo in Netlify. `netlify.toml` already sets build command, publish
-directory, and the apex → www redirect. No manual config needed.
+From your own machine, one command:
+
+```bash
+npm run deploy
+```
+
+It builds and publishes, **including `netlify/functions/`** — which is what the
+/admin dashboard and /api/openings run on. The first run opens a browser to log
+in to Netlify and asks which site to link; after that it just deploys.
+`npm run deploy:preview` publishes to a preview URL instead of the live site.
+
+Dragging a zip of `dist/` into the Netlify UI also works, but it publishes only
+static files. Functions are not in `dist/`, so the dashboard stays dead and
+`/api/openings` 404s — that is the usual cause of "the site updated but /admin
+does not work".
+
+Better still, connect the repo in Netlify (Site configuration → Build & deploy →
+Link repository, branch `master`). `netlify.toml` already sets the build command,
+publish directory and functions directory, so every push then deploys itself.
+
+### Environment variables
+
+Set these in Netlify → Site configuration → Environment variables. They are not
+in the repo, and the dashboard cannot work without them:
+
+| Key | What it is |
+|---|---|
+| `ADMIN_PASSWORD` | the passcode for /admin |
+| `NETLIFY_API_TOKEN` | a Netlify personal access token with read access, used server-side to read form submissions |
 
 ## Headers
 
