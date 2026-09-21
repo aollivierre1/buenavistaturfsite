@@ -39,7 +39,11 @@ export default async (req, context) => {
   const action = new URL(req.url).searchParams.get('action');
 
   if (!adminKey()) {
-    return json(500, { error: 'ADMIN_PASSWORD is not set on this site. Add it in Netlify → Environment variables.' });
+    // Reaching here means the function itself deployed fine - only the value is
+    // missing. The usual cause is not a missing variable but a scoped one:
+    // Netlify lets a variable apply to Builds only, and Functions then cannot
+    // read it.
+    return json(500, { error: 'ADMIN_PASSWORD is not reaching this function. In Netlify → Environment variables, check the key is exactly ADMIN_PASSWORD and its scope includes Functions, then redeploy.' });
   }
 
   if (action === 'login') {
