@@ -43,6 +43,30 @@ npx astro preview --port 4321    # then crawl it with Playwright
 Chromium is at `/opt/pw-browsers/chromium`. Crawling every page for HTTP status,
 broken images and JS errors catches essentially everything a deploy would.
 
+## Commits must be authored by a verified Netlify member
+
+Netlify's plan on this site only builds commits from verified account members
+when the repo is private. A commit authored by anyone else is rejected before
+the build starts:
+
+    Build blocked: Unrecognized Git contributor.
+    This plan allows only verified account members to push to private repos
+
+It is not a build failure - nothing compiles, and the live site silently keeps
+serving the last good deploy while every push appears to succeed on GitHub. Four
+deploys were lost to this before anyone looked at the deploy list.
+
+So set the identity before committing:
+
+```bash
+git config user.name "Alfredo Ollivierre"
+git config user.email "ollivierre.alfredo@gmail.com"
+```
+
+`Co-Authored-By:` trailers are fine - Netlify reads the author field, not the
+message. If a deploy ever shows "Unrecognized Git contributor", check
+`git log --format='%an <%ae>'` first.
+
 ## Things that bite
 
 - **`src/data/derivatives.json` dirties on every build.** `gen-thumbs.mjs`
