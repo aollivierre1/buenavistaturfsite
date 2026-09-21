@@ -43,29 +43,40 @@ npx astro preview --port 4321    # then crawl it with Playwright
 Chromium is at `/opt/pw-browsers/chromium`. Crawling every page for HTTP status,
 broken images and JS errors catches essentially everything a deploy would.
 
-## Commits must be authored by a verified Netlify member
+## Every commit's author email must be a linked Netlify contributor
 
-Netlify's plan on this site only builds commits from verified account members
-when the repo is private. A commit authored by anyone else is rejected before
-the build starts:
+This site is on a Netlify plan that allows **one** git contributor on a private
+repo, and it decides who you are from the **email on the commit** - not the
+name, not who pushed. An email that is not linked to the Netlify account is
+rejected before the build starts:
 
-    Build blocked: Unrecognized Git contributor.
-    This plan allows only verified account members to push to private repos
+    Build failed: unrecognized Git contributor.
+    Your plan allows only one contributor on private repos. If this was you,
+    please link your Git account in manage Git contributors.
 
-It is not a build failure - nothing compiles, and the live site silently keeps
-serving the last good deploy while every push appears to succeed on GitHub. Four
-deploys were lost to this before anyone looked at the deploy list.
+Nothing compiles. The live site silently keeps serving the last good deploy
+while every push still looks fine on GitHub. Five deploys were lost to this
+before anyone opened the deploy list - the first four authored
+`Claude <noreply@anthropic.com>`, the fifth authored correctly but with an
+email Netlify had never been told about.
 
-So set the identity before committing:
+Setting a human name on the commit is **not** the fix on its own:
 
 ```bash
+# necessary, but only works once the email below is linked in Netlify
 git config user.name "Alfredo Ollivierre"
 git config user.email "ollivierre.alfredo@gmail.com"
 ```
 
+The email has to be linked, one time, in Netlify -> team settings -> **Manage
+Git contributors** (the failed deploy's error links straight there). After
+that, a redeploy of the already-pushed commit builds - no new commit needed.
+The other two ways out: make the repo public (the restriction is specific to
+private repos), or upgrade the plan.
+
 `Co-Authored-By:` trailers are fine - Netlify reads the author field, not the
-message. If a deploy ever shows "Unrecognized Git contributor", check
-`git log --format='%an <%ae>'` first.
+message body. If a deploy shows "unrecognized Git contributor", check
+`git log --format='%an <%ae>'` first, then check that email is linked.
 
 ## Things that bite
 
