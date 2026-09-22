@@ -35,8 +35,31 @@ async function netlify(path) {
 const siteIdFrom = (context) =>
   context?.site?.id || process.env.SITE_ID || process.env.NETLIFY_SITE_ID || '';
 
+// Names that differ from what we want only by case, spacing or punctuation.
+// A variable typed as "Admin_Password" or with a trailing space looks right in
+// the Netlify UI and is invisible to process.env.ADMIN_PASSWORD, so say so
+// rather than leaving someone to stare at a list that appears correct.
+const normalise = (s) => s.toUpperCase().replace(/[^A-Z0-9]/g, '');
+const nearMisses = (want) => {
+  const target = normalise(want);
+  return Object.keys(process.env).filter((k) => k !== want && normalise(k) === target);
+};
+
 export default async (req, context) => {
   const action = new URL(req.url).searchParams.get('action');
+
+  // Unauthenticated on purpose: it reports whether the two variables exist, never
+  // their values, and the password is the very thing missing when you need it.
+  if (action === 'diagnose') {
+    return json(200, {
+      ADMIN_PASSWORD: { set: Boolean(process.env.ADMIN_PASSWORD), nearMisses: nearMisses('ADMIN_PASSWORD') },
+      NETLIFY_API_TOKEN: { set: Boolean(process.env.NETLIFY_API_TOKEN), nearMisses: nearMisses('NETLIFY_API_TOKEN') },
+      siteIdResolved: Boolean(siteIdFrom(context)),
+      deployContext: process.env.CONTEXT || '(unknown)',
+      branch: process.env.BRANCH || '(unknown)',
+      envKeyCount: Object.keys(process.env).length,
+    });
+  }
 
   if (!adminKey()) {
     // Reaching here means the function itself deployed fine - only the value is
