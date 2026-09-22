@@ -50,22 +50,29 @@ import { site, nav } from '../data/site.js';
   .wb-val { color: var(--cream); }
 
   .hdr { background: transparent; border-bottom: none; }
-  .hdr-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 16px; padding-bottom: 16px; flex-wrap: wrap; }
+  /* Wider than --max on purpose. The nav is nine links plus a phone number and
+     a button; at the 1240px used for reading content it cannot fit on one row,
+     so "Get a Quote" wrapped underneath at every desktop width. Chrome can use
+     the screen the article columns deliberately give up. */
+  .hdr-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 16px; padding-bottom: 16px; flex-wrap: wrap; max-width: 1560px; }
   .logo { display: flex; align-items: center; text-decoration: none; }
   /* Wordmark is mid-green, header is near-black — lift the mark off the
      background instead of letting it sink into it. */
   .logo img { height: 52px; width: auto; display: block; filter: brightness(1.32) saturate(1.05) drop-shadow(0 2px 6px rgba(0,0,0,0.75)); }
   @media (max-width: 520px) { .logo img { height: 42px; } }
 
-  .nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
-  .nav a { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; text-decoration: none; padding: 11px 13px; border: 1px solid rgba(245,241,228,0.45); color: var(--cream); background: rgba(15,31,18,0.28); text-shadow: 0 1px 3px rgba(0,0,0,0.55); }
+  .nav { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: flex-end; }
+  .nav a { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.075em; text-transform: uppercase; text-decoration: none; padding: 10px 10px; border: 1px solid rgba(245,241,228,0.45); color: var(--cream); background: rgba(15,31,18,0.28); text-shadow: 0 1px 3px rgba(0,0,0,0.55); white-space: nowrap; }
   .nav a:hover { background: rgba(15,31,18,0.6); border-color: var(--cream); }
   .nav .ph { border-color: transparent; background: transparent; color: var(--gold); }
   .nav .btn { border-color: transparent; background: var(--brand); text-shadow: none; }
   .nav .btn:hover { background: var(--brand-dark); border-color: transparent; }
 
   .menu-btn { display: none; background: rgba(15,31,18,0.5); border: 1px solid rgba(245,241,228,0.45); color: var(--cream); padding: 10px 16px; font-size: 0.72rem; letter-spacing: 0.11em; text-transform: uppercase; cursor: pointer; }
-  @media (max-width: 1100px) {
+  /* 1270px is measured, not chosen: it is the narrowest viewport where all
+     eleven items still sit on one row. Below it the row wrapped and "Get a
+     Quote" dropped underneath, so the menu button takes over instead. */
+  @media (max-width: 1269px) {
     .menu-btn { display: block; }
     .nav { display: none; width: 100%; justify-content: flex-start; padding-bottom: 14px; }
     .nav.open { display: flex; }
