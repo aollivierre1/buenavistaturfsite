@@ -77,8 +77,13 @@ two ways out are linking the account under Netlify -> team settings ->
 - **`src/data/derivatives.json` dirties on every build.** `gen-thumbs.mjs`
   rewrites it with different key order and identical content. Revert it rather
   than committing churn.
-- **Secrets never go in the repo.** `ADMIN_PASSWORD` and `NETLIFY_API_TOKEN`
-  live in Netlify → Environment variables. `/admin` cannot work without both.
+- **`ADMIN_PASSWORD` is the one setting `/admin` cannot do without.** It lives in
+  Netlify → Environment variables, never in the repo, which is public.
+  `NETLIFY_API_TOKEN` is optional now: `submission-created.mjs` mirrors each
+  submission into Netlify Blobs as it arrives, and the token only backfills
+  submissions older than that function. Blobs needs no credentials inside a
+  function, so don't reintroduce a token dependency — a Netlify personal access
+  token is account-wide and can read every site, change DNS and delete projects.
 - **Form notification emails are a Netlify UI setting**, one per form
   (`quote`, `contact`, `application`), and they are not retroactive.
 - **No apex → www redirect in `netlify.toml`.** Netlify already redirects

@@ -79,10 +79,20 @@ publish directory and functions directory, so every push then deploys itself.
 Set these in Netlify → Site configuration → Environment variables. They are not
 in the repo, and the dashboard cannot work without them:
 
-| Key | What it is |
-|---|---|
-| `ADMIN_PASSWORD` | the passcode for /admin |
-| `NETLIFY_API_TOKEN` | a Netlify personal access token with read access, used server-side to read form submissions |
+| Key | Required? | What it is |
+|---|---|---|
+| `ADMIN_PASSWORD` | **yes** | the passcode for /admin |
+| `NETLIFY_API_TOKEN` | no | only backfills submissions older than the mirror (below) |
+
+`ADMIN_PASSWORD` is the only one the dashboard needs. `netlify/functions/submission-created.mjs`
+copies every submission into Netlify Blobs the moment it arrives, and /admin reads
+from there — Blobs needs no credentials inside a function.
+
+Add `NETLIFY_API_TOKEN` only if you want submissions from *before* that function
+existed to show up in /admin too. They are readable in Netlify → Forms either way.
+Be deliberate about it: a Netlify personal access token is account-wide, so it can
+read every site you own, change DNS and delete projects. That is a lot of authority
+to leave in an environment variable so a page can list job applications.
 
 ## Headers
 
