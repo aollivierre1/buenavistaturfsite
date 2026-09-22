@@ -43,40 +43,34 @@ npx astro preview --port 4321    # then crawl it with Playwright
 Chromium is at `/opt/pw-browsers/chromium`. Crawling every page for HTTP status,
 broken images and JS errors catches essentially everything a deploy would.
 
-## Every commit's author email must be a linked Netlify contributor
+## The contributor block - resolved 2026-09-22 by going public
 
-This site is on a Netlify plan that allows **one** git contributor on a private
-repo, and it decides who you are from the **email on the commit** - not the
-name, not who pushed. An email that is not linked to the Netlify account is
-rejected before the build starts:
+For two days nothing published. Six production deploys in a row failed before
+anything compiled:
 
-    Build failed: unrecognized Git contributor.
-    Your plan allows only one contributor on private repos. If this was you,
-    please link your Git account in manage Git contributors.
+    Build blocked: Unrecognized Git contributor. This plan allows only
+    verified account members to push to private repos
 
-Nothing compiles. The live site silently keeps serving the last good deploy
-while every push still looks fine on GitHub. Five deploys were lost to this
-before anyone opened the deploy list - the first four authored
-`Claude <noreply@anthropic.com>`, the fifth authored correctly but with an
-email Netlify had never been told about.
+The live site silently kept serving the last good deploy while every push
+still looked fine on GitHub, so it read as "my changes did nothing" rather
+than as a deploy failure. **If a change does not appear, open the deploy list
+first.** Nothing else is worth checking until you know the build ran.
 
-Setting a human name on the commit is **not** the fix on its own:
+The cause was a contributor count, not an identity. The plan allowed **one**
+contributor on a private repo and this history has three author emails -
+`noreply@anthropic.com`, `ollivierre.alfredo@gmail.com` and
+`info@buenavistaturf.com`. Two attempts to fix it by changing the commit
+author - first the name, then the email, to match the Netlify login - both
+failed, because no single email was ever the problem.
 
-```bash
-# necessary, but only works once the email below is linked in Netlify
-git config user.name "Alfredo Ollivierre"
-git config user.email "ollivierre.alfredo@gmail.com"
-```
+**The repo is public now, and the limit only applies to private repos.** That
+is the fix, and it is permanent - commit as whoever you like. Nothing
+sensitive is tracked here: `ADMIN_PASSWORD` and `NETLIFY_API_TOKEN` are read
+from `process.env` at runtime and exist only in Netlify.
 
-The email has to be linked, one time, in Netlify -> team settings -> **Manage
-Git contributors** (the failed deploy's error links straight there). After
-that, a redeploy of the already-pushed commit builds - no new commit needed.
-The other two ways out: make the repo public (the restriction is specific to
-private repos), or upgrade the plan.
-
-`Co-Authored-By:` trailers are fine - Netlify reads the author field, not the
-message body. If a deploy shows "unrecognized Git contributor", check
-`git log --format='%an <%ae>'` first, then check that email is linked.
+If the repo is ever made private again, this comes straight back. The other
+two ways out are linking the account under Netlify -> team settings ->
+**Manage Git contributors**, or upgrading the plan.
 
 ## Things that bite
 
