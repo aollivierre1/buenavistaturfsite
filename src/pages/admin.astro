@@ -301,6 +301,35 @@ import { locations } from '../data/locations.js';
     $('view-jobs').hidden = b.dataset.view !== 'jobs';
   }));
 
+  // "ADMIN_PASSWORD is missing" is true but not actionable - absent, misnamed,
+  // and scoped to the wrong deploy context all look the same from here. Ask the
+  // function what it can actually see and say which one it is.
+  async function explainMissingKey() {
+    let d;
+    try {
+      const r = await fetch(ADMIN + '?action=diagnose');
+      if (!r.ok) return null;
+      d = await r.json();
+    } catch { return null; }
+    if (!d || !d.ADMIN_PASSWORD) return null;
+
+    const miss = d.ADMIN_PASSWORD.nearMisses || [];
+    if (miss.length) {
+      return 'Netlify has this variable spelled "' + miss.join('", "') + '", but the function looks for '
+        + 'exactly ADMIN_PASSWORD. Rename it (watch for a trailing space or lowercase letters), '
+        + 'then Deploys → Trigger deploy.';
+    }
+    if (d.ADMIN_PASSWORD.set) {
+      return 'ADMIN_PASSWORD is readable now, so this page is running an older copy of the function. '
+        + 'Deploys → Trigger deploy, then reload.';
+    }
+    return 'ADMIN_PASSWORD is not reaching this function. It is running in the "' + d.deployContext
+      + '" context and can see ' + d.envKeyCount + ' variables, but not that one. Two usual causes: '
+      + 'its Scopes exclude Functions, or it has a per-context value and Production was left blank. '
+      + 'Fix it in Netlify → Environment variables, then Deploys → Trigger deploy — '
+      + 'editing the variable alone does not update a function that is already deployed.';
+  }
+
   async function load() {
     let res;
     try { res = await fetch(ADMIN + '?action=data'); }
@@ -308,7 +337,9 @@ import { locations } from '../data/locations.js';
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
       // 401 is the ordinary signed-out case; anything else is worth naming.
-      showGateError(res.status === 401 ? null : (body.error || 'Could not load submissions (' + res.status + ').'));
+      if (res.status === 401) { showGateError(null); return; }
+      const detail = res.status === 500 ? await explainMissingKey() : null;
+      showGateError(detail || body.error || 'Could not load submissions (' + res.status + ').');
       return;
     }
     forms = (body.forms || []).sort((a, b) => b.submissions.length - a.submissions.length);
