@@ -116,7 +116,12 @@ import { pricing } from '../data/pricing.js';
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .fh { font-size: 1.05rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--gold); font-family: var(--font-body); font-weight: 700; margin: 36px 0 18px; border-top: 1px solid var(--line); padding-top: 24px; }
   .fh:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+  /* The negative margin tucks a hint up under the field it explains. The one
+     under the submit button has no field above it, so the same rule pulled it
+     10px into the button at every width - fine for the other hints, a line of
+     text sitting on top of the button here. */
   .hint { font-size: 0.84rem; color: var(--muted); margin-top: -10px; }
+  .btn + .hint { margin-top: 10px; }
   .result { background: var(--green-700); border: 1px solid var(--line); padding: 32px; position: sticky; top: 110px; }
   .big { font-family: var(--font-display); font-size: 4.5rem; font-weight: 900; line-height: 1; color: var(--cream); margin-bottom: 18px; }
   .big small { display: block; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-family: var(--font-body); font-weight: 700; margin-top: 8px; }
