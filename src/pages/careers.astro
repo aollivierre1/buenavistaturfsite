@@ -145,11 +145,17 @@ const otherLocations = [...new Set(openings.map((o) => o.locationOption).filter(
       // /admin posts a single location; the built-in roles carry a list
       const places = Array.isArray(o.locations) ? o.locations.join(', ') : o.location;
       const where = [places, o.type].filter(Boolean).join(' \u00b7 ');
-      return '<a class="role" href="#apply" data-role="' + esc(o.title) + '">' +
+      // A standing role keeps its own page; one posted from /admin has no slug
+      // and sends the applicant straight to the form. Mirrors how this card is
+      // built server-side, so the API taking over does not drop the link to the
+      // full job description.
+      const detail = o.slug ? '/careers/' + o.slug + '/' : null;
+      return '<a class="role" href="' + (detail ? esc(detail) : '#apply') + '"' +
+        (detail ? '' : ' data-role="' + esc(o.title) + '"') + '>' +
         '<h3>' + esc(o.title) + '</h3>' +
         (where ? '<span class="where">' + esc(where) + '</span>' : '') +
         (o.summary ? '<p>' + esc(o.summary) + '</p>' : '') +
-        '<span class="role-cta">Apply for this role \u2192</span></a>';
+        '<span class="role-cta">' + (detail ? 'View role &amp; apply' : 'Apply for this role') + ' \u2192</span></a>';
     }).join('');
     document.getElementById('openings').hidden = false;
     bindRoleCards();

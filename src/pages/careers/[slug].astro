@@ -23,11 +23,13 @@ const applyHref = `/careers/?${applyQuery}#apply`;
 >
   <section class="ph"><div class="wrap">
     <a class="back" href="/careers/">&larr; All open roles</a>
-    <span class="eyebrow">Now hiring</span>
+    <span class="eyebrow" id="jdEyebrow">Now hiring</span>
     <h1>{role.title}</h1>
     {where && <p class="where">{where}</p>}
     {role.summary && <p class="lede">{role.summary}</p>}
-    <a class="btn" href={applyHref}>Apply for this role</a>
+    <p class="closed" id="jdClosed" hidden>This role has been filled and is no longer taking
+      applications. <a href="/careers/">See what else is open &rarr;</a></p>
+    <a class="btn" id="jdApplyTop" href={applyHref}>Apply for this role</a>
   </div></section>
 
   <section><div class="wrap jd">
@@ -60,7 +62,7 @@ const applyHref = `/careers/?${applyQuery}#apply`;
     <div class="cta">
       <h2>Ready to apply?</h2>
       <p>The form takes a couple of minutes. Applications go straight to the hiring manager.</p>
-      <a class="btn" href={applyHref}>Apply for this role</a>
+      <a class="btn" id="jdApplyBottom" href={applyHref}>Apply for this role</a>
     </div>
   </div></section>
 </Base>
@@ -84,6 +86,13 @@ const applyHref = `/careers/?${applyQuery}#apply`;
   .jd li{color:var(--cream-dim);font-size:.95rem;line-height:1.55}
   .note{margin-top:34px;padding:14px 18px;border-left:3px solid var(--gold);
     background:var(--green-700);color:var(--cream-dim);font-size:.9rem}
+  /* .btn sets display:inline-block, which outranks the [hidden] attribute's
+     own display:none - without this the Apply button stays on screen after a
+     role is taken down, which is the one thing this must not do. */
+  [hidden]{display:none !important}
+  .closed{margin:0 0 24px;padding:14px 18px;border-left:3px solid var(--gold);
+    background:rgba(216,178,94,.1);color:var(--cream);max-width:60ch}
+  .closed a{color:var(--gold)}
   .cta{margin-top:56px;padding-top:40px;border-top:1px solid var(--line)}
   .cta p{color:var(--cream-dim);margin-bottom:24px}
 
@@ -110,3 +119,24 @@ const applyHref = `/careers/?${applyQuery}#apply`;
       border-left:2pt solid #888; color:#222 !important; font-size:9pt }
   }
 </style>
+
+<script define:vars={{ slug: role.slug }}>
+  // This page is built once and stays built, so a role taken down in /admin
+  // would otherwise keep taking applications for anyone holding the link.
+  // Ask the live list; if it cannot be reached, leave the page as it is rather
+  // than telling someone a job is closed because a request failed.
+  fetch('/api/openings')
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      if (!d || !Array.isArray(d.openings)) return;
+      const open = d.openings.some((o) => o.slug === slug || o.title === document.querySelector('h1').textContent.trim());
+      if (open) return;
+      document.getElementById('jdClosed').hidden = false;
+      document.getElementById('jdEyebrow').textContent = 'Closed';
+      for (const id of ['jdApplyTop', 'jdApplyBottom']) {
+        const el = document.getElementById(id);
+        if (el) el.hidden = true;
+      }
+    })
+    .catch(() => {});
+</script>
