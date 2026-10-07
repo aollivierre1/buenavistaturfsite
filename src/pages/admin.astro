@@ -306,14 +306,40 @@ import { locations } from '../data/locations.js';
     return { cls: 'pill-new', label: 'Needs review' };
   }
 
-  function fieldRows(data) {
+  // One ordering, used by the card, the print view and the email, so a
+  // forwarded application reads the same as the one on screen.
+  function orderedFields(data) {
     const entries = Object.entries(data)
       .filter(([k, v]) => !HIDE.has(k) && !HEAD.includes(k) && v !== '' && v != null);
     entries.sort((a, b) => {
       const ia = FIRST.indexOf(a[0]); const ib = FIRST.indexOf(b[0]);
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
     });
-    return entries.map(([k, v]) => {
+    return entries;
+  }
+
+  // Opens whatever mail app this device uses, with the application already
+  // written out and the recipient left blank. Nothing is sent from the server,
+  // so it goes from your own address and replies come back to you - and there
+  // is no mail provider key to keep anywhere.
+  function mailtoFor(s) {
+    const d = s.data;
+    const kind = active === 'application' ? 'Application' : pretty(active);
+    const subject = kind + ': ' + nameOf(d) + (d.role ? ' — ' + d.role : '');
+    const lines = [nameOf(d)];
+    if (headline(d)) lines.push(headline(d));
+    lines.push('Submitted ' + when(s.created_at), '');
+    for (const [k, v] of orderedFields(d)) {
+      if (k === 'name') continue;
+      lines.push(pretty(k) + ': ' + v);
+    }
+    lines.push('', 'Forwarded from the Buena Vista Turf Farm dashboard.');
+    return 'mailto:?subject=' + encodeURIComponent(subject)
+      + '&body=' + encodeURIComponent(lines.join('\n'));
+  }
+
+  function fieldRows(data) {
+    return orderedFields(data).map(([k, v]) => {
       const str = String(v);
       const val = /^https?:\/\//.test(str)
         ? '<a href="' + esc(str) + '" target="_blank" rel="noopener">Open attachment</a>'
@@ -359,12 +385,14 @@ import { locations } from '../data/locations.js';
     $('ract').innerHTML = gone
       ? '<button type="button" class="btn" id="restoreBtn">Put back in the list</button>' +
         '<div class="ract-right">' +
+        '<a class="btn btn-ghost" id="emailBtn" href="' + esc(mailtoFor(s)) + '">Email</a>' +
         '<button type="button" class="btn btn-ghost" id="printBtn">Print</button>' +
         '<button type="button" class="danger" id="destroyBtn">Delete permanently</button></div>'
       : '<label class="donebox' + (isDone ? ' is-done' : '') + '">' +
         '<input type="checkbox" id="doneChk"' + (isDone ? ' checked' : '') + ' />' +
         (isDone ? 'Reviewed' : 'Mark reviewed') + '</label>' +
         '<div class="ract-right">' +
+        '<a class="btn btn-ghost" id="emailBtn" href="' + esc(mailtoFor(s)) + '">Email</a>' +
         '<button type="button" class="btn btn-ghost" id="printBtn">Print</button>' +
         '<button type="button" class="danger" id="removeBtn">Remove</button>' +
         '<button type="button" class="btn" id="nextNew">Next to review &#8594;</button></div>';
