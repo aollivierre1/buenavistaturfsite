@@ -32,6 +32,34 @@ async function fromBlobs() {
   }
 }
 
+// Per-submission flags: which have been reviewed, and which have been removed
+// from the list. Their own store, so listing submissions does not have to step
+// over them, and server-side rather than in the browser so that marking someone
+// off on a phone in the field shows up on the office computer too.
+//
+// Removing is a flag, not a delete. These are job applicants; a mis-tapped
+// button on a phone should not destroy somebody's application, so removed ones
+// move to a Removed tab and can be put back.
+const FLAGS = { reviewed: 'reviewed', removed: 'removed' };
+const flagStore = () => getStore('bvt-review');
+
+async function readFlag(key) {
+  try {
+    const raw = await flagStore().get(key, { type: 'json' });
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+async function writeFlag(key, id, on) {
+  const map = await readFlag(key);
+  if (on) map[id] = { at: new Date().toISOString() };
+  else delete map[id];
+  await flagStore().setJSON(key, map);
+  return map;
+}
+
 // Only for submissions that arrived before the mirror existed.
 async function fromApi(siteId) {
   const forms = await netlify(`/sites/${siteId}/forms`);
@@ -164,7 +192,10 @@ export default async (req, context) => {
     }
 
     const forms = groupByForm([...blobbed, ...apiRecords]);
-    const body = { forms, fetched_at: new Date().toISOString() };
+    const [reviewed, removed] = await Promise.all([
+      readFlag(FLAGS.reviewed), readFlag(FLAGS.removed),
+    ]);
+    const body = { forms, reviewed, removed, fetched_at: new Date().toISOString() };
 
     if (apiError) body.warning = apiError;
     if (!forms.length && !process.env.NETLIFY_API_TOKEN) {
@@ -173,6 +204,44 @@ export default async (req, context) => {
         + 'add NETLIFY_API_TOKEN in Netlify → Environment variables.';
     }
     return json(200, body);
+  }
+
+  // Mark one submission reviewed, or remove it from the list. Both are flags
+  // keyed by submission id, so they survive a reload and reach every device.
+  if (action === 'flag') {
+    let body;
+    try { body = await req.json(); } catch { return json(400, { error: 'Expected JSON.' }); }
+    const id = String(body.id || '').slice(0, 160);
+    const name = FLAGS[body.flag];
+    if (!id) return json(400, { error: 'Which submission?' });
+    if (!name) return json(400, { error: 'Unknown flag.' });
+    const map = await writeFlag(name, id, Boolean(body.on));
+    return json(200, { ok: true, flag: name, map });
+  }
+
+  // Really delete, from the Removed tab. Only works for submissions this site
+  // mirrored itself; older ones live in Netlify's own Forms tab and have to be
+  // deleted there, so say that rather than pretending it worked.
+  if (action === 'destroy') {
+    const id = String(new URL(req.url).searchParams.get('id') || '').slice(0, 160);
+    if (!id) return json(400, { error: 'Which submission?' });
+    try {
+      const store = getStore('bvt-forms');
+      const { blobs } = await store.list();
+      const hit = blobs.find((b) => b.key.endsWith('-' + id));
+      if (!hit) {
+        return json(409, {
+          error: 'This one came from Netlify Forms rather than from this site’s own storage, '
+            + 'so it can only be deleted in Netlify → Forms. It stays in the Removed tab here.',
+        });
+      }
+      await store.delete(hit.key);
+      await writeFlag(FLAGS.removed, id, false);
+      await writeFlag(FLAGS.reviewed, id, false);
+      return json(200, { ok: true });
+    } catch (err) {
+      return json(502, { error: String(err.message || err) });
+    }
   }
 
   return json(400, { error: 'Unknown action.' });

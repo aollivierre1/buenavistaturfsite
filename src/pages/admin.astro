@@ -10,7 +10,7 @@ import { locations } from '../data/locations.js';
   <section class="ph"><div class="wrap">
     <span class="eyebrow">Private</span>
     <h1>Dashboard.</h1>
-    <p class="lede">Quote requests, contact messages, job applications, and the roles you have open.</p>
+    <p class="lede">Job applications, quote requests and contact messages — one at a time, with a record of what you have already handled.</p>
   </div></section>
 
   <section><div class="wrap">
@@ -37,6 +37,7 @@ import { locations } from '../data/locations.js';
       <div id="view-inbox">
         <p id="inboxNote" class="note" hidden></p>
         <div class="tiles" id="tiles"></div>
+
         <div class="bar">
           <div class="tabs" id="tabs" role="tablist"></div>
           <div class="bar-right">
@@ -44,8 +45,28 @@ import { locations } from '../data/locations.js';
             <button type="button" class="btn btn-ghost" id="csvBtn">Export CSV</button>
           </div>
         </div>
-        <p class="meta" id="meta"></p>
-        <div id="list"></div>
+
+        <div class="chips" id="chips"></div>
+
+        <div id="reader" hidden>
+          <div class="rnav">
+            <button type="button" class="navb" id="prevBtn" aria-label="Previous">&#8592;&nbsp; Previous</button>
+            <span class="rcount" id="rcount"></span>
+            <button type="button" class="navb" id="nextBtn" aria-label="Next">Next &nbsp;&#8594;</button>
+          </div>
+
+          <article class="rec" id="rec"></article>
+
+          <div class="ract" id="ract"></div>
+          <p class="kbd">Tip: use the <kbd>&#8592;</kbd> and <kbd>&#8594;</kbd> arrow keys to move between people, and <kbd>R</kbd> to mark one reviewed.</p>
+        </div>
+
+        <p class="empty" id="emptyMsg" hidden></p>
+
+        <details class="queue" id="queueWrap">
+          <summary id="queueSum">Jump to someone else</summary>
+          <div id="queue"></div>
+        </details>
       </div>
 
       <div id="view-jobs" hidden>
@@ -88,37 +109,119 @@ import { locations } from '../data/locations.js';
   .tab { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 9px 15px; font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
   .tab.on { background: var(--gold); color: #0f1f12; border-color: var(--gold); }
 
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 14px; margin-bottom: 34px; }
-  .tile { border: 1px solid var(--line); background: var(--green-700); padding: 18px 20px; }
-  .tile b { display: block; font-family: var(--font-display); font-size: 2.1rem; line-height: 1; }
-  .tile span { display: block; margin-top: 8px; font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
-
-  .bar { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 14px; margin-bottom: 30px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .bar-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .bar-right input { width: auto; min-width: 220px; }
   .meta { color: var(--muted); font-size: .82rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
 
-  .sub { border: 1px solid var(--line); background: var(--green-700); padding: 20px 22px; margin-bottom: 12px; }
-  .sub-top { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: baseline; }
-  .sub-top strong { font-family: var(--font-display); font-size: 1.15rem; }
-  .sub-top time { color: var(--muted); font-size: .78rem; }
-  .fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 10px 26px; margin-top: 14px; }
-  .f { border-top: 1px solid var(--line); padding-top: 8px; }
-  .f span { display: block; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
-  .f p { margin: 4px 0 0; font-size: .92rem; overflow-wrap: anywhere; }
-  .f a { color: var(--gold); }
+  .rnav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .rcount { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); text-align: center; }
+  .navb { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 11px 18px;
+    font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+  .navb:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+  .navb:disabled { opacity: .35; cursor: default; }
+
+  .rec { border: 1px solid var(--line); background: var(--green-700); padding: clamp(20px,3vw,32px); }
+  .ract { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 16px; }
+  .kbd { color: var(--muted); font-size: .76rem; margin-top: 14px; }
+  .kbd kbd { background: var(--green-900); border: 1px solid var(--line); padding: 1px 6px; font-size: .9em; }
   .empty { color: var(--muted); padding: 40px 0; text-align: center; }
 
-  .job { border: 1px solid var(--line); background: var(--green-700); padding: 20px 22px; margin-bottom: 12px; }
-  .job-grid { display: grid; gap: 12px 18px; grid-template-columns: 1fr; }
-  @media (min-width: 780px) { .job-grid { grid-template-columns: 2fr 1.4fr 1fr; } }
-  .job-grid label { display: block; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
-  .job-wide { grid-column: 1 / -1; }
-  .job-foot { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; margin-top: 14px; }
-  .live { display: flex; gap: 9px; align-items: center; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cream); }
-  .live input { width: auto; }
-  .rm { background: transparent; border: 1px solid var(--line); color: #ff9c8a; padding: 8px 14px; font-size: .68rem; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  .queue { margin-top: 30px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .queue summary { cursor: pointer; font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .queue summary:hover { color: var(--cream); }
   .jobs-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 20px; }
+</style>
+
+<!-- Everything below is drawn by the script with innerHTML, and Astro's scoped
+     styles only reach elements that exist in the template - it compiles
+     ".tile" to ".tile[data-astro-cid-...]" and injected nodes never carry that
+     attribute. Scoped rules for these left the whole dashboard - tiles, every
+     submission, the job editor - rendering as unstyled text. Namespaced under
+     #panel so going global here cannot leak into the rest of the site. -->
+<style is:global>
+  #panel .tile { border: 1px solid var(--line); background: var(--green-700); padding: 18px 20px; }
+  #panel .tile b { display: block; font-family: var(--font-display); font-size: 2.1rem; line-height: 1; }
+  #panel .tile span { display: block; margin-top: 8px; font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+  #panel .tile.hot b { color: var(--gold); }
+
+  #panel .tab { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 9px 15px;
+    font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  #panel .tab.on { background: var(--gold); color: #0f1f12; border-color: var(--gold); }
+
+  #panel .chip { background: transparent; border: 1px solid var(--line); color: var(--muted); padding: 8px 14px;
+    font-size: .68rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  #panel .chip.on { border-color: var(--gold); color: var(--gold); background: rgba(216,178,94,.1); }
+
+  /* One person's record. Name and status first, then the details in a plain
+     two-column list that stays readable on a phone and prints on white. */
+  #panel .rec-top { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: baseline; justify-content: space-between; }
+  #panel .rec-name { font-family: var(--font-display); font-size: clamp(1.4rem,3vw,2rem); line-height: 1.15; margin: 0; }
+  #panel .rec-when { color: var(--muted); font-size: .8rem; margin: 6px 0 0; }
+  #panel .pill { font-size: .62rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 5px 11px; border: 1px solid; white-space: nowrap; }
+  #panel .pill-new { color: var(--gold); border-color: var(--gold); background: rgba(216,178,94,.12); }
+  #panel .pill-done { color: #8fd3a4; border-color: #8fd3a4; background: rgba(143,211,164,.12); }
+  #panel .pill-gone { color: #ff9c8a; border-color: #ff9c8a; background: rgba(255,156,138,.1); }
+
+  #panel .fields { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 22px; }
+  @media (min-width: 720px) { #panel .fields { grid-template-columns: 1fr 1fr; gap: 0 32px; } }
+  #panel .f { border-top: 1px solid var(--line); padding: 11px 0; }
+  #panel .f span { display: block; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+  #panel .f p { margin: 5px 0 0; font-size: 1rem; overflow-wrap: anywhere; }
+  #panel .f a { color: var(--gold); }
+  #panel .f-wide { grid-column: 1 / -1; }
+
+  #panel .donebox { display: flex; gap: 10px; align-items: center; cursor: pointer;
+    border: 1px solid var(--line); padding: 12px 18px; font-size: .74rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--cream); }
+  #panel .donebox:hover { border-color: var(--gold); }
+  #panel .donebox input { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
+  #panel .donebox.is-done { border-color: #8fd3a4; color: #8fd3a4; }
+  #panel .ract-right { display: flex; flex-wrap: wrap; gap: 8px; }
+  #panel .danger { background: transparent; border: 1px solid var(--line); color: #ff9c8a;
+    padding: 11px 18px; font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  #panel .danger:hover { border-color: #ff9c8a; }
+
+  /* The jump list - compact, one row per person, current one marked. */
+  #panel .qrow { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; width: 100%; text-align: left;
+    background: transparent; border: 0; border-bottom: 1px solid var(--line); color: var(--cream);
+    padding: 12px 4px; cursor: pointer; font: inherit; font-size: .9rem; }
+  #panel .qrow:hover { background: rgba(245,241,228,.05); }
+  #panel .qrow.on { background: rgba(216,178,94,.1); box-shadow: inset 3px 0 0 var(--gold); padding-left: 12px; }
+  #panel .qrow .qn { font-weight: 700; }
+  #panel .qrow .qd { color: var(--muted); font-size: .78rem; margin-left: auto; }
+  #panel .qrow .qs { font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  #panel .qrow.done .qn { color: var(--muted); font-weight: 400; }
+
+  #panel .job { border: 1px solid var(--line); background: var(--green-700); padding: 20px 22px; margin-bottom: 12px; }
+  #panel .job-grid { display: grid; gap: 12px 18px; grid-template-columns: 1fr; }
+  @media (min-width: 780px) { #panel .job-grid { grid-template-columns: 2fr 1.4fr 1fr; } }
+  #panel .job-grid label { display: block; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  #panel .job-wide { grid-column: 1 / -1; }
+  #panel .job-foot { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; margin-top: 14px; }
+  #panel .live { display: flex; gap: 9px; align-items: center; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cream); }
+  #panel .live input { width: auto; }
+  #panel .rm { background: transparent; border: 1px solid var(--line); color: #ff9c8a; padding: 8px 14px;
+    font-size: .68rem; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
+  #panel .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+
+  /* Printing one applicant: the record only, on white, so it files like any
+     other HR document. */
+  @media print {
+    .topbar, .weatherbar, .hdr, .ft, .ph, .skip,
+    #panel .viewbar, #panel .tiles, #panel .bar, #panel .chips,
+    #panel .rnav, #panel .ract, #panel .kbd, #panel .queue, #panel #view-jobs,
+    #panel .note { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    #panel .rec { border: 0; background: #fff !important; padding: 0; }
+    #panel .rec-name, #panel .f p { color: #000 !important; }
+    #panel .rec-when, #panel .f span { color: #444 !important; }
+    #panel .f { border-top: 1px solid #bbb; }
+    #panel .fields { grid-template-columns: 1fr 1fr; }
+    #panel .pill { color: #000 !important; border-color: #888 !important; background: none !important; }
+  }
 </style>
 
 <script>
@@ -128,75 +231,260 @@ import { locations } from '../data/locations.js';
   let forms = [];
   let active = null;
   let openings = [];
+  let reviewed = {};
+  let removed = {};
+  let filter = 'new';
+  let cursor = 0;
+  // The people you are working through right now, by id. Fixed while you work
+  // the batch and only rebuilt when you change form, filter or search. If it
+  // re-filtered the moment you ticked someone off, they would disappear and
+  // the next person would slide under your finger - one stray tap and you have
+  // marked off an applicant you never read.
+  let workIds = [];
 
   const LOCATIONS = JSON.parse($('bvt-locations').textContent || '[]');
 
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pretty = (k) => k.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   const when = (iso) => new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  const day = (iso) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   // Netlify keeps the honeypot and its own bookkeeping in the payload; the team
   // does not need to see either.
   const HIDE = new Set(['bot-field', 'form-name', 'ip', 'user_agent', 'referrer']);
   const nameOf = (d) => d.name || d.email || d.phone || 'Submission';
 
-  /* ---------- inbox ---------- */
+  // What an HR reader wants first, in the order they want it. Anything else
+  // keeps its own order underneath.
+  const FIRST = ['name', 'role', 'position', 'location', 'email', 'phone'];
+  const LONG = new Set(['message', 'notes', 'experience', 'cover_letter', 'comments']);
 
-  function render() {
+  /* ---------- the one-at-a-time reader ---------- */
+
+  function searchHit(s, q) {
+    return !q || JSON.stringify(s.data).toLowerCase().includes(q);
+  }
+
+  // Everything in the current form, after the search box and the chosen chip.
+  function pool(which) {
     const form = forms.find((f) => f.name === active);
     const q = $('search').value.trim().toLowerCase();
-    let subs = form ? form.submissions : [];
-    if (q) subs = subs.filter((s) => JSON.stringify(s.data).toLowerCase().includes(q));
+    const all = (form ? form.submissions : []).filter((s) => searchHit(s, q));
+    const f = which || filter;
+    if (f === 'removed') return all.filter((s) => removed[s.id]);
+    const live = all.filter((s) => !removed[s.id]);
+    if (f === 'new') return live.filter((s) => !reviewed[s.id]);
+    if (f === 'done') return live.filter((s) => reviewed[s.id]);
+    return live;
+  }
 
-    $('meta').textContent = subs.length
-      ? subs.length + (subs.length === 1 ? ' submission' : ' submissions') + (q ? ' matching "' + q + '"' : '')
-      : '';
+  // Re-read the filters and start a fresh batch. Everything that changes what
+  // you are looking at calls this; marking someone off deliberately does not.
+  function rebuildWork() {
+    workIds = pool().map((s) => s.id);
+    cursor = 0;
+  }
 
-    if (!subs.length) {
-      $('list').innerHTML = '<p class="empty">' + (q ? 'Nothing matches that search.' : 'No submissions yet.') + '</p>';
-      return;
-    }
+  function working() {
+    const form = forms.find((f) => f.name === active);
+    if (!form) return [];
+    const byId = new Map(form.submissions.map((s) => [s.id, s]));
+    return workIds.map((id) => byId.get(id)).filter(Boolean);
+  }
 
-    $('list').innerHTML = subs.map((s) => {
-      const fields = Object.entries(s.data)
-        .filter(([k, v]) => !HIDE.has(k) && v !== '' && v != null)
-        .map(([k, v]) => {
-          const val = /^https?:\/\//.test(String(v))
-            ? '<a href="' + esc(v) + '" target="_blank" rel="noopener">Open file</a>'
-            : esc(v);
-          return '<div class="f"><span>' + esc(pretty(k)) + '</span><p>' + val + '</p></div>';
-        }).join('');
-      return '<article class="sub"><div class="sub-top"><strong>' + esc(nameOf(s.data)) +
-        '</strong><time>' + esc(when(s.created_at)) + '</time></div><div class="fields">' + fields + '</div></article>';
+  function statusOf(s) {
+    if (removed[s.id]) return { cls: 'pill-gone', label: 'Removed' };
+    if (reviewed[s.id]) return { cls: 'pill-done', label: 'Reviewed' };
+    return { cls: 'pill-new', label: 'Needs review' };
+  }
+
+  function fieldRows(data) {
+    const entries = Object.entries(data).filter(([k, v]) => !HIDE.has(k) && v !== '' && v != null);
+    entries.sort((a, b) => {
+      const ia = FIRST.indexOf(a[0]); const ib = FIRST.indexOf(b[0]);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    return entries.map(([k, v]) => {
+      const str = String(v);
+      const val = /^https?:\/\//.test(str)
+        ? '<a href="' + esc(str) + '" target="_blank" rel="noopener">Open attachment</a>'
+        : esc(str);
+      const wide = LONG.has(k) || str.length > 90 ? ' f-wide' : '';
+      return '<div class="f' + wide + '"><span>' + esc(pretty(k)) + '</span><p>' + val + '</p></div>';
     }).join('');
   }
 
+  function renderReader() {
+    const list = working();
+    if (cursor >= list.length) cursor = Math.max(0, list.length - 1);
+    const s = list[cursor];
+
+    $('reader').hidden = !s;
+    $('emptyMsg').hidden = Boolean(s);
+
+    if (!s) {
+      const q = $('search').value.trim();
+      $('emptyMsg').textContent = q ? 'Nothing matches that search.'
+        : filter === 'new' ? 'Nothing left to review here. Well done.'
+        : filter === 'done' ? 'Nothing marked reviewed yet.'
+        : filter === 'removed' ? 'Nothing removed.'
+        : 'No submissions yet.';
+      renderQueue(list);
+      return;
+    }
+
+    const st = statusOf(s);
+    $('rec').innerHTML =
+      '<div class="rec-top"><div><h2 class="rec-name">' + esc(nameOf(s.data)) + '</h2>' +
+      '<p class="rec-when">Submitted ' + esc(when(s.created_at)) + '</p></div>' +
+      '<span class="pill ' + st.cls + '">' + st.label + '</span></div>' +
+      '<div class="fields">' + fieldRows(s.data) + '</div>';
+
+    $('rcount').textContent = (cursor + 1) + ' of ' + list.length;
+    $('prevBtn').disabled = cursor === 0;
+    $('nextBtn').disabled = cursor >= list.length - 1;
+
+    const isDone = Boolean(reviewed[s.id]);
+    const gone = Boolean(removed[s.id]);
+    $('ract').innerHTML = gone
+      ? '<button type="button" class="btn" id="restoreBtn">Put back in the list</button>' +
+        '<div class="ract-right">' +
+        '<button type="button" class="btn btn-ghost" id="printBtn">Print</button>' +
+        '<button type="button" class="danger" id="destroyBtn">Delete permanently</button></div>'
+      : '<label class="donebox' + (isDone ? ' is-done' : '') + '">' +
+        '<input type="checkbox" id="doneChk"' + (isDone ? ' checked' : '') + ' />' +
+        (isDone ? 'Reviewed' : 'Mark reviewed') + '</label>' +
+        '<div class="ract-right">' +
+        '<button type="button" class="btn btn-ghost" id="printBtn">Print</button>' +
+        '<button type="button" class="danger" id="removeBtn">Remove</button>' +
+        '<button type="button" class="btn" id="nextNew">Next to review &#8594;</button></div>';
+
+    wireActions(s);
+    renderQueue(list);
+  }
+
+  function wireActions(s) {
+    const chk = $('doneChk');
+    if (chk) chk.addEventListener('change', () => setFlag(s.id, 'reviewed', chk.checked));
+    const rm = $('removeBtn');
+    if (rm) rm.addEventListener('click', () => setFlag(s.id, 'removed', true));
+    const back = $('restoreBtn');
+    if (back) back.addEventListener('click', () => setFlag(s.id, 'removed', false));
+    const del = $('destroyBtn');
+    if (del) del.addEventListener('click', () => destroy(s));
+    const pr = $('printBtn');
+    if (pr) pr.addEventListener('click', () => window.print());
+    const nn = $('nextNew');
+    if (nn) nn.addEventListener('click', jumpToNextNew);
+  }
+
+  function renderQueue(list) {
+    $('queueSum').textContent = list.length > 1 ? 'Jump to someone else (' + list.length + ')' : 'Jump to someone else';
+    $('queueWrap').hidden = list.length < 2;
+    $('queue').innerHTML = list.map((s, i) => {
+      const st = statusOf(s);
+      return '<button type="button" class="qrow' + (i === cursor ? ' on' : '') +
+        (reviewed[s.id] ? ' done' : '') + '" data-i="' + i + '">' +
+        '<span class="qn">' + esc(nameOf(s.data)) + '</span>' +
+        '<span class="qs">' + st.label + '</span>' +
+        '<span class="qd">' + esc(day(s.created_at)) + '</span></button>';
+    }).join('');
+    $('queue').querySelectorAll('.qrow').forEach((b) => b.addEventListener('click', () => {
+      cursor = Number(b.dataset.i);
+      renderReader();
+      $('rec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+  }
+
+  function jumpToNextNew() {
+    const list = working();
+    const next = list.findIndex((s, i) => i > cursor && !reviewed[s.id] && !removed[s.id]);
+    cursor = next >= 0 ? next : Math.min(cursor + 1, list.length - 1);
+    renderReader();
+  }
+
+  // Flip the flag on screen first so the page answers immediately, then save.
+  // If the save fails, put it back and say so rather than leaving a tick that
+  // means nothing.
+  async function setFlag(id, flag, on) {
+    const map = flag === 'reviewed' ? reviewed : removed;
+    const before = map[id];
+    if (on) map[id] = { at: new Date().toISOString() }; else delete map[id];
+    renderChrome();
+    renderReader();
+    try {
+      const res = await fetch(ADMIN + '?action=flag', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id, flag, on }),
+      });
+      if (!res.ok) throw new Error('save failed');
+    } catch {
+      if (before) map[id] = before; else delete map[id];
+      renderChrome();
+      renderReader();
+      note('That did not save. Check your connection and try again.');
+    }
+  }
+
+  async function destroy(s) {
+    if (!confirm('Delete this permanently?\n\n' + nameOf(s.data) + '\n\nThis cannot be undone.')) return;
+    try {
+      const res = await fetch(ADMIN + '?action=destroy&id=' + encodeURIComponent(s.id), { method: 'POST' });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) { note(body.error || 'Could not delete that one.'); return; }
+      const form = forms.find((f) => f.name === active);
+      if (form) form.submissions = form.submissions.filter((x) => x.id !== s.id);
+      delete removed[s.id];
+      delete reviewed[s.id];
+      renderChrome();
+      renderReader();
+    } catch {
+      note('Could not reach the server.');
+    }
+  }
+
+  function note(msg) {
+    $('inboxNote').textContent = msg;
+    $('inboxNote').hidden = !msg;
+  }
+
+  /* ---------- counts, form tabs, filter chips ---------- */
+
   function renderChrome() {
-    const total = forms.reduce((n, f) => n + f.submissions.length, 0);
-    const since = (days) => {
-      const cut = Date.now() - days * 86400000;
-      return forms.reduce((n, f) => n + f.submissions.filter((s) => new Date(s.created_at).getTime() > cut).length, 0);
-    };
-    const count = (n) => { const f = forms.find((x) => x.name === n); return f ? f.submissions.length : 0; };
+    const all = forms.flatMap((f) => f.submissions);
+    const live = all.filter((s) => !removed[s.id]);
+    const toRead = live.filter((s) => !reviewed[s.id]).length;
+    const weekAgo = Date.now() - 7 * 86400000;
 
     $('tiles').innerHTML = [
-      [total, 'All submissions'],
-      [since(7), 'Last 7 days'],
-      [since(30), 'Last 30 days'],
-      [count('quote'), 'Quote requests'],
-      [count('application'), 'Applications'],
-      [count('contact'), 'Contact messages'],
-    ].map((row) => '<div class="tile"><b>' + row[0] + '</b><span>' + row[1] + '</span></div>').join('');
+      [toRead, 'Need review', toRead > 0],
+      [live.filter((s) => reviewed[s.id]).length, 'Reviewed', false],
+      [live.filter((s) => new Date(s.created_at).getTime() > weekAgo).length, 'Last 7 days', false],
+      [live.length, 'All submissions', false],
+    ].map((r) => '<div class="tile' + (r[2] ? ' hot' : '') + '"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>').join('');
 
-    $('tabs').innerHTML = forms.map((f) =>
-      '<button type="button" class="tab' + (f.name === active ? ' on' : '') + '" data-form="' + esc(f.name) + '">' +
-      esc(pretty(f.name)) + ' (' + f.submissions.length + ')</button>'
-    ).join('');
-
+    $('tabs').innerHTML = forms.map((f) => {
+      const n = f.submissions.filter((s) => !removed[s.id] && !reviewed[s.id]).length;
+      return '<button type="button" class="tab' + (f.name === active ? ' on' : '') + '" data-form="' + esc(f.name) + '">' +
+        esc(pretty(f.name)) + (n ? ' (' + n + ')' : '') + '</button>';
+    }).join('');
     $('tabs').querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => {
       active = b.dataset.form;
+      rebuildWork();
       renderChrome();
-      render();
+      renderReader();
+    }));
+
+    $('chips').innerHTML = [
+      ['new', 'Need review'], ['done', 'Reviewed'], ['all', 'All'], ['removed', 'Removed'],
+    ].map(([k, label]) => '<button type="button" class="chip' + (filter === k ? ' on' : '') +
+      '" data-filter="' + k + '">' + label + ' (' + pool(k).length + ')</button>').join('');
+    $('chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
+      filter = b.dataset.filter;
+      rebuildWork();
+      renderChrome();
+      renderReader();
     }));
   }
 
@@ -345,17 +633,18 @@ import { locations } from '../data/locations.js';
       showGateError(detail || body.error || 'Could not load submissions (' + res.status + ').');
       return;
     }
-    forms = (body.forms || []).sort((a, b) => b.submissions.length - a.submissions.length);
+    forms = body.forms || [];
+    reviewed = body.reviewed || {};
+    removed = body.removed || {};
     // Applications first when present — that is what the team checks most.
     active = forms.some((f) => f.name === 'application') ? 'application' : (forms[0] && forms[0].name);
+    rebuildWork();
     // An empty inbox and an inbox that could not reach older submissions look
     // identical otherwise, and the first is normal while the second is not.
-    const note = body.notice || body.warning || '';
-    $('inboxNote').textContent = note;
-    $('inboxNote').hidden = !note;
+    note(body.notice || body.warning || '');
     show(true);
     renderChrome();
-    render();
+    renderReader();
     loadJobs();
   }
 
@@ -376,21 +665,37 @@ import { locations } from '../data/locations.js';
   });
 
   $('outBtn').addEventListener('click', async () => { await fetch(ADMIN + '?action=logout'); show(false); });
-  $('search').addEventListener('input', render);
+  $('search').addEventListener('input', () => { rebuildWork(); renderChrome(); renderReader(); });
+  $('prevBtn').addEventListener('click', () => { if (cursor > 0) { cursor--; renderReader(); } });
+  $('nextBtn').addEventListener('click', () => { if (cursor < working().length - 1) { cursor++; renderReader(); } });
+
+  // Arrow keys move through the pile, R marks the current one off - but not
+  // while someone is typing in the search box or editing a role.
+  addEventListener('keydown', (e) => {
+    if ($('panel').hidden || $('view-inbox').hidden) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (e.key === 'ArrowLeft' && cursor > 0) { cursor--; renderReader(); }
+    else if (e.key === 'ArrowRight' && cursor < working().length - 1) { cursor++; renderReader(); }
+    else if (e.key === 'r' || e.key === 'R') {
+      const s = working()[cursor];
+      if (s && !removed[s.id]) setFlag(s.id, 'reviewed', !reviewed[s.id]);
+    }
+  });
 
   $('csvBtn').addEventListener('click', () => {
-    const form = forms.find((f) => f.name === active);
-    if (!form || !form.submissions.length) return;
-    const cols = [...new Set(form.submissions.flatMap((s) => Object.keys(s.data)))].filter((c) => !HIDE.has(c));
+    const subs = working();
+    if (!subs.length) return;
+    const cols = [...new Set(subs.flatMap((s) => Object.keys(s.data)))].filter((c) => !HIDE.has(c));
     const cell = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
-    const rows = [['submitted'].concat(cols).map(cell).join(',')];
-    for (const s of form.submissions) {
-      rows.push([s.created_at].concat(cols.map((c) => s.data[c])).map(cell).join(','));
+    const rows = [['submitted', 'status'].concat(cols).map(cell).join(',')];
+    for (const s of subs) {
+      rows.push([s.created_at, statusOf(s).label].concat(cols.map((c) => s.data[c])).map(cell).join(','));
     }
     const url = URL.createObjectURL(new Blob([rows.join('\n')], { type: 'text/csv' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = form.name + '-submissions.csv';
+    a.download = active + '-submissions.csv';
     a.click();
     URL.revokeObjectURL(url);
   });
