@@ -159,7 +159,8 @@ import { locations } from '../data/locations.js';
      two-column list that stays readable on a phone and prints on white. */
   #panel .rec-top { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: baseline; justify-content: space-between; }
   #panel .rec-name { font-family: var(--font-display); font-size: clamp(1.4rem,3vw,2rem); line-height: 1.15; margin: 0; }
-  #panel .rec-when { color: var(--muted); font-size: .8rem; margin: 6px 0 0; }
+  #panel .rec-role { color: var(--gold); font-size: 1.02rem; font-weight: 700; margin: 8px 0 0; letter-spacing: .01em; }
+  #panel .rec-when { color: var(--muted); font-size: .8rem; margin: 5px 0 0; }
   #panel .pill { font-size: .62rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 5px 11px; border: 1px solid; white-space: nowrap; }
   #panel .pill-new { color: var(--gold); border-color: var(--gold); background: rgba(216,178,94,.12); }
   #panel .pill-done { color: #8fd3a4; border-color: #8fd3a4; background: rgba(143,211,164,.12); }
@@ -192,6 +193,7 @@ import { locations } from '../data/locations.js';
   #panel .qrow.on { background: rgba(216,178,94,.1); box-shadow: inset 3px 0 0 var(--gold); padding-left: 12px; }
   #panel .qrow .qn { font-weight: 700; }
   #panel .qrow .qd { color: var(--muted); font-size: .78rem; margin-left: auto; }
+  #panel .qrow .qr { color: var(--gold); font-size: .82rem; }
   #panel .qrow .qs { font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   #panel .qrow.done .qn { color: var(--muted); font-weight: 400; }
 
@@ -216,7 +218,7 @@ import { locations } from '../data/locations.js';
     #panel .note { display: none !important; }
     body { background: #fff !important; color: #000 !important; }
     #panel .rec { border: 0; background: #fff !important; padding: 0; }
-    #panel .rec-name, #panel .f p { color: #000 !important; }
+    #panel .rec-name, #panel .f p, #panel .rec-role { color: #000 !important; }
     #panel .rec-when, #panel .f span { color: #444 !important; }
     #panel .f { border-top: 1px solid #bbb; }
     #panel .fields { grid-template-columns: 1fr 1fr; }
@@ -256,8 +258,14 @@ import { locations } from '../data/locations.js';
 
   // What an HR reader wants first, in the order they want it. Anything else
   // keeps its own order underneath.
-  const FIRST = ['name', 'role', 'position', 'location', 'email', 'phone'];
+  const FIRST = ['name', 'email', 'phone'];
   const LONG = new Set(['message', 'notes', 'experience', 'cover_letter', 'comments']);
+  // What they applied for belongs beside the name, not buried as the fourth of
+  // eight identical-looking rows - it is the first thing you need when a stack
+  // of applications covers three different jobs. Shown in the header and in the
+  // jump list, so it is left out of the field grid below rather than repeated.
+  const HEAD = ['role', 'position', 'location'];
+  const headline = (d) => HEAD.map((k) => d[k]).filter(Boolean).join(' · ');
 
   /* ---------- the one-at-a-time reader ---------- */
 
@@ -299,7 +307,8 @@ import { locations } from '../data/locations.js';
   }
 
   function fieldRows(data) {
-    const entries = Object.entries(data).filter(([k, v]) => !HIDE.has(k) && v !== '' && v != null);
+    const entries = Object.entries(data)
+      .filter(([k, v]) => !HIDE.has(k) && !HEAD.includes(k) && v !== '' && v != null);
     entries.sort((a, b) => {
       const ia = FIRST.indexOf(a[0]); const ib = FIRST.indexOf(b[0]);
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
@@ -336,6 +345,7 @@ import { locations } from '../data/locations.js';
     const st = statusOf(s);
     $('rec').innerHTML =
       '<div class="rec-top"><div><h2 class="rec-name">' + esc(nameOf(s.data)) + '</h2>' +
+      (headline(s.data) ? '<p class="rec-role">' + esc(headline(s.data)) + '</p>' : '') +
       '<p class="rec-when">Submitted ' + esc(when(s.created_at)) + '</p></div>' +
       '<span class="pill ' + st.cls + '">' + st.label + '</span></div>' +
       '<div class="fields">' + fieldRows(s.data) + '</div>';
@@ -386,6 +396,7 @@ import { locations } from '../data/locations.js';
       return '<button type="button" class="qrow' + (i === cursor ? ' on' : '') +
         (reviewed[s.id] ? ' done' : '') + '" data-i="' + i + '">' +
         '<span class="qn">' + esc(nameOf(s.data)) + '</span>' +
+        (s.data.role ? '<span class="qr">' + esc(s.data.role) + '</span>' : '') +
         '<span class="qs">' + st.label + '</span>' +
         '<span class="qd">' + esc(day(s.created_at)) + '</span></button>';
     }).join('');
