@@ -151,6 +151,10 @@ import { locations } from '../data/locations.js';
     font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
   #panel .tab.on { background: var(--gold); color: #0f1f12; border-color: var(--gold); }
 
+  #panel .tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gold); margin-left: 7px; vertical-align: middle; }
+  #panel .tab.on .dot { background: #0f1f12; }
+
   #panel .chip { background: transparent; border: 1px solid var(--line); color: var(--muted); padding: 8px 14px;
     font-size: .68rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
   #panel .chip.on { border-color: var(--gold); color: var(--gold); background: rgba(216,178,94,.1); }
@@ -491,22 +495,32 @@ import { locations } from '../data/locations.js';
   /* ---------- counts, form tabs, filter chips ---------- */
 
   function renderChrome() {
-    const all = forms.flatMap((f) => f.submissions);
-    const live = all.filter((s) => !removed[s.id]);
+    // The tiles describe the form that is open, the same as the chips under
+    // them. Counting every form up here while the chips counted one made the
+    // top of the page say "5 need review" above a tab reading "need review (0)"
+    // - both true, neither any use. The tabs carry the across-the-board picture.
+    const form = forms.find((f) => f.name === active);
+    const live = (form ? form.submissions : []).filter((s) => !removed[s.id]);
     const toRead = live.filter((s) => !reviewed[s.id]).length;
     const weekAgo = Date.now() - 7 * 86400000;
+    const noun = active ? pretty(active).toLowerCase() : 'submission';
 
     $('tiles').innerHTML = [
       [toRead, 'Need review', toRead > 0],
       [live.filter((s) => reviewed[s.id]).length, 'Reviewed', false],
       [live.filter((s) => new Date(s.created_at).getTime() > weekAgo).length, 'Last 7 days', false],
-      [live.length, 'All submissions', false],
+      [live.length, 'All ' + noun + 's', false],
     ].map((r) => '<div class="tile' + (r[2] ? ' hot' : '') + '"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>').join('');
 
+    // Always a number, including zero. Hiding the zero made a tab holding five
+    // reviewed applications look like a tab holding nothing. The dot marks the
+    // tabs with something still to read.
     $('tabs').innerHTML = forms.map((f) => {
-      const n = f.submissions.filter((s) => !removed[s.id] && !reviewed[s.id]).length;
+      const total = f.submissions.filter((s) => !removed[s.id]).length;
+      const unread = f.submissions.filter((s) => !removed[s.id] && !reviewed[s.id]).length;
       return '<button type="button" class="tab' + (f.name === active ? ' on' : '') + '" data-form="' + esc(f.name) + '">' +
-        esc(pretty(f.name)) + (n ? ' (' + n + ')' : '') + '</button>';
+        esc(pretty(f.name)) + ' (' + total + ')' +
+        (unread ? '<span class="dot" title="' + unread + ' to read"></span>' : '') + '</button>';
     }).join('');
     $('tabs').querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => {
       active = b.dataset.form;
