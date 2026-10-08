@@ -19,7 +19,7 @@ if (role.locationOption) applyQuery.set('location', role.locationOption);
 // online. The CDL packet is a different set of forms and is not built yet, so
 // that role still goes to the short form on the Careers page.
 const isDriver = /cdl|driver/i.test(role.title);
-const applyHref = isDriver ? `/careers/?${applyQuery}#apply` : `/apply/general/?${applyQuery}`;
+const applyHref = `/apply/${isDriver ? 'driver' : 'general'}/?${applyQuery}`;
 ---
 <Base
   title={`${role.title} — Careers`}

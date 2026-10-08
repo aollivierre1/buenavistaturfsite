@@ -1,0 +1,493 @@
+---
+import Base from '../../layouts/Base.astro';
+import ApplyForm from '../../components/ApplyForm.astro';
+import SignaturePad from '../../components/SignaturePad.astro';
+import { locations } from '../../data/locations.js';
+import { openings } from '../../data/openings.js';
+
+const sites = [...new Set(locations.map((l) => `${l.name}, ${l.county}`)
+  .concat(openings.map((o) => o.locationOption).filter(Boolean)))];
+
+const steps = ['You', 'Licence', 'Driving record', 'Employment', 'Education',
+  'Payroll notice', 'Clearinghouse', 'Drug records', 'Background check'];
+
+const jobs = [1, 2, 3, 4, 5];
+const equipment = ['Straight truck', 'Tractor & semi-trailer', 'Tractor & two trailers', 'Other'];
+const accidents = ['Most recent', 'Next previous', 'Next previous'];
+
+// The packet's own pages, shown as they are. Retyping FMCSA and FCRA wording out
+// of a scan would make us the author of text the law prescribes.
+const doc = (n: number) => `/forms/driver/p${String(n).padStart(2, '0')}.jpg`;
+---
+<Base
+  title="Driver's Employment Application — CDL"
+  description="Apply online to drive for Buena Vista Turf Farm. Full CDL driver application packet, completed and signed online."
+  noindex={true}
+>
+  <ApplyForm
+    formName="application-driver"
+    title="Driver's Employment Application"
+    titleEs="Solicitud de Empleo para Conductores CDL"
+    intro="The full CDL packet, filled in and signed here. Each consent form below is the official document, shown exactly as it is on paper. It saves as you go."
+    steps={steps}
+  >
+
+    <!-- 1 ───────────────────────────── you -->
+    <section class="step" data-step="You">
+      <h2>About you</h2>
+      <span class="es">Sobre usted</span>
+
+      <div class="grid two">
+        <div class="fld"><label for="position">Position applied for</label>
+          <input id="position" name="position" value="CDL Driver / Delivery" required /></div>
+        <div class="fld"><label for="work_location">Location <span class="es">Lugar</span></label>
+          <select id="work_location" name="work_location" required>
+            <option value="">Choose…</option>
+            {sites.map((s) => <option value={s}>{s}</option>)}
+          </select></div>
+
+        <div class="fld"><label for="last_name">Last name <span class="es">Apellido(s)</span></label>
+          <input id="last_name" name="last_name" required autocomplete="family-name" /></div>
+        <div class="fld"><label for="first_name">First name <span class="es">Nombre(s)</span></label>
+          <input id="first_name" name="first_name" required autocomplete="given-name" /></div>
+        <div class="fld"><label for="middle_name">Middle initial <span class="es">Inicial</span></label>
+          <input id="middle_name" name="middle_name" /></div>
+        <div class="fld"><label for="nickname">Nickname <span class="es">Apodo</span></label>
+          <input id="nickname" name="nickname" /></div>
+        <div class="fld"><label for="phone">Phone <span class="es">Teléfono</span></label>
+          <input id="phone" name="phone" type="tel" required autocomplete="tel" /></div>
+        <div class="fld"><label for="cell">Cell <span class="es">Celular</span></label>
+          <input id="cell" name="cell" type="tel" /></div>
+        <div class="fld wide"><label for="email">Email <span class="es">Correo electrónico</span></label>
+          <input id="email" name="email" type="email" required autocomplete="email" /></div>
+
+        <div class="fld wide"><label for="street">Current address <span class="es">Dirección actual</span></label>
+          <input id="street" name="street" required autocomplete="street-address" /></div>
+        <div class="fld"><label for="city">City</label><input id="city" name="city" required /></div>
+        <div class="fld"><label for="state">State</label><input id="state" name="state" required value="TX" /></div>
+        <div class="fld"><label for="zip">ZIP</label><input id="zip" name="zip" required inputmode="numeric" /></div>
+        <div class="fld"><label for="address_how_long">How long at this address? <span class="es">¿Cuánto tiempo?</span></label>
+          <input id="address_how_long" name="address_how_long" required placeholder="e.g. 3 years" /></div>
+
+        <div class="fld wide"><label for="prior_addresses">All addresses for the past three years
+          <span class="es">Todas las direcciones de los últimos tres años — DOT lo requiere</span></label>
+          <textarea id="prior_addresses" name="prior_addresses" rows="4"
+            placeholder="Street, city, state, ZIP — and how long at each"></textarea></div>
+      </div>
+
+      <div class="yn">
+        <span>Are you 18 years or older?<span class="es">¿Tiene 18 años o más?</span></span>
+        <span class="opts">
+          <label><input type="radio" name="over_18" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="over_18" value="No" required /> No</label>
+        </span>
+      </div>
+      <div class="yn">
+        <span>Are you legally authorized to work in the United States?<span class="es">¿Está autorizado legalmente para trabajar en EE. UU.?</span></span>
+        <span class="opts">
+          <label><input type="radio" name="authorized_us" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="authorized_us" value="No" required /> No</label>
+        </span>
+      </div>
+
+      <div class="grid two" style="margin-top:20px">
+        <div class="fld"><label for="start_date">Date available to start <span class="es">Fecha disponible</span></label>
+          <input id="start_date" name="start_date" type="date" required /></div>
+        <div class="fld"><label for="salary_desired">Pay desired <span class="es">Salario deseado</span></label>
+          <input id="salary_desired" name="salary_desired" /></div>
+      </div>
+      <div class="yn">
+        <span>Are you currently employed?<span class="es">¿Está empleado actualmente?</span></span>
+        <span class="opts">
+          <label><input type="radio" name="currently_employed" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="currently_employed" value="No" required /> No</label>
+        </span>
+      </div>
+      <div class="yn">
+        <span>May we contact your present employer?<span class="es">¿Podemos contactar a su patrón actual?</span></span>
+        <span class="opts">
+          <label><input type="radio" name="contact_employer" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="contact_employer" value="No" required /> No</label>
+        </span>
+      </div>
+
+      <div class="upload wide" style="margin-top:22px">
+        <label for="resume">Resume — attach if you have one
+          <span class="es">Currículum — adjunte si tiene uno</span></label>
+        <p class="upload-note">A photo of a paper resume is fine.</p>
+        <input id="resume" name="resume" type="file"
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic" capture="environment" />
+        <p class="upload-picked" id="resumePicked" hidden></p>
+      </div>
+
+      <div class="upload wide" style="margin-top:14px">
+        <label for="licence_photo">Photo of your driver licence
+          <span class="es">Foto de su licencia de conducir</span></label>
+        <p class="upload-note">The packet asks for a copy. Photograph the front with your phone.
+          <span class="es">Fotografíe el frente con su teléfono.</span></p>
+        <input id="licence_photo" name="licence_photo" type="file"
+          accept=".jpg,.jpeg,.png,.heic,.pdf" capture="environment" />
+        <p class="upload-picked" id="licencePicked" hidden></p>
+      </div>
+    </section>
+
+    <!-- 2 ───────────────────────────── licence -->
+    <section class="step" data-step="Licence">
+      <h2>Driver qualifications</h2>
+      <span class="es">Calificaciones del conductor</span>
+
+      <p class="doc-cap" style="margin-bottom:18px">
+        Your licence number, date of birth and Social Security number are <strong>not</strong> collected here.
+        Bring the licence itself when you come in, or attach the photo on the previous step.
+        <span class="es">El número de licencia, la fecha de nacimiento y el número de Seguro Social no se
+        recogen aquí.</span>
+      </p>
+
+      <div class="grid three">
+        <div class="fld"><label for="licence_state">Licence state <span class="es">Estado</span></label>
+          <input id="licence_state" name="licence_state" required value="TX" /></div>
+        <div class="fld"><label for="licence_class">Class <span class="es">Clase</span></label>
+          <select id="licence_class" name="licence_class" required>
+            <option value="">Choose…</option>
+            <option>Class A</option><option>Class B</option><option>Class C</option>
+            <option>Non-CDL</option>
+          </select></div>
+        <div class="fld"><label for="licence_expiry">Expiry date <span class="es">Vencimiento</span></label>
+          <input id="licence_expiry" name="licence_expiry" type="month" required /></div>
+        <div class="fld wide"><label for="endorsements">Endorsements and restrictions <span class="es">Endosos y restricciones</span></label>
+          <input id="endorsements" name="endorsements" placeholder="e.g. Tanker, Hazmat, no air-brake restriction" /></div>
+      </div>
+
+      <div class="yn">
+        <span>Have you ever been denied a licence, permit or privilege to operate a motor vehicle?
+          <span class="es">¿Le han negado alguna vez una licencia o permiso?</span></span>
+        <span class="opts">
+          <label><input type="radio" name="licence_denied" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="licence_denied" value="No" required /> No</label>
+        </span>
+      </div>
+      <div class="yn">
+        <span>Has any licence, permit or privilege ever been suspended or revoked?
+          <span class="es">¿Alguna licencia ha sido suspendida o revocada?</span></span>
+        <span class="opts">
+          <label><input type="radio" name="licence_suspended" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="licence_suspended" value="No" required /> No</label>
+        </span>
+      </div>
+      <div class="fld wide" style="margin-top:16px">
+        <label for="licence_details">If yes to either, give details <span class="es">Si contestó sí, dé detalles</span></label>
+        <textarea id="licence_details" name="licence_details"></textarea>
+      </div>
+
+      <div class="legal" style="margin-top:22px">
+        <p><strong>Driver certification.</strong> As a commercial vehicle driver I may not possess more than one
+          Motor Vehicle Operator's Licence. I am also aware that I am required to notify my employer the
+          <strong>next business day</strong> of any revocation or suspension of my driver's licence. In addition,
+          I am aware that should I receive a state or local traffic violation I must report it to my employer.
+          I certify I have read and understand the above requirements.</p>
+        <p class="es">Como conductor comercial no puedo poseer más de una licencia de operador. Debo notificar a
+          mi empleador el siguiente día hábil de cualquier revocación o suspensión de mi licencia, y debo
+          reportar cualquier infracción de tránsito estatal o local. Certifico que he leído y entiendo estos
+          requisitos.</p>
+      </div>
+      <label class="chk">
+        <input type="checkbox" name="driver_certification" value="yes" required />
+        <span>I have read and understand the driver certification above.
+          <span class="es">He leído y entiendo la certificación anterior.</span></span>
+      </label>
+    </section>
+
+    <!-- 3 ───────────────────────────── driving record -->
+    <section class="step" data-step="Driving record">
+      <h2>Driving experience &amp; record</h2>
+      <span class="es">Experiencia y antecedentes de conducción</span>
+
+      {equipment.map((e, i) => (
+        <div class="block">
+          <h3>{e}</h3>
+          <div class="grid two">
+            <div class="fld"><label for={`eq${i}_type`}>Type of equipment <span class="es">Tipo — mixer, tanque, plataforma, vacío</span></label>
+              <input id={`eq${i}_type`} name={`eq${i}_type`} /></div>
+            <div class="fld"><label for={`eq${i}_miles`}>Approximate total miles <span class="es">Millas aproximadas</span></label>
+              <input id={`eq${i}_miles`} name={`eq${i}_miles`} inputmode="numeric" /></div>
+            <div class="fld"><label for={`eq${i}_from`}>Started <span class="es">Desde</span></label>
+              <input id={`eq${i}_from`} name={`eq${i}_from`} placeholder="MM/YYYY" /></div>
+            <div class="fld"><label for={`eq${i}_to`}>Ended <span class="es">Hasta</span></label>
+              <input id={`eq${i}_to`} name={`eq${i}_to`} placeholder="MM/YYYY or present" /></div>
+          </div>
+        </div>
+      ))}
+
+      <h3 style="margin:24px 0 10px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)">
+        Accident record — past 3 years or more <span class="es" style="display:block">Accidentes — últimos 3 años</span></h3>
+      {accidents.map((a, i) => (
+        <div class="block">
+          <h3>{a}</h3>
+          <div class="grid two">
+            <div class="fld"><label for={`acc${i}_date`}>Date <span class="es">Fecha</span></label>
+              <input id={`acc${i}_date`} name={`acc${i}_date`} /></div>
+            <div class="fld"><label for={`acc${i}_nature`}>Nature of accident <span class="es">Head-on, rear-end, upset, etc.</span></label>
+              <input id={`acc${i}_nature`} name={`acc${i}_nature`} /></div>
+            <div class="fld"><label for={`acc${i}_vehicles`}>No. of vehicles <span class="es">Vehículos</span></label>
+              <input id={`acc${i}_vehicles`} name={`acc${i}_vehicles`} inputmode="numeric" /></div>
+            <div class="fld"><label for={`acc${i}_injuries`}>Fatalities / injuries <span class="es">Muertes / heridos</span></label>
+              <input id={`acc${i}_injuries`} name={`acc${i}_injuries`} /></div>
+          </div>
+        </div>
+      ))}
+
+      <div class="fld wide" style="margin-top:16px">
+        <label for="convictions">Traffic convictions &amp; forfeitures, past 3 years, other than parking
+          <span class="es">Condenas de tránsito, últimos 3 años, excepto estacionamiento — lugar, fecha, cargo, pena</span></label>
+        <textarea id="convictions" name="convictions" rows="4"
+          placeholder="Location — Date — Charge — Penalty (one per line). Write NONE if you have none."
+          required></textarea>
+      </div>
+
+      <div class="yn">
+        <span>Have you ever been convicted of a crime or pled No Contest to any criminal offense?
+          <span class="es">¿Ha sido condenado por un delito? — Una respuesta afirmativa no lo descalifica automáticamente</span></span>
+        <span class="opts">
+          <label><input type="radio" name="criminal_record" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="criminal_record" value="No" required /> No</label>
+        </span>
+      </div>
+      <div class="fld wide" style="margin-top:14px">
+        <label for="criminal_details">If yes, explain: number of convictions, nature, dates, sentences and rehabilitation
+          <span class="es">Si contestó sí, explique</span></label>
+        <textarea id="criminal_details" name="criminal_details"></textarea>
+      </div>
+      <p class="doc-cap">A YES response does not automatically disqualify your application.</p>
+    </section>
+
+    <!-- 4 ───────────────────────────── employment -->
+    <section class="step" data-step="Employment">
+      <h2>Employment record</h2>
+      <span class="es">Historial de empleo</span>
+      <p class="doc-cap" style="margin-bottom:20px">
+        DOT requires employment for at least 3 years, and commercial driving experience for the past 10 years.
+        <span class="es">El DOT requiere 3 años de empleo y 10 años de experiencia de conducción comercial.</span>
+      </p>
+
+      {jobs.map((n) => (
+        <div class="block">
+          <h3>Employer {n} {n === 1 ? '— most recent / más reciente' : ''}</h3>
+          <div class="grid two">
+            <div class="fld wide"><label for={`job${n}_employer`}>Employer <span class="es">Empleador</span></label>
+              <input id={`job${n}_employer`} name={`job${n}_employer`} required={n === 1} /></div>
+            <div class="fld wide"><label for={`job${n}_address`}>Address <span class="es">Dirección</span></label>
+              <input id={`job${n}_address`} name={`job${n}_address`} /></div>
+            <div class="fld"><label for={`job${n}_phone`}>Phone</label>
+              <input id={`job${n}_phone`} name={`job${n}_phone`} type="tel" /></div>
+            <div class="fld"><label for={`job${n}_position`}>Position held <span class="es">Puesto</span></label>
+              <input id={`job${n}_position`} name={`job${n}_position`} /></div>
+            <div class="fld"><label for={`job${n}_dates`}>Dates <span class="es">Fechas</span></label>
+              <input id={`job${n}_dates`} name={`job${n}_dates`} placeholder="MM/YYYY – MM/YYYY" /></div>
+            <div class="fld"><label for={`job${n}_salary`}>Salary <span class="es">Salario</span></label>
+              <input id={`job${n}_salary`} name={`job${n}_salary`} /></div>
+            <div class="fld wide"><label for={`job${n}_reason`}>Reason for leaving <span class="es">Razón de irse</span></label>
+              <input id={`job${n}_reason`} name={`job${n}_reason`} /></div>
+          </div>
+        </div>
+      ))}
+
+      <div class="grid two">
+        <div class="fld"><label for="job_liked_best">Which of these jobs did you like best? <span class="es">¿Cuál le gustó más?</span></label>
+          <input id="job_liked_best" name="job_liked_best" /></div>
+        <div class="fld"><label for="job_liked_why">Why? <span class="es">¿Por qué?</span></label>
+          <input id="job_liked_why" name="job_liked_why" /></div>
+      </div>
+    </section>
+
+    <!-- 5 ───────────────────────────── education -->
+    <section class="step" data-step="Education">
+      <h2>Education &amp; special questions</h2>
+      <span class="es">Educación y preguntas especiales</span>
+
+      <div class="grid two">
+        <div class="fld"><label for="highest_grade">Highest grade completed <span class="es">Grado más alto terminado</span></label>
+          <select id="highest_grade" name="highest_grade" required>
+            <option value="">Choose…</option>
+            {[1,2,3,4,5,6,7,8].map((g) => <option value={`Grade ${g}`}>{`Grade ${g}`}</option>)}
+            {[9,10,11,12].map((g) => <option value={`High school ${g}`}>{`High school ${g}`}</option>)}
+          </select></div>
+        <div class="fld"><label for="college_years">College / business / trade — years <span class="es">Universidad o escuela técnica — años</span></label>
+          <select id="college_years" name="college_years">
+            <option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option>
+          </select></div>
+        <div class="fld wide"><label for="last_school">Last school attended <span class="es">Última escuela</span></label>
+          <input id="last_school" name="last_school" /></div>
+        <div class="fld wide"><label for="driver_courses">Special courses or training that will help you as a driver
+          <span class="es">Cursos o capacitación que le ayudarán como conductor</span></label>
+          <textarea id="driver_courses" name="driver_courses"></textarea></div>
+        <div class="fld wide"><label for="safe_driving_awards">Safe driving awards you hold, and from whom
+          <span class="es">Premios de conducción segura</span></label>
+          <textarea id="safe_driving_awards" name="safe_driving_awards"></textarea></div>
+        <div class="fld"><label for="military_branch">U.S. military or naval service <span class="es">Servicio militar</span></label>
+          <input id="military_branch" name="military_branch" /></div>
+        <div class="fld"><label for="military_rank">Rank <span class="es">Rango</span></label>
+          <input id="military_rank" name="military_rank" /></div>
+        <div class="fld wide"><label for="national_guard">National guard or reserves <span class="es">Guardia nacional o reserva</span></label>
+          <input id="national_guard" name="national_guard" /></div>
+      </div>
+
+      <label class="chk" style="margin-top:16px">
+        <input type="checkbox" name="drug_testing_aware" value="yes" required />
+        <span>I am aware that Buena Vista Turf Farm performs pre-employment drug testing.
+          <span class="es">Sé que Buena Vista Turf Farm realiza pruebas de drogas antes del empleo.</span></span>
+      </label>
+    </section>
+
+    <!-- 6 ───────────────────────────── wage deduction -->
+    <section class="step" data-step="Payroll notice">
+      <h2>Notification of possible payroll deduction</h2>
+      <span class="es">Notificación de posible deducción de nómina</span>
+
+      <div class="doc">
+        <img src={doc(6)} alt="Employee notification of possible payroll deduction for recovery of employee debt" loading="lazy" />
+      </div>
+      <p class="doc-cap">In short: the background check, MVR check and drug test are mandatory for CDL drivers.
+        If you leave before your 90-day probation period is up, $125.00 total is deducted to cover them.
+        <span class="es">En resumen: si deja el empleo antes de los 90 días de prueba, se deducen $125.00 en total.</span></p>
+
+      <label class="chk" style="margin-top:16px">
+        <input type="checkbox" name="wage_deduction_ack" value="yes" required />
+        <span>I have read and understand this notice.
+          <span class="es">He leído y entiendo esta notificación.</span></span>
+      </label>
+      <SignaturePad id="wage_signature" label="Signature" labelEs="Firma" />
+    </section>
+
+    <!-- 7 ───────────────────────────── clearinghouse -->
+    <section class="step" data-step="Clearinghouse">
+      <h2>FMCSA Drug &amp; Alcohol Clearinghouse</h2>
+      <span class="es">Consentimiento general para consultas limitadas</span>
+
+      <p class="doc-cap" style="margin-bottom:14px">Read the consent below. The four-page FMCSA brochure
+        explaining the Clearinghouse follows it.</p>
+
+      <div class="doc"><img src={doc(11)} alt="General consent for limited queries of the FMCSA Drug and Alcohol Clearinghouse" loading="lazy" /></div>
+
+      <label class="chk">
+        <input type="checkbox" name="clearinghouse_consent" value="yes" required />
+        <span>I give consent for Buena Vista Texas Turf Farm, LLC to conduct limited queries of the FMCSA
+          Drug and Alcohol Clearinghouse, as described above.
+          <span class="es">Doy mi consentimiento para consultas limitadas del Clearinghouse de la FMCSA.</span></span>
+      </label>
+      <SignaturePad id="clearinghouse_signature" label="Employee signature" labelEs="Firma del empleado" />
+
+      <details style="margin-top:22px">
+        <summary style="cursor:pointer;color:var(--gold);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase">
+          Read the FMCSA Clearinghouse brochure (4 pages)</summary>
+        {[7, 8, 9, 10].map((n) => (
+          <div class="doc" style="margin-top:12px"><img src={doc(n)} alt={`FMCSA Clearinghouse brochure page ${n - 6}`} loading="lazy" /></div>
+        ))}
+      </details>
+    </section>
+
+    <!-- 8 ───────────────────────────── ODAPC -->
+    <section class="step" data-step="Drug records">
+      <h2>Release of drug &amp; alcohol testing records</h2>
+      <span class="es">Divulgación de registros de pruebas de drogas y alcohol</span>
+
+      <p class="doc-cap" style="margin-bottom:14px">The U.S. Department of Transportation release form
+        (49 CFR Part 40), shown exactly as it is on paper.</p>
+
+      {[12, 13, 14].map((n) => (
+        <div class="doc"><img src={doc(n)} alt={`ODAPC release of information form, page ${n - 11}`} loading="lazy" /></div>
+      ))}
+
+      <label class="chk">
+        <input type="checkbox" name="odapc_consent" value="yes" required />
+        <span>I authorize the release of the drug and alcohol testing records described in this form.
+          <span class="es">Autorizo la divulgación de los registros descritos en este formulario.</span></span>
+      </label>
+      <SignaturePad id="odapc_signature" label="Signature" labelEs="Firma" />
+    </section>
+
+    <!-- 9 ───────────────────────────── background check -->
+    <section class="step" data-step="Background check">
+      <h2>Background check</h2>
+      <span class="es">Verificación de antecedentes</span>
+
+      <p class="doc-cap" style="margin-bottom:14px">
+        <strong>Read this disclosure first.</strong> It stands on its own, as the Fair Credit Reporting Act requires.
+        <span class="es">Lea primero esta divulgación.</span></p>
+      <div class="doc"><img src={doc(20)} alt="Disclosure about a background check" loading="lazy" /></div>
+
+      <details style="margin:18px 0">
+        <summary style="cursor:pointer;color:var(--gold);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase">
+          A Summary of Your Rights Under the Fair Credit Reporting Act, and notices under state law (4 pages)</summary>
+        {[15, 16, 17, 18].map((n) => (
+          <div class="doc" style="margin-top:12px"><img src={doc(n)} alt={`Summary of your rights under the Fair Credit Reporting Act, page ${n - 14}`} loading="lazy" /></div>
+        ))}
+      </details>
+
+      <p class="doc-cap" style="margin-bottom:14px"><strong>Authorization.</strong></p>
+      <div class="doc"><img src={doc(19)} alt="Authorization for background check" loading="lazy" /></div>
+
+      <label class="chk">
+        <input type="checkbox" name="fcra_received" value="yes" required />
+        <span>I received and read the disclosure and the summary of my rights above.
+          <span class="es">Recibí y leí la divulgación y el resumen de mis derechos.</span></span>
+      </label>
+      <label class="chk">
+        <input type="checkbox" name="background_authorized" value="yes" required />
+        <span>I authorize Buena Vista Texas Turf Farm, LLC and Trend to obtain the consumer reports and
+          investigative consumer reports described above, including a motor vehicle report.
+          <span class="es">Autorizo la obtención de los informes descritos, incluido el informe de vehículos motorizados.</span></span>
+      </label>
+
+      <p class="doc-cap" style="margin:14px 0">
+        Your Social Security number, date of birth and licence number are not collected here. TrendHR takes
+        those directly when the check is actually run.
+        <span class="es">Esos datos no se recogen aquí; TrendHR los toma directamente.</span></p>
+
+      <div class="grid two">
+        <div class="fld"><label for="bg_name">Name as it should appear <span class="es">Nombre como debe aparecer</span></label>
+          <input id="bg_name" name="bg_name" required /></div>
+        <div class="fld"><label for="bg_maiden">Maiden or former name, if any <span class="es">Apellido de soltera</span></label>
+          <input id="bg_maiden" name="bg_maiden" /></div>
+      </div>
+
+      <SignaturePad id="background_signature" label="Signature" labelEs="Firma" />
+
+      <p class="doc-cap" style="margin-top:20px">
+        Prefer paper? <a href="/forms/driver-application-packet.pdf" target="_blank" rel="noopener">Download the full packet</a>
+        and bring it in instead.
+        <span class="es">¿Prefiere papel? Descargue el paquete completo y tráigalo.</span></p>
+    </section>
+
+  </ApplyForm>
+</Base>
+
+<script>
+  for (const [input, out] of [['resume', 'resumePicked'], ['licence_photo', 'licencePicked']]) {
+    const el = document.getElementById(input);
+    const note = document.getElementById(out);
+    el?.addEventListener('change', () => {
+      const f = el.files && el.files[0];
+      note.hidden = !f;
+      if (f) note.textContent = 'Attached: ' + f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
+    });
+  }
+</script>
+
+<style>
+  .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0;
+    padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px)); }
+  .back { display: inline-block; margin-bottom: 18px; color: var(--cream-dim); text-decoration: none; font-size: .84rem; }
+  .back:hover { color: var(--gold); }
+  .upload { border: 1px dashed var(--line); padding: 18px; }
+  .upload label { display: block; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 6px; }
+  .upload label .es, .upload-note .es { display: block; color: var(--muted); font-style: italic;
+    text-transform: none; letter-spacing: 0; font-size: .92em; }
+  .upload-note { font-size: .86rem; color: var(--cream-dim); margin: 0 0 12px; }
+  .upload input[type=file] { font: inherit; font-size: 15px; color: var(--cream); width: 100%; }
+  .upload input[type=file]::file-selector-button {
+    background: var(--green-900); border: 1px solid var(--line); color: var(--cream);
+    padding: 10px 16px; margin-right: 12px; font: inherit; font-size: .8rem;
+    letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+  .upload-picked { margin: 10px 0 0; font-size: .86rem; color: var(--brand); }
+</style>

@@ -30,6 +30,7 @@ const { formName, title, titleEs, intro, steps } = Astro.props;
     netlify-honeypot="bot-field"
     enctype="multipart/form-data"
     action="/thanks"
+    novalidate
   >
     <input type="hidden" name="form-name" value={formName} />
     <p hidden><label>Leave blank: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
@@ -188,7 +189,33 @@ const { formName, title, titleEs, intro, steps } = Astro.props;
   }
 
   form.addEventListener('input', () => { clearTimeout(window.__saveT); window.__saveT = setTimeout(save, 600); });
-  form.addEventListener('submit', () => { try { localStorage.removeItem(KEY); } catch {} });
+
+  // The rail lets you jump forward, so a required field can be left behind on a
+  // step nobody is looking at. Left to itself the browser refuses to submit over
+  // it, cannot report it because it is hidden, and - the part that matters -
+  // never fires a submit event either, so nothing can explain the silence. The
+  // button simply does nothing after forty minutes of typing.
+  //
+  // Hence novalidate on the form: validation is ours now, the event always
+  // fires, and we can go to the step holding the first unfinished answer and say
+  // which one it is. The fields keep their required attributes, so :invalid and
+  // reportValidity() still do the work.
+  form.addEventListener('submit', (e) => {
+    const bad = form.querySelector(':invalid');
+    if (bad) {
+      e.preventDefault();
+      const owner = bad.closest('.step');
+      const idx = steps.indexOf(owner);
+      if (idx >= 0 && idx !== at) show(idx);
+      const err = document.getElementById('formErr');
+      err.textContent = 'Something on step ' + (idx + 1) + ' still needs an answer. '
+        + 'We have taken you back to it. / Falta una respuesta en el paso ' + (idx + 1) + '.';
+      err.hidden = false;
+      setTimeout(() => { bad.focus(); bad.reportValidity?.(); }, 350);
+      return;
+    }
+    try { localStorage.removeItem(KEY); } catch {}
+  });
 
   // A role or site carried in from the Careers page should not have to be typed
   // again.
