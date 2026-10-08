@@ -31,9 +31,10 @@ const otherLocations = [...new Set(openings.map((o) => o.locationOption).filter(
         // Roles written up in full get their own page; the rest go straight to
         // the form with the role preselected.
         const detail = o.slug && o.sections?.length ? `/careers/${o.slug}/` : null;
+        const applyTo = /cdl|driver/i.test(o.title) ? null : `/apply/general/?role=${encodeURIComponent(o.title)}${o.locationOption ? '&location=' + encodeURIComponent(o.locationOption) : ''}`;
         const where = [o.locations?.join(', '), o.type].filter(Boolean).join(' \u00b7 ');
         return (
-          <a class="role" href={detail || '#apply'} data-role={detail ? null : o.title}>
+          <a class="role" href={detail || applyTo || '#apply'} data-role={detail || applyTo ? null : o.title}>
             <h3>{o.title}</h3>
             {where && <span class="where">{where}</span>}
             {o.summary && <p>{o.summary}</p>}

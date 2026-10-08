@@ -41,6 +41,14 @@ h3 { font-size: clamp(1.35rem, 2.2vw, 1.85rem); letter-spacing: -0.02em; }
 p { margin: 0 0 1.15em; color: var(--cream-dim); }
 a { color: inherit; }
 
+/* The [hidden] attribute is only display:none at the lowest possible
+   specificity, so any class that sets display - .btn's inline-block, a flex or
+   grid container - silently beats it and the "hidden" element stays on screen.
+   It has already shipped twice as a bug: an Apply button left on a closed role,
+   and Next and Submit both showing on every step of an application. Make the
+   attribute win everywhere instead of patching it per page. */
+[hidden] { display: none !important; }
+
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 .eyebrow {
   display: inline-block;

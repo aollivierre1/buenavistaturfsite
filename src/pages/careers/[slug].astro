@@ -15,7 +15,11 @@ const where = [role.locations?.join(', '), role.type].filter(Boolean).join(' · 
 // Two sites can post the same role, so the location travels with it.
 const applyQuery = new URLSearchParams({ role: role.title });
 if (role.locationOption) applyQuery.set('location', role.locationOption);
-const applyHref = `/careers/?${applyQuery}#apply`;
+// Non-driving roles go to the full General Labor packet, filled in and signed
+// online. The CDL packet is a different set of forms and is not built yet, so
+// that role still goes to the short form on the Careers page.
+const isDriver = /cdl|driver/i.test(role.title);
+const applyHref = isDriver ? `/careers/?${applyQuery}#apply` : `/apply/general/?${applyQuery}`;
 ---
 <Base
   title={`${role.title} — Careers`}
@@ -86,10 +90,6 @@ const applyHref = `/careers/?${applyQuery}#apply`;
   .jd li{color:var(--cream-dim);font-size:.95rem;line-height:1.55}
   .note{margin-top:34px;padding:14px 18px;border-left:3px solid var(--gold);
     background:var(--green-700);color:var(--cream-dim);font-size:.9rem}
-  /* .btn sets display:inline-block, which outranks the [hidden] attribute's
-     own display:none - without this the Apply button stays on screen after a
-     role is taken down, which is the one thing this must not do. */
-  [hidden]{display:none !important}
   .closed{margin:0 0 24px;padding:14px 18px;border-left:3px solid var(--gold);
     background:rgba(216,178,94,.1);color:var(--cream);max-width:60ch}
   .closed a{color:var(--gold)}

@@ -1,0 +1,128 @@
+---
+// A signature block: draw with a finger or mouse, or type your name if the
+// device will not draw. Whatever is produced ends up in a hidden field that
+// travels with the form, alongside the date and the typed legal name, so the
+// record says who signed, how, and when.
+const { id, label = 'Signature', labelEs = 'Firma', required = true } = Astro.props;
+---
+<div class="sig" data-sig={id}>
+  <div class="sig-head">
+    <label for={`${id}_name`}>{label} <span class="es">{labelEs}</span></label>
+    <button type="button" class="sig-clear" data-clear={id}>Clear / Borrar</button>
+  </div>
+
+  <canvas class="sig-pad" data-pad={id} width="900" height="220"
+    aria-label="Draw your signature here"></canvas>
+  <p class="sig-hint">Sign above with your finger or mouse. <span class="es">Firme arriba con el dedo o el ratón.</span></p>
+
+  <div class="sig-typed">
+    <label for={`${id}_name`}>Type your full legal name <span class="es">Escriba su nombre legal completo</span></label>
+    <input type="text" id={`${id}_name`} name={`${id}_name`} required={required} autocomplete="name" />
+  </div>
+
+  <label class="sig-agree">
+    <input type="checkbox" id={`${id}_agree`} name={`${id}_agree`} value="yes" required={required} />
+    <span>I agree that typing my name and signing above is my electronic signature, with the same
+      effect as signing on paper.
+      <span class="es">Acepto que escribir mi nombre y firmar arriba constituye mi firma electrónica,
+      con el mismo efecto que firmar en papel.</span></span>
+  </label>
+
+  <input type="hidden" name={`${id}_image`} data-img={id} />
+  <input type="hidden" name={`${id}_signed_at`} data-at={id} />
+</div>
+
+<style is:global>
+  .sig { border: 1px solid var(--line); padding: 18px; margin-top: 10px; background: rgba(15,31,18,0.35); }
+  .sig-head { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+  .sig-head label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .sig-clear { background: transparent; border: 1px solid var(--line); color: var(--cream);
+    padding: 6px 12px; font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+  .sig-pad { display: block; width: 100%; height: 150px; margin-top: 10px; background: #fffdf7;
+    border: 1px solid var(--line); border-radius: 2px; touch-action: none; cursor: crosshair; }
+  .sig-hint { font-size: .78rem; color: var(--muted); margin: 7px 0 14px; }
+  .sig-typed label, .sig-agree { display: block; }
+  .sig-typed label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .sig-agree { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: .88rem; line-height: 1.5; }
+  .sig-agree input { width: 20px; height: 20px; flex: none; margin-top: 2px; accent-color: var(--brand); }
+  .sig .es { display: block; color: var(--muted); font-style: italic; text-transform: none; letter-spacing: 0; font-size: .92em; }
+</style>
+
+<script>
+  // One handler for every signature block on the page.
+  document.querySelectorAll('[data-sig]').forEach((block) => {
+    const id = block.dataset.sig;
+    const pad = block.querySelector('[data-pad]');
+    const img = block.querySelector('[data-img]');
+    const at = block.querySelector('[data-at]');
+    const ctx = pad.getContext('2d');
+    let drawing = false;
+    let dirty = false;
+
+    // The canvas is sized in CSS but drawn in its own pixels; map between them
+    // or the ink lands away from the finger.
+    const point = (e) => {
+      const r = pad.getBoundingClientRect();
+      return { x: (e.clientX - r.left) * (pad.width / r.width), y: (e.clientY - r.top) * (pad.height / r.height) };
+    };
+
+    const start = (e) => {
+      drawing = true;
+      dirty = true;
+      const p = point(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      pad.setPointerCapture?.(e.pointerId);
+      e.preventDefault();
+    };
+    const move = (e) => {
+      if (!drawing) return;
+      const p = point(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      e.preventDefault();
+    };
+    const end = () => {
+      if (!drawing) return;
+      drawing = false;
+      save();
+    };
+
+    ctx.lineWidth = 2.6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#14202a';
+
+    pad.addEventListener('pointerdown', start);
+    pad.addEventListener('pointermove', move);
+    pad.addEventListener('pointerup', end);
+    pad.addEventListener('pointerleave', end);
+    pad.addEventListener('pointercancel', end);
+
+    function save() {
+      if (!dirty) { img.value = ''; return; }
+      // White behind the ink so the signature reads on paper as well as screen.
+      const out = document.createElement('canvas');
+      out.width = pad.width;
+      out.height = pad.height;
+      const octx = out.getContext('2d');
+      octx.fillStyle = '#ffffff';
+      octx.fillRect(0, 0, out.width, out.height);
+      octx.drawImage(pad, 0, 0);
+      img.value = out.toDataURL('image/jpeg', 0.7);
+      at.value = new Date().toISOString();
+    }
+
+    block.querySelector('[data-clear]').addEventListener('click', () => {
+      ctx.clearRect(0, 0, pad.width, pad.height);
+      dirty = false;
+      img.value = '';
+      at.value = '';
+    });
+
+    // Typing a name is a signature too, so stamp the time even if nobody drew.
+    block.querySelector('#' + id + '_name').addEventListener('input', () => {
+      if (!at.value) at.value = new Date().toISOString();
+    });
+  });
+</script>

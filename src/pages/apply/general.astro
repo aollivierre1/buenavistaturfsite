@@ -1,0 +1,345 @@
+---
+import Base from '../../layouts/Base.astro';
+import ApplyForm from '../../components/ApplyForm.astro';
+import SignaturePad from '../../components/SignaturePad.astro';
+import { locations } from '../../data/locations.js';
+import { openings } from '../../data/openings.js';
+
+// Every posted role except the CDL one, which has its own packet.
+const roleTitles = [...new Set(openings.filter((o) => !/cdl|driver/i.test(o.title)).map((o) => o.title))];
+const sites = [...new Set(locations.map((l) => `${l.name}, ${l.county}`)
+  .concat(openings.map((o) => o.locationOption).filter(Boolean)))];
+
+const steps = ['You', 'Eligibility', 'Education', 'Work history', 'Skills', 'Statement', 'Background check'];
+
+// Four employer blocks, as the paper packet has.
+const jobs = [1, 2, 3, 4];
+const ratings = ['Excellent', 'Very good', 'Good', 'Fair', 'Poor'];
+const heardOptions = ['Employee', 'Employment agency', 'Flyer', 'Friend', 'Newspaper',
+  'Radio ad', 'Relative', 'Walk in', 'Website / job board', 'Other'];
+const skillOptions = ['MS Excel', 'Calculator', 'Typewriter', 'Fax', 'PBX system', 'PC / MAC', 'Shorthand'];
+---
+<Base
+  title="Employment Application — General Labor"
+  description="Apply online to Buena Vista Turf Farm. Full employment application for farm, field and office roles."
+  noindex={true}
+>
+  <ApplyForm
+    formName="application-general"
+    title="Employment Application"
+    titleEs="Solicitud de Empleo — Trabajo General"
+    intro="Everything the paper packet asks, filled in and signed here. It saves as you go, so you can stop and come back on the same device."
+    steps={steps}
+  >
+
+    <!-- 1 ───────────────────────────────── you -->
+    <section class="step" data-step="You">
+      <h2>About you</h2>
+      <span class="es">Sobre usted</span>
+
+      <div class="grid two">
+        <div class="fld"><label for="position">Position applied for <span class="es">Posición que solicita</span></label>
+          <input list="bvt-roles" id="position" name="position" required />
+          <datalist id="bvt-roles">{roleTitles.map((t) => <option value={t}></option>)}</datalist>
+        </div>
+        <div class="fld"><label for="work_location">Location <span class="es">Lugar</span></label>
+          <select id="work_location" name="work_location" required>
+            <option value="">Choose…</option>
+            {sites.map((s) => <option value={s}>{s}</option>)}
+          </select>
+        </div>
+
+        <div class="fld"><label for="last_name">Last name <span class="es">Apellido(s)</span></label>
+          <input id="last_name" name="last_name" required autocomplete="family-name" /></div>
+        <div class="fld"><label for="first_name">First name <span class="es">Nombre(s)</span></label>
+          <input id="first_name" name="first_name" required autocomplete="given-name" /></div>
+        <div class="fld"><label for="middle_name">Middle name <span class="es">Segundo nombre</span></label>
+          <input id="middle_name" name="middle_name" autocomplete="additional-name" /></div>
+        <div class="fld"><label for="phone">Telephone <span class="es">Teléfono</span></label>
+          <input id="phone" name="phone" type="tel" required autocomplete="tel" /></div>
+        <div class="fld"><label for="email">Email <span class="es">Correo electrónico</span></label>
+          <input id="email" name="email" type="email" required autocomplete="email" /></div>
+        <div class="fld"><label for="languages">Languages you speak <span class="es">Idiomas que habla</span></label>
+          <input id="languages" name="languages" placeholder="English, Spanish…" /></div>
+
+        <div class="fld wide"><label for="street">Street address <span class="es">Dirección</span></label>
+          <input id="street" name="street" required autocomplete="street-address" /></div>
+        <div class="fld"><label for="city">City <span class="es">Ciudad</span></label>
+          <input id="city" name="city" required autocomplete="address-level2" /></div>
+        <div class="fld"><label for="state">State <span class="es">Estado</span></label>
+          <input id="state" name="state" required autocomplete="address-level1" value="TX" /></div>
+        <div class="fld"><label for="zip">ZIP <span class="es">Código postal</span></label>
+          <input id="zip" name="zip" required autocomplete="postal-code" inputmode="numeric" /></div>
+
+        <div class="fld wide"><label>How did you learn about us? <span class="es">¿Cómo supo de nosotros?</span></label>
+          <div class="chkgrid">
+            {heardOptions.map((h) => (
+              <label class="chk"><input type="radio" name="heard_about" value={h} /> <span>{h}</span></label>
+            ))}
+          </div>
+        </div>
+
+        <div class="fld wide"><label for="resume">Resume <span class="es">Currículum — adjunte si tiene uno</span></label>
+          <input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx,.jpg,.png" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 ───────────────────────────────── eligibility -->
+    <section class="step" data-step="Eligibility">
+      <h2>Eligibility &amp; availability</h2>
+      <span class="es">Elegibilidad y disponibilidad</span>
+
+      {[
+        ['under_18_proof', 'If under 18, can you provide required proof of eligibility to work?', '¿Si es menor de 18, puede dar prueba de elegibilidad?'],
+        ['applied_before', 'Have you ever filed an application with us before?', '¿Alguna vez ha solicitado trabajo con nosotros?'],
+        ['employed_before', 'Have you ever been employed with us before?', '¿Ha estado empleado con nosotros antes?'],
+        ['currently_employed', 'Are you currently employed?', '¿Está empleado actualmente?'],
+        ['contact_employer', 'May we contact your present employer?', '¿Podemos contactar a su patrón actual?'],
+        ['authorized_us', 'Are you legally authorized to work in the United States?', '¿Está autorizado legalmente para trabajar en EE. UU.?'],
+        ['layoff_recall', 'Are you currently on lay-off status and subject to recall?', '¿Está en estado cesante y sujeto a llamado de regreso?'],
+        ['can_travel', 'Can you travel if a job requires it?', '¿Puede viajar si el trabajo lo requiere?'],
+        ['felony_7yr', 'Have you been convicted of a felony within the last 7 years?', '¿Le han condenado por un delito grave en los últimos 7 años?'],
+      ].map(([name, en, es]) => (
+        <div class="yn">
+          <span>{en}<span class="es">{es}</span></span>
+          <span class="opts">
+            <label><input type="radio" name={name} value="Yes" required /> Yes / Sí</label>
+            <label><input type="radio" name={name} value="No" required /> No</label>
+          </span>
+        </div>
+      ))}
+
+      <div class="grid two" style="margin-top:22px">
+        <div class="fld"><label for="applied_before_date">If you applied before, when? <span class="es">Si solicitó antes, ¿cuándo?</span></label>
+          <input id="applied_before_date" name="applied_before_date" /></div>
+        <div class="fld"><label for="employed_before_date">If employed before, when? <span class="es">Si trabajó antes, ¿cuándo?</span></label>
+          <input id="employed_before_date" name="employed_before_date" /></div>
+        <div class="fld wide"><label for="felony_explain">If convicted of a felony, please explain <span class="es">Si fue condenado, explique — una condena no lo descalifica automáticamente</span></label>
+          <textarea id="felony_explain" name="felony_explain"></textarea></div>
+        <div class="fld"><label for="start_date">Date available to start <span class="es">Fecha disponible para empezar</span></label>
+          <input id="start_date" name="start_date" type="date" required /></div>
+        <div class="fld"><label>Available to work <span class="es">Disponible para trabajar</span></label>
+          <div class="chkgrid">
+            {['Full time', 'Part time', 'Shift work', 'Temporary'].map((t) => (
+              <label class="chk"><input type="checkbox" name="availability" value={t} /> <span>{t}</span></label>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 ───────────────────────────────── education -->
+    <section class="step" data-step="Education">
+      <h2>Education</h2>
+      <span class="es">Educación</span>
+
+      {[['high_school', 'High school', 'Escuela secundaria'],
+        ['undergrad', 'College / undergraduate', 'Universidad'],
+        ['graduate', 'Graduate or professional', 'Posgrado o profesional'],
+        ['other_school', 'Other (specify)', 'Otro']].map(([key, en, es]) => (
+        <div class="block">
+          <h3>{en} — {es}</h3>
+          <div class="grid two">
+            <div class="fld wide"><label for={`${key}_name`}>School name &amp; address <span class="es">Nombre y dirección</span></label>
+              <input id={`${key}_name`} name={`${key}_name`} /></div>
+            <div class="fld"><label for={`${key}_course`}>Course of study <span class="es">Estudios</span></label>
+              <input id={`${key}_course`} name={`${key}_course`} /></div>
+            <div class="fld"><label for={`${key}_years`}>Years completed <span class="es">Años terminados</span></label>
+              <input id={`${key}_years`} name={`${key}_years`} /></div>
+            <div class="fld wide"><label for={`${key}_diploma`}>Diploma or degree <span class="es">Diploma o grado</span></label>
+              <input id={`${key}_diploma`} name={`${key}_diploma`} /></div>
+          </div>
+        </div>
+      ))}
+
+      <div class="fld"><label for="activities">Extra-curricular activities <span class="es">Actividades extracurriculares — puede omitir las que revelen estado protegido</span></label>
+        <textarea id="activities" name="activities"></textarea></div>
+    </section>
+
+    <!-- 4 ───────────────────────────────── work history -->
+    <section class="step" data-step="Work history">
+      <h2>Work experience</h2>
+      <span class="es">Experiencia laboral — indique 3–5 años, empezando por su trabajo actual o anterior</span>
+
+      <div class="grid two" style="margin-bottom:22px">
+        <div class="fld wide"><label for="training">Specialized training, apprenticeship or skills <span class="es">Entrenamiento o habilidades especializadas</span></label>
+          <textarea id="training" name="training"></textarea></div>
+        <div class="fld wide"><label for="military">Job-related training received in the U.S. military <span class="es">Formación laboral en las Fuerzas Armadas de EE. UU.</span></label>
+          <textarea id="military" name="military"></textarea></div>
+      </div>
+
+      {jobs.map((n) => (
+        <div class="block">
+          <h3>Employer {n} {n === 1 ? '— most recent / más reciente' : ''}</h3>
+          <div class="grid two">
+            <div class="fld wide"><label for={`job${n}_employer`}>Employer &amp; address <span class="es">Empleador y dirección</span></label>
+              <input id={`job${n}_employer`} name={`job${n}_employer`} required={n === 1} /></div>
+            <div class="fld"><label for={`job${n}_phone`}>Telephone <span class="es">Teléfono</span></label>
+              <input id={`job${n}_phone`} name={`job${n}_phone`} type="tel" /></div>
+            <div class="fld"><label for={`job${n}_title`}>Job title <span class="es">Título del empleo</span></label>
+              <input id={`job${n}_title`} name={`job${n}_title`} /></div>
+            <div class="fld"><label for={`job${n}_from`}>From <span class="es">Desde</span></label>
+              <input id={`job${n}_from`} name={`job${n}_from`} placeholder="MM/YYYY" /></div>
+            <div class="fld"><label for={`job${n}_to`}>To <span class="es">Hasta</span></label>
+              <input id={`job${n}_to`} name={`job${n}_to`} placeholder="MM/YYYY" /></div>
+            <div class="fld"><label for={`job${n}_wage_start`}>Starting wage <span class="es">Salario inicial</span></label>
+              <input id={`job${n}_wage_start`} name={`job${n}_wage_start`} /></div>
+            <div class="fld"><label for={`job${n}_wage_end`}>Final wage <span class="es">Salario final</span></label>
+              <input id={`job${n}_wage_end`} name={`job${n}_wage_end`} /></div>
+            <div class="fld wide"><label for={`job${n}_work`}>Work performed <span class="es">Trabajo realizado</span></label>
+              <textarea id={`job${n}_work`} name={`job${n}_work`}></textarea></div>
+            <div class="fld wide"><label for={`job${n}_reason`}>Reason for leaving <span class="es">Razón de irse</span></label>
+              <input id={`job${n}_reason`} name={`job${n}_reason`} /></div>
+            <div class="fld"><label for={`job${n}_sup`}>Supervisor name <span class="es">Nombre del supervisor</span></label>
+              <input id={`job${n}_sup`} name={`job${n}_sup`} /></div>
+            <div class="fld"><label for={`job${n}_sup_phone`}>Supervisor phone <span class="es">Teléfono del supervisor</span></label>
+              <input id={`job${n}_sup_phone`} name={`job${n}_sup_phone`} type="tel" /></div>
+            <div class="fld wide"><label for={`job${n}_rating`}>Supervisor's likely rating of your performance <span class="es">Calificación probable de su desempeño</span></label>
+              <select id={`job${n}_rating`} name={`job${n}_rating`}>
+                <option value="">—</option>
+                {ratings.map((r) => <option value={r}>{r}</option>)}
+              </select></div>
+            <div class="fld"><label for={`job${n}_liked`}>Liked most <span class="es">Qué le gustó más</span></label>
+              <input id={`job${n}_liked`} name={`job${n}_liked`} /></div>
+            <div class="fld"><label for={`job${n}_disliked`}>Liked least <span class="es">Qué le gustó menos</span></label>
+              <input id={`job${n}_disliked`} name={`job${n}_disliked`} /></div>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- 5 ───────────────────────────────── skills & references -->
+    <section class="step" data-step="Skills">
+      <h2>Skills &amp; references</h2>
+      <span class="es">Habilidades y referencias</span>
+
+      <div class="fld wide" style="margin-bottom:18px">
+        <label>Skills and equipment you operate <span class="es">Habilidades y equipo que opera</span></label>
+        <div class="chkgrid">
+          {skillOptions.map((s) => (
+            <label class="chk"><input type="checkbox" name="skills" value={s} /> <span>{s}</span></label>
+          ))}
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="fld wide"><label for="machinery">Machinery you operate <span class="es">Maquinaria que opera</span></label>
+          <textarea id="machinery" name="machinery" placeholder="Tractors, mowers, harvesters, forklift…"></textarea></div>
+        <div class="fld wide"><label for="associations">Professional, trade, business or civic activities <span class="es">Puede excluir las que revelen estado protegido</span></label>
+          <textarea id="associations" name="associations"></textarea></div>
+        <div class="fld wide"><label for="qualifications">Summarize your job-related skills and qualifications <span class="es">Resuma sus habilidades y calificaciones</span></label>
+          <textarea id="qualifications" name="qualifications"></textarea></div>
+      </div>
+
+      <div class="yn" style="margin-top:14px">
+        <span>Are you able to perform the essential functions of this job, with or without reasonable accommodation?
+          <span class="es">¿Puede desempeñar las funciones esenciales del trabajo, con o sin adaptación razonable?</span></span>
+        <span class="opts">
+          <label><input type="radio" name="essential_functions" value="Yes" required /> Yes / Sí</label>
+          <label><input type="radio" name="essential_functions" value="No" required /> No</label>
+        </span>
+      </div>
+
+      {[1, 2, 3].map((n) => (
+        <div class="block" style="margin-top:16px">
+          <h3>Reference {n} — Referencia {n}</h3>
+          <div class="grid three">
+            <div class="fld"><label for={`ref${n}_name`}>Name <span class="es">Nombre</span></label>
+              <input id={`ref${n}_name`} name={`ref${n}_name`} required={n === 1} /></div>
+            <div class="fld"><label for={`ref${n}_address`}>Address <span class="es">Dirección</span></label>
+              <input id={`ref${n}_address`} name={`ref${n}_address`} /></div>
+            <div class="fld"><label for={`ref${n}_phone`}>Telephone <span class="es">Teléfono</span></label>
+              <input id={`ref${n}_phone`} name={`ref${n}_phone`} type="tel" required={n === 1} /></div>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- 6 ───────────────────────────────── statement -->
+    <section class="step" data-step="Statement">
+      <h2>Applicant's statement</h2>
+      <span class="es">Declaración del solicitante</span>
+
+      <div class="legal">
+        <p>I certify that the answers given in this application are true and complete to the best of my
+          knowledge, and I authorize investigation of all statements contained herein. I understand this
+          application will remain active for no more than 45 days. I understand and agree that, unless
+          otherwise defined by applicable law, any employment relationship with Buena Vista Texas Turf Farm,
+          LLC is “at-will” — meaning either the employee or the Company may end the relationship at any time,
+          with or without cause. Any dispute between employer and employee will be resolved by arbitration
+          under the rules of the American Arbitration Association. I understand that false or misleading
+          information given in my application or interview may result in discharge.</p>
+        <p class="es">Certifico que las respuestas dadas en esta solicitud son verdaderas y completas a mi mejor
+          conocimiento, y autorizo la investigación de todas las declaraciones. Entiendo que esta solicitud
+          permanecerá activa por no más de 45 días. Entiendo y acepto que, salvo que la ley disponga lo
+          contrario, cualquier relación de empleo con Buena Vista Texas Turf Farm, LLC es “a voluntad”, y que
+          el empleado o la Compañía puede terminarla en cualquier momento, con o sin causa. Cualquier disputa
+          se resolverá por arbitraje según las reglas de la Asociación Americana de Arbitraje. La información
+          falsa o engañosa puede resultar en despido.</p>
+      </div>
+
+      <label class="chk">
+        <input type="checkbox" name="statement_agreed" value="yes" required />
+        <span>I have read and agree to the statement above.
+          <span class="es">He leído y acepto la declaración anterior.</span></span>
+      </label>
+
+      <SignaturePad id="applicant_signature" label="Signature of applicant" labelEs="Firma del solicitante" />
+    </section>
+
+    <!-- 7 ───────────────────────────────── background check -->
+    <section class="step" data-step="Background check">
+      <h2>Background check authorization</h2>
+      <span class="es">Autorización para verificación de antecedentes</span>
+
+      <div class="legal">
+        <p>I hereby authorize Trend and Buena Vista Texas Turf Farm, LLC to request a criminal background
+          check on me. I understand that my placement into any position with or through Trend is contingent
+          upon the results of the background check. I also understand that failure on my part to agree to
+          these procedures may result in my application being denied.</p>
+        <p class="es">Por la presente autorizo a Trend y a Buena Vista Texas Turf Farm, LLC a solicitar una
+          verificación de antecedentes penales sobre mí. Entiendo que mi colocación en cualquier puesto con o
+          a través de Trend depende de los resultados de dicha verificación. También entiendo que mi negativa
+          a aceptar estos procedimientos puede resultar en que mi solicitud sea denegada.</p>
+      </div>
+
+      <p class="doc-cap" style="margin-bottom:18px">
+        Your Social Security number, date of birth and driver licence number are <strong>not</strong> collected
+        here. If you are hired, TrendHR collects those directly when the check is run.
+        <span class="es">Su número de Seguro Social, fecha de nacimiento y número de licencia no se recogen aquí.</span>
+      </p>
+
+      <div class="grid two">
+        <div class="fld"><label for="bg_name">Name as it should appear <span class="es">Nombre como debe aparecer</span></label>
+          <input id="bg_name" name="bg_name" required /></div>
+        <div class="fld"><label for="bg_maiden">Maiden or former name, if any <span class="es">Apellido de soltera o nombre anterior</span></label>
+          <input id="bg_maiden" name="bg_maiden" /></div>
+        <div class="fld wide"><label for="bg_address">Address <span class="es">Dirección</span></label>
+          <input id="bg_address" name="bg_address" required /></div>
+        <div class="fld"><label for="bg_city">City <span class="es">Ciudad</span></label>
+          <input id="bg_city" name="bg_city" required /></div>
+        <div class="fld"><label for="bg_state">State <span class="es">Estado</span></label>
+          <input id="bg_state" name="bg_state" required value="TX" /></div>
+        <div class="fld"><label for="bg_zip">ZIP <span class="es">Código postal</span></label>
+          <input id="bg_zip" name="bg_zip" required inputmode="numeric" /></div>
+      </div>
+
+      <label class="chk" style="margin-top:16px">
+        <input type="checkbox" name="bg_authorized" value="yes" required />
+        <span>I authorize the background check described above.
+          <span class="es">Autorizo la verificación de antecedentes descrita arriba.</span></span>
+      </label>
+
+      <SignaturePad id="bg_signature" label="Signature" labelEs="Firma" />
+    </section>
+
+  </ApplyForm>
+</Base>
+
+<style>
+  .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0;
+    padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px)); }
+  .back { display: inline-block; margin-bottom: 18px; color: var(--cream-dim); text-decoration: none; font-size: .84rem; }
+  .back:hover { color: var(--gold); }
+</style>
