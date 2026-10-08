@@ -79,8 +79,19 @@ const skillOptions = ['MS Excel', 'Calculator', 'Typewriter', 'Fax', 'PBX system
           </div>
         </div>
 
-        <div class="fld wide"><label for="resume">Resume <span class="es">Currículum — adjunte si tiene uno</span></label>
-          <input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx,.jpg,.png" />
+        <!-- Optional on purpose - plenty of good field hands have no resume and
+             a required one would turn them away - but asked for properly. The
+             old form said "Resume (optional)" in small grey text and nobody
+             attached anything. A photo counts: most people will be on a phone
+             with a paper copy in their hand. -->
+        <div class="upload wide">
+          <label for="resume">Resume — attach if you have one
+            <span class="es">Currículum — adjunte si tiene uno</span></label>
+          <p class="upload-note">A photo of a paper resume is fine. PDF, Word, or a picture.
+            <span class="es">Una foto de un currículum en papel está bien.</span></p>
+          <input id="resume" name="resume" type="file"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic" capture="environment" />
+          <p class="upload-picked" id="resumePicked" hidden></p>
         </div>
       </div>
     </section>
@@ -337,7 +348,33 @@ const skillOptions = ['MS Excel', 'Calculator', 'Typewriter', 'Fax', 'PBX system
   </ApplyForm>
 </Base>
 
+<script>
+  // A bare file input gives no feedback on a phone, so people cannot tell
+  // whether the attachment took. Name the file back to them.
+  const pick = document.getElementById('resume');
+  const out = document.getElementById('resumePicked');
+  pick?.addEventListener('change', () => {
+    const f = pick.files && pick.files[0];
+    out.hidden = !f;
+    if (f) out.textContent = 'Attached: ' + f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
+  });
+</script>
+
 <style>
+  .upload { border: 1px dashed var(--line); padding: 18px; }
+  .upload label { display: block; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 6px; }
+  .upload label .es, .upload-note .es { display: block; color: var(--muted); font-style: italic;
+    text-transform: none; letter-spacing: 0; font-size: .92em; }
+  .upload-note { font-size: .86rem; color: var(--cream-dim); margin: 0 0 12px; }
+  .upload input[type=file] { font: inherit; font-size: 15px; color: var(--cream); width: 100%; }
+  .upload input[type=file]::file-selector-button {
+    background: var(--green-900); border: 1px solid var(--line); color: var(--cream);
+    padding: 10px 16px; margin-right: 12px; font: inherit; font-size: .8rem;
+    letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+  .upload input[type=file]::file-selector-button:hover { border-color: var(--gold); color: var(--gold); }
+  .upload-picked { margin: 10px 0 0; font-size: .86rem; color: var(--brand); }
+
   .ph { background: linear-gradient(135deg,#24462c,#0f1f12); padding: clamp(60px,9vw,120px) 0;
     padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px)); }
   .back { display: inline-block; margin-bottom: 18px; color: var(--cream-dim); text-decoration: none; font-size: .84rem; }
