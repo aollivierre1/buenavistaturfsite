@@ -177,6 +177,18 @@ import { locations } from '../data/locations.js';
   #panel .f p { margin: 5px 0 0; font-size: 1rem; overflow-wrap: anywhere; }
   #panel .f a { color: var(--gold); }
   #panel .f-wide { grid-column: 1 / -1; }
+  #panel .trunc { color: var(--muted); font-style: italic; }
+  #panel .inline-img { max-width: 320px; background: #fff; padding: 4px; border: 1px solid var(--line); }
+
+  #panel .sigs { display: grid; gap: 14px; grid-template-columns: 1fr; margin-top: 22px;
+    border-top: 1px solid var(--line); padding-top: 18px; }
+  @media (min-width: 720px) { #panel .sigs { grid-template-columns: 1fr 1fr; } }
+  #panel .sigcard { margin: 0; border: 1px solid var(--line); background: #fffdf7; }
+  #panel .sigcard img { display: block; width: 100%; height: auto; }
+  #panel .sigcard figcaption { display: flex; flex-wrap: wrap; gap: 2px 14px; align-items: baseline;
+    padding: 9px 12px; background: var(--green-700); border-top: 1px solid var(--line); }
+  #panel .sigcard strong { font-size: .64rem; letter-spacing: .13em; text-transform: uppercase; color: var(--gold); }
+  #panel .sigcard span { font-size: .8rem; color: var(--muted); }
 
   #panel .donebox { display: flex; gap: 10px; align-items: center; cursor: pointer;
     border: 1px solid var(--line); padding: 12px 18px; font-size: .74rem; font-weight: 700;
@@ -333,21 +345,83 @@ import { locations } from '../data/locations.js';
     const lines = [nameOf(d)];
     if (headline(d)) lines.push(headline(d));
     lines.push('Submitted ' + when(s.created_at), '');
+    const taken = signatureKeys(d);
     for (const [k, v] of orderedFields(d)) {
-      if (k === 'name') continue;
-      lines.push(pretty(k) + ': ' + v);
+      if (k === 'name' || taken.has(k)) continue;
+      lines.push(pretty(k) + ': ' + String(v).slice(0, 500));
+    }
+    for (const sig of signatures(d)) {
+      lines.push(sig.label + ': signed by ' + (sig.name || 'applicant')
+        + (sig.at ? ' on ' + when(sig.at) : '') + ' (image in the dashboard)');
     }
     lines.push('', 'Forwarded from the Buena Vista Turf Farm dashboard.');
     return 'mailto:?subject=' + encodeURIComponent(subject)
       + '&body=' + encodeURIComponent(lines.join('\n'));
   }
 
+  // A drawn signature arrives as a data: URL tens of thousands of characters
+  // long. Printed as a field value it buried the whole record under base64, so
+  // signatures are pulled out and drawn as signatures, with the typed name and
+  // the time they signed beside them.
+  const SIG_PARTS = ['image', 'name', 'signed_at', 'agree'];
+
+  function signatures(data) {
+    const out = [];
+    for (const [k, v] of Object.entries(data)) {
+      if (!k.endsWith('_image') || !String(v).startsWith('data:image')) continue;
+      const base = k.slice(0, -'_image'.length);
+      out.push({
+        label: pretty(base.replace(/_signature$/, '').replace(/^signature$/, 'applicant')) + ' signature',
+        img: String(v),
+        name: data[base + '_name'] || '',
+        at: data[base + '_signed_at'] || '',
+      });
+    }
+    return out;
+  }
+
+  // Which keys the signature blocks have already accounted for.
+  function signatureKeys(data) {
+    const taken = new Set();
+    for (const k of Object.keys(data)) {
+      if (!k.endsWith('_image') || !String(data[k]).startsWith('data:image')) continue;
+      const base = k.slice(0, -'_image'.length);
+      for (const part of SIG_PARTS) taken.add(base + '_' + part);
+    }
+    return taken;
+  }
+
+  function signatureRows(data) {
+    const sigs = signatures(data);
+    if (!sigs.length) return '';
+    return '<div class="sigs">' + sigs.map((s) =>
+      '<figure class="sigcard">' +
+      '<img src="' + esc(s.img) + '" alt="' + esc(s.label) + '" />' +
+      '<figcaption><strong>' + esc(s.label) + '</strong>' +
+      (s.name ? '<span>' + esc(s.name) + '</span>' : '') +
+      (s.at ? '<span>Signed ' + esc(when(s.at)) + '</span>' : '') +
+      '</figcaption></figure>').join('') + '</div>';
+  }
+
   function fieldRows(data) {
-    return orderedFields(data).map(([k, v]) => {
+    const taken = signatureKeys(data);
+    // The name is already the heading of the card; repeating it as the first
+    // row of the grid just pushes the useful fields down.
+    return orderedFields(data).filter(([k]) => k !== 'name' && !taken.has(k)).map(([k, v]) => {
       const str = String(v);
-      const val = /^https?:\/\//.test(str)
-        ? '<a href="' + esc(str) + '" target="_blank" rel="noopener">Open attachment</a>'
-        : esc(str);
+      let val;
+      if (str.startsWith('data:image')) {
+        // A stray image we did not pair with a signature - show it, never dump it.
+        val = '<img class="inline-img" src="' + esc(str) + '" alt="' + esc(pretty(k)) + '" />';
+      } else if (/^https?:\/\//.test(str)) {
+        val = '<a href="' + esc(str) + '" target="_blank" rel="noopener">Open attachment</a>';
+      } else if (str.length > 4000) {
+        // Nothing a person types belongs at this length; show the start and say so.
+        val = esc(str.slice(0, 400)) + '<em class="trunc"> … ' + (str.length - 400).toLocaleString()
+          + ' more characters not shown</em>';
+      } else {
+        val = esc(str);
+      }
       const wide = LONG.has(k) || str.length > 90 ? ' f-wide' : '';
       return '<div class="f' + wide + '"><span>' + esc(pretty(k)) + '</span><p>' + val + '</p></div>';
     }).join('');
@@ -378,7 +452,7 @@ import { locations } from '../data/locations.js';
       (headline(s.data) ? '<p class="rec-role">' + esc(headline(s.data)) + '</p>' : '') +
       '<p class="rec-when">Submitted ' + esc(when(s.created_at)) + '</p></div>' +
       '<span class="pill ' + st.cls + '">' + st.label + '</span></div>' +
-      '<div class="fields">' + fieldRows(s.data) + '</div>';
+      '<div class="fields">' + fieldRows(s.data) + '</div>' + signatureRows(s.data);
 
     $('rcount').textContent = (cursor + 1) + ' of ' + list.length;
     $('prevBtn').disabled = cursor === 0;
@@ -740,7 +814,14 @@ import { locations } from '../data/locations.js';
     const subs = working();
     if (!subs.length) return;
     const cols = [...new Set(subs.flatMap((s) => Object.keys(s.data)))].filter((c) => !HIDE.has(c));
-    const cell = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    // A signature is tens of thousands of base64 characters; one in a cell makes
+    // the file unopenable in a spreadsheet. Say it is there instead.
+    const cell = (v) => {
+      const str = String(v ?? '');
+      const safe = str.startsWith('data:image') ? '[signature image - see the dashboard]'
+        : str.length > 4000 ? str.slice(0, 4000) + ' …' : str;
+      return '"' + safe.replace(/"/g, '""') + '"';
+    };
     const rows = [['submitted', 'status'].concat(cols).map(cell).join(',')];
     for (const s of subs) {
       rows.push([s.created_at, statusOf(s).label].concat(cols.map((c) => s.data[c])).map(cell).join(','));
