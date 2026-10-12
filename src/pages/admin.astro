@@ -239,6 +239,24 @@ import { locations } from '../data/locations.js';
     #panel .f { border-top: 1px solid #bbb; }
     #panel .fields { grid-template-columns: 1fr 1fr; }
     #panel .pill { color: #000 !important; border-color: #888 !important; background: none !important; }
+
+    /* Signatures are the point of printing one of these, so they have to survive
+       the trip to paper. Browsers do not print background colours by default,
+       which would have left the caption's gold-on-dark reading as pale text on
+       white, so everything here is black on white with real borders. The image
+       is a JPEG with its own white ground and prints as it stands. */
+    #panel .sigs { grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px;
+      border-top: 1px solid #888; padding-top: 14px; }
+    #panel .sigcard { border: 1px solid #666; background: #fff !important;
+      page-break-inside: avoid; break-inside: avoid; }
+    #panel .sigcard img { width: 100%; height: auto; }
+    #panel .sigcard figcaption { background: #fff !important; border-top: 1px solid #bbb;
+      padding: 6px 9px; }
+    #panel .sigcard strong, #panel .sigcard span { color: #000 !important; }
+    #panel .inline-img { border: 1px solid #666; max-width: 300px; }
+    /* Keep a signature with the record it belongs to rather than orphaning it. */
+    #panel .rec { page-break-inside: auto; }
+    #panel .f { page-break-inside: avoid; }
   }
 </style>
 
@@ -365,13 +383,25 @@ import { locations } from '../data/locations.js';
   // the time they signed beside them.
   const SIG_PARTS = ['image', 'name', 'signed_at', 'agree'];
 
+  // Field prefixes are short because they are form names; the dashboard should
+  // say which document was signed, not "Bg signature".
+  const SIG_LABELS = {
+    applicant: 'Applicant statement',
+    bg: 'Background check',
+    background: 'Background check',
+    wage: 'Payroll deduction notice',
+    clearinghouse: 'FMCSA Clearinghouse consent',
+    odapc: 'Drug & alcohol records release',
+  };
+
   function signatures(data) {
     const out = [];
     for (const [k, v] of Object.entries(data)) {
       if (!k.endsWith('_image') || !String(v).startsWith('data:image')) continue;
       const base = k.slice(0, -'_image'.length);
       out.push({
-        label: pretty(base.replace(/_signature$/, '').replace(/^signature$/, 'applicant')) + ' signature',
+        label: (SIG_LABELS[base.replace(/_signature$/, '')]
+          || pretty(base.replace(/_signature$/, ''))) + ' signature',
         img: String(v),
         name: data[base + '_name'] || '',
         at: data[base + '_signed_at'] || '',
