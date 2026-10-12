@@ -83,6 +83,7 @@ in the repo, and the dashboard cannot work without them:
 |---|---|---|
 | `ADMIN_PASSWORD` | **yes** | the passcode for /admin |
 | `NETLIFY_API_TOKEN` | no | only backfills submissions older than the mirror (below) |
+| `MONDAY_API_TOKEN` | no | sends each website quote to the Shawn Lead List board on monday.com |
 
 `ADMIN_PASSWORD` is the only one the dashboard needs. `netlify/functions/submission-created.mjs`
 copies every submission into Netlify Blobs the moment it arrives, and /admin reads

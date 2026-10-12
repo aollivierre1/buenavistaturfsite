@@ -11,8 +11,21 @@
 // Blobs needs no credentials here. The Functions runtime supplies them, the same
 // way openings.mjs stores job postings.
 import { getStore } from '@netlify/blobs';
+import { createLead } from './_monday.mjs';
 
 const store = () => getStore('bvt-forms');
+
+// Netlify retries a failing event function, and a retry after the lead was
+// already created would put the same customer on the board twice - on a board
+// with thousands of leads nobody would spot it. Remember what has been pushed.
+const sentStore = () => getStore('bvt-monday');
+
+async function alreadySent(id) {
+  try { return Boolean(await sentStore().get(id)); } catch { return false; }
+}
+async function markSent(id, mondayId) {
+  try { await sentStore().setJSON(id, { at: new Date().toISOString(), mondayId }); } catch { /* best effort */ }
+}
 
 // One blob per submission rather than one array per form. Two submissions
 // arriving together would otherwise read the same array, each append its own
@@ -45,6 +58,23 @@ export default async (req) => {
     // Never fail the submission itself over a mirroring problem - the lead is
     // already safe in Netlify's own Forms tab either way.
     console.error('Could not mirror submission to blobs:', err);
+  }
+
+  // A quote is a sales lead, so it also goes on the Shawn Lead List board. Same
+  // rule as the mirror above: this must not be able to fail the submission, and
+  // the lead is in the dashboard and in Netlify Forms regardless.
+  if (formName === 'quote') {
+    try {
+      if (await alreadySent(id)) {
+        console.log('Quote', id, 'was already sent to monday.com; skipping.');
+      } else {
+        const out = await createLead(record.data, createdAt);
+        if (out.skipped) console.warn('Not sent to monday.com:', out.skipped);
+        else { await markSent(id, out.id); console.log('Created monday.com lead', out.id, 'for', id); }
+      }
+    } catch (err) {
+      console.error('Could not create the monday.com lead:', err);
+    }
   }
 
   return new Response('', { status: 200 });

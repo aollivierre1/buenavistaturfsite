@@ -86,6 +86,18 @@ two ways out are linking the account under Netlify -> team settings ->
   token is account-wide and can read every site, change DNS and delete projects.
 - **Form notification emails are a Netlify UI setting**, one per form
   (`quote`, `contact`, `application`), and they are not retroactive.
+- **Quotes also go to monday.com.** `submission-created.mjs` creates a lead on
+  the Shawn Lead List board (`6550831664`, group `group_mm0wrgz` "Website
+  Leads") for every `quote` submission. It needs `MONDAY_API_TOKEN` in Netlify;
+  without it the push is skipped and logged, never fatal. Column ids live in
+  `netlify/functions/_monday.mjs` and were read off the board - renaming a
+  column in monday does not change its id, so they survive a retitle. A status
+  label that does not already exist makes monday reject the whole item, which is
+  why the grass names are mapped (`Ironcutter` -> `Iron Cutter`, `Zeon Zoysia`
+  -> `Zoysia`) and anything unmapped is left blank. Something on the board
+  overwrites the Source column from the group name, so do not rely on setting
+  it. Pushes are recorded in the `bvt-monday` store so a Netlify retry cannot
+  create the same lead twice.
 - **No apex → www redirect in `netlify.toml`.** Netlify already redirects
   www → apex; a rule the other way created a redirect loop that took the site
   down during cutover.
