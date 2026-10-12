@@ -197,6 +197,12 @@ import { locations } from '../data/locations.js';
   #panel .donebox input { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
   #panel .donebox.is-done { border-color: #8fd3a4; color: #8fd3a4; }
   #panel .ract-right { display: flex; flex-wrap: wrap; gap: 8px; }
+  #panel .sent-ok { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    border: 1px solid #8fd3a4; color: #8fd3a4; background: rgba(143,211,164,.1);
+    padding: 11px 16px; font-size: .74rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  #panel .sent-ok a { color: #8fd3a4; }
+  #panel .sent-msg { font-size: .84rem; color: var(--muted); align-self: center; }
+  #panel .sent-msg.bad { color: #ff9c8a; }
   #panel .danger { background: transparent; border: 1px solid var(--line); color: #ff9c8a;
     padding: 11px 18px; font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; cursor: pointer; }
   #panel .danger:hover { border-color: #ff9c8a; }
@@ -269,6 +275,7 @@ import { locations } from '../data/locations.js';
   let openings = [];
   let reviewed = {};
   let removed = {};
+  let pushed = {};
   let filter = 'new';
   let cursor = 0;
   // The people you are working through right now, by id. Fixed while you work
@@ -499,6 +506,7 @@ import { locations } from '../data/locations.js';
       : '<label class="donebox' + (isDone ? ' is-done' : '') + '">' +
         '<input type="checkbox" id="doneChk"' + (isDone ? ' checked' : '') + ' />' +
         (isDone ? 'Reviewed' : 'Mark reviewed') + '</label>' +
+        mondayButton(s) +
         '<div class="ract-right">' +
         '<a class="btn btn-ghost" id="emailBtn" href="' + esc(mailtoFor(s)) + '">Email</a>' +
         '<button type="button" class="btn btn-ghost" id="printBtn">Print</button>' +
@@ -507,6 +515,50 @@ import { locations } from '../data/locations.js';
 
     wireActions(s);
     renderQueue(list);
+  }
+
+  // Only quotes - the board is a lead list, and the column mapping is written
+  // for a quote. An application has nowhere sensible to land on it.
+  const MONDAY_BOARD = '6550831664';
+
+  function mondayButton(s) {
+    if (active !== 'quote') return '';
+    const sent = pushed[s.id];
+    if (sent) {
+      const href = 'https://bvtf.monday.com/boards/' + MONDAY_BOARD
+        + (sent.mondayId ? '/pulses/' + encodeURIComponent(sent.mondayId) : '');
+      return '<span class="sent-ok">&#10003; On monday.com'
+        + (sent.at ? ' &middot; ' + esc(when(sent.at)) : '')
+        + ' <a href="' + esc(href) + '" target="_blank" rel="noopener">Open the lead</a></span>';
+    }
+    return '<button type="button" class="btn btn-ghost" id="mondayBtn">Send to monday.com</button>'
+      + '<span class="sent-msg" id="mondayMsg" hidden></span>';
+  }
+
+  async function sendToMonday(s, btn) {
+    const msg = $('mondayMsg');
+    btn.disabled = true;
+    btn.textContent = 'Sending\u2026';
+    if (msg) { msg.hidden = true; msg.classList.remove('bad'); }
+    try {
+      const res = await fetch(ADMIN + '?action=push-monday', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: s.id }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'That did not go through.');
+      pushed[s.id] = { at: body.at, mondayId: body.mondayId };
+      renderReader();
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Send to monday.com';
+      if (msg) {
+        msg.textContent = String(err.message || err);
+        msg.classList.add('bad');
+        msg.hidden = false;
+      }
+    }
   }
 
   function wireActions(s) {
@@ -522,6 +574,8 @@ import { locations } from '../data/locations.js';
     if (pr) pr.addEventListener('click', () => window.print());
     const nn = $('nextNew');
     if (nn) nn.addEventListener('click', jumpToNextNew);
+    const mb = $('mondayBtn');
+    if (mb) mb.addEventListener('click', () => sendToMonday(s, mb));
   }
 
   function renderQueue(list) {
@@ -793,6 +847,7 @@ import { locations } from '../data/locations.js';
     forms = body.forms || [];
     reviewed = body.reviewed || {};
     removed = body.removed || {};
+    pushed = body.pushed || {};
     // Applications first when present — that is what the team checks most.
     active = forms.some((f) => f.name === 'application') ? 'application' : (forms[0] && forms[0].name);
     rebuildWork();

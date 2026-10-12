@@ -10,6 +10,7 @@
 // Provided automatically by Netlify:
 //   SITE_ID
 import { getStore } from '@netlify/blobs';
+import { createLead } from './_monday.mjs';
 import {
   adminKey, sameSecret, makeToken, isAdmin, json, sessionCookie, clearedCookie,
 } from './_auth.mjs';
@@ -58,6 +59,26 @@ async function writeFlag(key, id, on) {
   else delete map[id];
   await flagStore().setJSON(key, map);
   return map;
+}
+
+// Which submissions have already been pushed to monday.com. Written per key by
+// submission-created.mjs and by the button below, so two pushes cannot race each
+// other the way a single read-modify-write map would.
+const mondayStore = () => getStore('bvt-monday');
+
+async function readPushed() {
+  try {
+    const store = mondayStore();
+    const { blobs } = await store.list();
+    const out = {};
+    await Promise.all(blobs.map(async (b) => {
+      const v = await store.get(b.key, { type: 'json' }).catch(() => null);
+      if (v) out[b.key] = v;
+    }));
+    return out;
+  } catch {
+    return {};
+  }
 }
 
 // Only for submissions that arrived before the mirror existed.
@@ -192,10 +213,10 @@ export default async (req, context) => {
     }
 
     const forms = groupByForm([...blobbed, ...apiRecords]);
-    const [reviewed, removed] = await Promise.all([
-      readFlag(FLAGS.reviewed), readFlag(FLAGS.removed),
+    const [reviewed, removed, pushed] = await Promise.all([
+      readFlag(FLAGS.reviewed), readFlag(FLAGS.removed), readPushed(),
     ]);
-    const body = { forms, reviewed, removed, fetched_at: new Date().toISOString() };
+    const body = { forms, reviewed, removed, pushed, fetched_at: new Date().toISOString() };
 
     if (apiError) body.warning = apiError;
     if (!forms.length && !process.env.NETLIFY_API_TOKEN) {
@@ -217,6 +238,44 @@ export default async (req, context) => {
     if (!name) return json(400, { error: 'Unknown flag.' });
     const map = await writeFlag(name, id, Boolean(body.on));
     return json(200, { ok: true, flag: name, map });
+  }
+
+  // Send one submission to the Shawn Lead List board by hand. The automatic push
+  // only fires on new submissions, so anything that arrived before it existed
+  // needs a button - and a quote that failed to push is worth retrying rather
+  // than retyping.
+  if (action === 'push-monday') {
+    let body;
+    try { body = await req.json(); } catch { return json(400, { error: 'Expected JSON.' }); }
+    const id = String(body.id || '').slice(0, 160);
+    if (!id) return json(400, { error: 'Which submission?' });
+
+    const already = await mondayStore().get(id, { type: 'json' }).catch(() => null);
+    if (already) return json(200, { ok: true, already: true, ...already });
+
+    // Find it rather than trusting the browser's copy of the data.
+    const blobbed = await fromBlobs();
+    let record = blobbed.find((r) => r.id === id);
+    if (!record && process.env.NETLIFY_API_TOKEN) {
+      const siteId = siteIdFrom(context);
+      if (siteId) {
+        try { record = (await fromApi(siteId)).find((r) => r.id === id); } catch { /* fall through */ }
+      }
+    }
+    if (!record) return json(404, { error: 'That submission is no longer stored here.' });
+
+    try {
+      const out = await createLead(record.data, record.created_at);
+      if (out.skipped) {
+        return json(500, { error: 'MONDAY_API_TOKEN is not set on this site, so nothing was sent. '
+          + 'Add it in Netlify \u2192 Environment variables, then redeploy.' });
+      }
+      const entry = { at: new Date().toISOString(), mondayId: out.id };
+      await mondayStore().setJSON(id, entry);
+      return json(200, { ok: true, ...entry });
+    } catch (err) {
+      return json(502, { error: String(err.message || err).slice(0, 400) });
+    }
   }
 
   // Really delete, from the Removed tab. Only works for submissions this site
