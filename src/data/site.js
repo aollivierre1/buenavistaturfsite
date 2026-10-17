@@ -34,6 +34,14 @@ export const socials = [
 export const analytics = {
   ga4: 'G-BJPY2EFZFB',
   metaPixel: null, // <- put the Meta Pixel ID here (digits only) to enable it
+  // Google Ads conversion tracking. Set googleAds to the account's tag id
+  // ('AW-123456789') and googleAdsLead to the conversion label of the lead
+  // action. Leads are reported to GA4 either way; this only matters for Ads.
+  googleAds: null,
+  googleAdsLead: null,
+  // Search Console "HTML tag" verification: the content="..." value only.
+  // Not needed if the property is verified by DNS.
+  searchConsole: null,
   // The farm's existing Chatbase assistant, recovered from the pre-migration
   // site. Set to null to remove the widget.
   chatbase: 'v7GMh_HXo4aG6EEJzOveu',

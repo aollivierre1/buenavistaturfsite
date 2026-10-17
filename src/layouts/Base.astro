@@ -5,13 +5,45 @@ import Footer from '../components/Footer.astro';
 import { site, socials, analytics } from '../data/site.js';
 import { locations } from '../data/locations.js';
 
-const { title, description = site.description, image = '/og.jpg', noindex = false } = Astro.props;
+const { title, description = site.description, image = '/og.jpg', noindex = false, track = true } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | North Texas Sod & Turf Delivery`;
 const chatbaseSnippet = analytics.chatbase
   ? '(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...a)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(a)};window.chatbase=new Proxy(window.chatbase,{get(t,p){if(p==="q"){return t.q}return(...ar)=>t(p,...ar)}})}var onLoad=function(){var s=document.createElement("script");s.src="https://www.chatbase.co/embed.min.js";s.id="'
     + analytics.chatbase
     + '";s.domain="www.chatbase.co";document.body.appendChild(s)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();'
   : null;
+
+// Gtag ids to configure: GA4 plus Google Ads when set. One loader serves both.
+const gtagIds = track ? [analytics.ga4, analytics.googleAds].filter(Boolean) : [];
+
+// Conversions. Runs after a form's own submit handler (it listens on document),
+// so a submit the form cancelled for validation is not counted. GA4 sends by
+// beacon, so the event survives the navigation to /thanks.
+const leadForms = { quote: 'quote', contact: 'contact' };
+const conversionSnippet = `(function(){
+var ads=${JSON.stringify(analytics.googleAds && analytics.googleAdsLead ? analytics.googleAds + '/' + analytics.googleAdsLead : null)};
+var leads=${JSON.stringify(leadForms)};
+function send(n,p){if(window.gtag)gtag('event',n,p)}
+document.addEventListener('submit',function(e){
+  var f=e.target;if(e.defaultPrevented||!f||!f.getAttribute)return;
+  var name=f.getAttribute('name');if(!name)return;
+  if(leads[name]){
+    send('generate_lead',{form_name:name});
+    if(ads)send('conversion',{send_to:ads});
+    if(window.fbq)fbq('track','Lead',{content_name:name});
+  }else if(/^application/.test(name)){
+    send('job_application',{form_name:name});
+  }
+});
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('a[href^="tel:"],a[href^="mailto:"]');if(!a)return;
+  var tel=a.getAttribute('href').indexOf('tel:')===0;
+  var where=a.closest('header')?'header':a.closest('footer')?'footer':'page';
+  send(tel?'phone_click':'email_click',{link_location:where,page_path:location.pathname});
+  if(tel&&ads)send('conversion',{send_to:ads});
+  if(tel&&window.fbq)fbq('track','Contact');
+});
+})();`;
 
 const canonical = new URL(Astro.url.pathname, site.url).href;
 
@@ -58,13 +90,15 @@ const schema = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
-    {analytics.ga4 && (
+    {analytics.searchConsole && <meta name="google-site-verification" content={analytics.searchConsole} />}
+    {gtagIds.length > 0 && (
       <>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.ga4}`}></script>
-        <script is:inline set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${analytics.ga4}')`}></script>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gtagIds[0]}`}></script>
+        <script is:inline set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());${gtagIds.map((id) => `gtag('config','${id}');`).join('')}`}></script>
+        <script is:inline set:html={conversionSnippet}></script>
       </>
     )}
-    {analytics.metaPixel && (
+    {track && analytics.metaPixel && (
       <>
         <script is:inline set:html={`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${analytics.metaPixel}');fbq('track','PageView')`}></script>
         <noscript set:html={`<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${analytics.metaPixel}&ev=PageView&noscript=1"/>`}></noscript>
