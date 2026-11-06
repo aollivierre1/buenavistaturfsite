@@ -13,14 +13,14 @@ import { site } from '../data/site.js';
   <section><div class="wrap grid g2">
     {locations.map((l) => (
       <div class="card">
-        <h2>{l.name}</h2>
+        <h2><a href={`/locations/${l.slug}/`}>{l.name}</a></h2>
         <p style="color:var(--muted);font-size:.76rem;letter-spacing:.13em;text-transform:uppercase">{l.county}</p>
         <address class="addr">
           <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${l.street}, ${l.city}, TX ${l.zip}`)}`}
              target="_blank" rel="noopener">{l.street}, {l.city}, TX {l.zip}</a>
         </address>
         <p>{l.blurb}</p>
-        <a href="/quote" class="btn btn-ghost">Quote from {l.name}</a>
+        <a href={`/locations/${l.slug}/`} class="btn btn-ghost">{l.name} farm details</a>
       </div>
     ))}
   </div></section>
@@ -33,6 +33,8 @@ import { site } from '../data/site.js';
 <style>
   .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
   .hrs{margin-top:18px;color:var(--muted)}
+  .card h2 a{text-decoration:none;color:inherit}
+  .card h2 a:hover{color:var(--gold)}
   .addr{font-style:normal;margin:10px 0 14px}
   .addr a{color:var(--gold);text-decoration:none;font-size:.95rem}
   .addr a:hover{text-decoration:underline}

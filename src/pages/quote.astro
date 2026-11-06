@@ -179,5 +179,20 @@ import { pricing, priceFor } from '../data/pricing.js';
     $(id).addEventListener('input', recalc);
   });
   $('grass').addEventListener('change', recalc);
+
+  // A visitor arriving from a farm page or a grass page has already told us
+  // something; making them pick it again from a list of four loses people at
+  // the first field. Only values that match an existing <option> are applied,
+  // so a hand-edited URL cannot inject anything into the form.
+  const params = new URLSearchParams(location.search);
+  const preselect = (id, value) => {
+    if (!value) return;
+    const el = $(id);
+    const hit = [...el.options].find((o) => o.value === value);
+    if (hit) el.value = hit.value;
+  };
+  preselect('nearest', params.get('nearest'));
+  preselect('grass', params.get('grass'));
+
   recalc();
 </script>

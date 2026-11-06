@@ -18,7 +18,7 @@ import { grasses } from '../data/grasses.js';
     </div>
     <div>
       <h3>Locations</h3>
-      <ul>{locations.map((l) => <li><a href="/locations">{l.name}, {l.county}</a></li>)}</ul>
+      <ul>{locations.map((l) => <li><a href={`/locations/${l.slug}/`}>{l.name}, {l.county}</a></li>)}</ul>
     </div>
     <div>
       <h3>Follow</h3>

@@ -6,9 +6,19 @@
 // as two different addresses.
 //
 // Ravenna is the primary address, the one used for the business as a whole.
+//
+// `nearby` is the towns each farm's page names as part of its delivery area.
+// They are the real geographic neighbours inside the county that farm already
+// serves, and they exist so the four location pages differ from one another in
+// substance rather than only in the city name - four pages saying the same
+// thing with the word swapped is a doorway-page pattern, and Google demotes
+// the lot. ALFREDO: these are a service-area claim on a public page, so check
+// each list is somewhere that farm genuinely delivers and cut anything it does
+// not.
 export const locations = [
   {
     slug: 'ravenna',
+    nearby: ['Bonham', 'Honey Grove', 'Dodd City', 'Ector', 'Telephone', 'Sherman'],
     street: '5186 FM 274',
     city: 'Ravenna',
     zip: '75476',
@@ -20,6 +30,7 @@ export const locations = [
   },
   {
     slug: 'ivanhoe',
+    nearby: ['Bonham', 'Telephone', 'Honey Grove', 'Trenton', 'Ravenna'],
     street: '1664 CR 2225',
     city: 'Ivanhoe',
     zip: '75447',
@@ -30,6 +41,7 @@ export const locations = [
   },
   {
     slug: 'collinsville',
+    nearby: ['Sherman', 'Van Alstyne', 'Tioga', 'Gunter', 'Whitesboro', 'Pilot Point'],
     street: '2095 Batey Rd',
     city: 'Collinsville',
     zip: '76233',  // ZIP not on the contact card; Batey Rd is 76233, Grayson County - confirm against the Business Profile
@@ -40,6 +52,7 @@ export const locations = [
   },
   {
     slug: 'ferris',
+    nearby: ['Waxahachie', 'Ennis', 'Red Oak', 'Palmer', 'Lancaster', 'Midlothian'],
     street: '621 Wolf Springs Rd E',
     city: 'Ferris',
     zip: '75125',

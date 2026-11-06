@@ -13,6 +13,21 @@ export function getStaticPaths() {
 
 const { role } = Astro.props;
 const where = [role.locations?.join(', '), role.type].filter(Boolean).join(' · ');
+
+// The same role can be posted at two sites - Farm Office Administrator runs at
+// Ravenna and at Blue Ridge - and those pages were going out with an identical
+// title and description. Google treats that as one page duplicated, picks
+// whichever it prefers and drops the other, so one of the two postings was
+// invisible. Where a title is shared, the place disambiguates it; where it is
+// unique, nothing is appended and the title stays short.
+const sharesTitle = openings.filter((o) => o.title === role.title && o.sections?.length).length > 1;
+const placeLabel = role.locations?.[0]?.split('—')[0].trim() || '';
+const pageTitle = sharesTitle && placeLabel
+  ? `${role.title} — ${placeLabel} — Careers`
+  : `${role.title} — Careers`;
+const pageDescription = sharesTitle && placeLabel
+  ? `${placeLabel}: ${role.summary || role.about}`
+  : (role.summary || role.about);
 // Two sites can post the same role, so the location travels with it.
 const applyQuery = new URLSearchParams({ role: role.title });
 if (role.locationOption) applyQuery.set('location', role.locationOption);
@@ -80,8 +95,8 @@ const jobSchema = {
 };
 ---
 <Base
-  title={`${role.title} — Careers`}
-  description={role.summary || role.about}
+  title={pageTitle}
+  description={pageDescription}
   extraSchema={jobSchema}
 >
   <section class="ph"><div class="wrap">
