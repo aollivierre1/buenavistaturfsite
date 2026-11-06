@@ -37,8 +37,18 @@ import { locations } from '../data/locations.js';
       <p style="margin:4px 0 0;color:var(--muted);font-size:.9rem">{site.hours.pickup}</p>
 
       <h3 style="margin-top:28px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Farm locations</h3>
-      <ul class="specs">
-        {locations.map((l) => <li><span>{l.name}</span><span>{l.county}</span></li>)}
+      <ul class="addrs">
+        {locations.map((l) => (
+          <li>
+            <strong>{l.name}</strong> <span class="cty">{l.county}</span>
+            <address>
+              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${l.street}, ${l.city}, TX ${l.zip}`)}`}
+                 target="_blank" rel="noopener">
+                {l.street}<br />{l.city}, TX {l.zip}
+              </a>
+            </address>
+          </li>
+        ))}
       </ul>
       <a href="/quote" class="btn" style="margin-top:24px;width:100%;text-align:center">Build a Quote Instead</a>
     </aside>
@@ -47,6 +57,14 @@ import { locations } from '../data/locations.js';
 <style>
   .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
   .cols{display:grid;gap:44px}
+  .addrs{list-style:none;padding:0;margin:10px 0 0}
+  .addrs li{padding:12px 0;border-bottom:1px solid var(--line)}
+  .addrs li:last-child{border-bottom:0}
+  .addrs strong{font-size:.95rem}
+  .addrs .cty{color:var(--muted);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-left:8px}
+  .addrs address{font-style:normal;margin-top:4px;line-height:1.5}
+  .addrs address a{color:var(--muted);text-decoration:none;font-size:.92rem}
+  .addrs address a:hover{color:var(--gold);text-decoration:underline}
   @media(min-width:940px){.cols{grid-template-columns:1.6fr 1fr}}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 </style>

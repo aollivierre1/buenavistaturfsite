@@ -16,6 +16,18 @@ const chatbaseSnippet = analytics.chatbase
 
 const canonical = new URL(Astro.url.pathname, site.url).href;
 
+// Street address and ZIP included: a locality on its own is too weak for Google
+// to match the site against the Google Business Profile with any confidence.
+const postal = (l) => ({
+  '@type': 'PostalAddress',
+  streetAddress: l.street,
+  addressLocality: l.city || l.name,
+  addressRegion: 'TX',
+  postalCode: l.zip,
+  addressCountry: 'US',
+});
+const primary = locations.find((l) => l.primary) || locations[0];
+
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
@@ -35,10 +47,14 @@ const schema = {
     closes: site.hours.closes,
   }],
   areaServed: site.serviceArea.map((a) => ({ '@type': 'Place', name: a })),
+  // A LocalBusiness needs one postal address of its own - the `location` list
+  // below describes the other sites, but Google reads this one as the
+  // business's address and will not show an address at all without it.
+  address: postal(primary),
   location: locations.map((l) => ({
     '@type': 'Place',
     name: `${site.shortName} — ${l.name}`,
-    address: { '@type': 'PostalAddress', addressLocality: l.name, addressRegion: 'TX', addressCountry: 'US' },
+    address: postal(l),
   })),
 };
 ---
