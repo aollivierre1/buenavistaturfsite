@@ -11,7 +11,9 @@ export default defineConfig({
       // Neither belongs in search results.
       filter: (page) => {
         const p = new URL(page).pathname.replace(/\/$/, '');
-        return !NOINDEX.includes(p);
+        // The /apply/ packets carry noindex; listing them here would send
+        // Google a page it is told not to index.
+        return !NOINDEX.includes(p) && !p.startsWith('/apply');
       },
     }),
   ],

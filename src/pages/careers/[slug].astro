@@ -20,10 +20,15 @@ if (role.locationOption) applyQuery.set('location', role.locationOption);
 // that role still goes to the short form on the Careers page.
 const isDriver = /cdl|driver/i.test(role.title);
 const applyHref = `/apply/${isDriver ? 'driver' : 'general'}/?${applyQuery}`;
+// The same role can be posted at two sites, so a single-site posting names its
+// site in the title and description - otherwise both pages read as duplicates.
+const site1 = role.locations?.length === 1 ? role.locations[0].split(' — ')[0] : null;
+const pageTitle = site1 ? `${role.title}, ${site1} — Careers` : `${role.title} — Careers`;
+const pageDesc = [role.summary || role.about, site1 && `Based in ${site1}, TX.`].filter(Boolean).join(' ');
 ---
 <Base
-  title={`${role.title} — Careers`}
-  description={role.summary || role.about}
+  title={pageTitle}
+  description={pageDesc}
 >
   <section class="ph"><div class="wrap">
     <a class="back" href="/careers/">&larr; All open roles</a>
