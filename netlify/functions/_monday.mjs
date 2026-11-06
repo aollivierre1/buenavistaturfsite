@@ -35,6 +35,12 @@ const SOD_LABELS = {
 };
 
 const clip = (v, n) => String(v ?? '').trim().slice(0, n);
+// The calculator sends a plain number; the board reads better with a currency
+// mark. Anything non-numeric is passed through rather than mangled.
+const money = (v) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2 }) : String(v);
+};
 
 export function buildItem(data, createdAt) {
   const name = clip(data.name, 120) || clip(data.email, 120) || 'Website quote';
@@ -47,6 +53,9 @@ export function buildItem(data, createdAt) {
     data.nearest_farm && `Nearest farm: ${data.nearest_farm}`,
     data.calculated_pallets && `Pallets (calculator): ${data.calculated_pallets}`,
     data.calculated_sqft_with_waste && `Sq ft incl. waste: ${data.calculated_sqft_with_waste}`,
+    // What the site's calculator quoted them - sod only, no delivery. Worth
+    // carrying so the sales call starts from the number they already saw.
+    data.calculated_sod_cost && `Sod cost shown on site: ${money(data.calculated_sod_cost)} (excl. delivery)`,
     data.grass_type && `Grass asked for: ${data.grass_type}`,
   ].filter(Boolean).join('\n');
 

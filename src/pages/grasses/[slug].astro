@@ -1,13 +1,45 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { grasses } from '../../data/grasses.js';
+import { priceFor, pricing, money } from '../../data/pricing.js';
+import { site } from '../../data/site.js';
 
 export function getStaticPaths() {
   return grasses.map((g) => ({ params: { slug: g.slug }, props: { g } }));
 }
 const { g } = Astro.props;
+const price = priceFor(g.slug);
+
+// Product structured data. This is what lets a grass show a price directly in
+// the search result instead of a bare blue link, and it is only worth emitting
+// when there is a price to show - Google rejects an Offer with no price, and a
+// rejected block takes the whole Product with it.
+const productSchema = price && {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: `${g.name} Sod`,
+  description: g.summary,
+  category: 'Sod / Turfgrass',
+  brand: { '@type': 'Brand', name: site.name },
+  offers: {
+    '@type': 'Offer',
+    // Priced per pallet, because that is the unit a customer actually buys.
+    price: price.perPallet.toFixed(2),
+    priceCurrency: pricing.currency,
+    availability: 'https://schema.org/InStock',
+    url: new URL(`/grasses/${g.slug}/`, site.url).href,
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      price: price.perSqFt.toFixed(2),
+      priceCurrency: pricing.currency,
+      unitCode: 'FTK',          // UN/CEFACT code for square foot
+      unitText: 'square foot',
+    },
+    seller: { '@type': 'Organization', name: site.name },
+  },
+};
 ---
-<Base title={`${g.name} Sod`} description={g.summary}>
+<Base title={`${g.name} Sod`} description={g.summary} extraSchema={productSchema}>
   <section class="ph">
     <div class="wrap">
       <span class="eyebrow">{g.type}</span>
@@ -27,6 +59,13 @@ const { g } = Astro.props;
       </article>
       <aside class="card" style="position:sticky;top:110px">
         <h3>At a glance</h3>
+        {price && (
+          <div class="price">
+            <p class="psqft">{money(price.perSqFt)} <span>per sq ft</span></p>
+            <p class="ppal">{money(price.perPallet)} per pallet <span>({pricing.sqftPerPallet} sq ft)</span></p>
+            <p class="pnote">Sod only. Delivery quoted separately.</p>
+          </div>
+        )}
         <ul class="specs">
           <li><span>Type</span><span>{g.type}</span></li>
           <li><span>Sun</span><span>{g.sun}</span></li>
@@ -47,4 +86,12 @@ const { g } = Astro.props;
   .cols { display:grid; gap:44px; align-items:start; }
   @media (min-width:940px){ .cols { grid-template-columns: 1.7fr 1fr; } }
   article h2 { font-size: clamp(1.5rem,2.6vw,2.1rem); margin-top:36px; }
+  .price { margin: 4px 0 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .psqft { font-family: var(--font-display); font-weight: 800; font-size: 2rem;
+           color: var(--gold); line-height: 1.1; margin: 0; }
+  .psqft span { font-family: var(--font-body, inherit); font-size: .82rem; font-weight: 600;
+                color: var(--muted); letter-spacing: .04em; }
+  .ppal { margin: 6px 0 0; font-size: .98rem; }
+  .ppal span { color: var(--muted); font-size: .86rem; }
+  .pnote { margin: 8px 0 0; color: var(--muted); font-size: .82rem; }
 </style>

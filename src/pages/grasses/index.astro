@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { grasses } from '../../data/grasses.js';
+import { priceFor, money } from '../../data/pricing.js';
 ---
 <Base title="Grasses" description="Bermuda 419, Celebration, Ironcutter, St Augustine, Tahoma 31, and Zeon Zoysia — Texas-ready turf selected for heat, traffic, shade, and curb appeal.">
   <section class="ph">
@@ -15,6 +16,10 @@ import { grasses } from '../../data/grasses.js';
       {grasses.map((g) => (
         <a class="card gcard" href={`/grasses/${g.slug}`}>
           <h2>{g.name}</h2>
+          {priceFor(g.slug) && (
+            <p class="cprice">{money(priceFor(g.slug).perSqFt)}<span> / sq ft</span>
+              <em>{money(priceFor(g.slug).perPallet)} per pallet</em></p>
+          )}
           <p>{g.summary}</p>
           <ul class="specs">
             <li><span>Sun</span><span>{g.sun}</span></li>
@@ -30,4 +35,9 @@ import { grasses } from '../../data/grasses.js';
   .ph { background: linear-gradient(135deg, #24462c, #0f1f12); padding: clamp(60px,9vw,120px) 0; padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
   .gcard { text-decoration:none; display:block; transition:border-color .15s, transform .15s; }
   .gcard:hover { border-color: var(--brand); transform: translateY(-3px); }
+  .cprice { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem;
+            color: var(--gold); margin: 2px 0 10px; line-height: 1.25; }
+  .cprice span { font-size: .8rem; font-weight: 600; color: var(--muted); }
+  .cprice em { display:block; font-style:normal; font-family: var(--font-body, inherit);
+               font-size: .84rem; font-weight: 600; color: var(--muted); }
 </style>

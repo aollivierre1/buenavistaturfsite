@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { grasses } from '../data/grasses.js';
 import { locations } from '../data/locations.js';
-import { pricing } from '../data/pricing.js';
+import { pricing, priceFor } from '../data/pricing.js';
 ---
 <Base
   title="Sod Calculator & Quote"
@@ -51,7 +51,11 @@ import { pricing } from '../data/pricing.js';
         <label for="grass">Grass type</label>
         <select id="grass" name="grass_type" required>
           <option value="">Not sure yet — help me choose</option>
-          {grasses.map((g) => <option value={g.name}>{g.name} — {g.sun}</option>)}
+          {grasses.map((g) => (
+            <option value={g.name} data-pallet={priceFor(g.slug)?.perPallet ?? ''}>
+              {g.name} — {g.sun}
+            </option>
+          ))}
         </select>
 
         <h2 class="fh">3. Delivery</h2>
@@ -86,6 +90,7 @@ import { pricing } from '../data/pricing.js';
 
         <input type="hidden" name="calculated_pallets" id="hPallets" />
         <input type="hidden" name="calculated_sqft_with_waste" id="hWaste" />
+        <input type="hidden" name="calculated_sod_cost" id="hCost" />
 
         <button type="submit" class="btn" style="width:100%">Send My Quote Request</button>
         <p class="hint" style="text-align:center">We reply by phone or email, usually same business day.</p>
@@ -98,10 +103,12 @@ import { pricing } from '../data/pricing.js';
           <li><span>Measured area</span><span id="rSqft">—</span></li>
           <li><span>With {Math.round(pricing.wasteBuffer * 100)}% waste buffer</span><span id="rWaste">—</span></li>
           <li><span>Coverage per pallet</span><span>{pricing.sqftPerPallet} sq ft</span></li>
+          <li class="cost"><span>Estimated sod cost</span><span id="rCost">—</span></li>
         </ul>
         <p class="hint" style="margin-top:22px">
-          Pallet counts are rounded up — partial pallets are not sold. Final count and
-          pricing are confirmed by our team before anything is scheduled.
+          Sod only — delivery is quoted separately and is not in this figure.
+          Pallet counts are rounded up, because partial pallets are not sold. Final
+          count and pricing are confirmed by our team before anything is scheduled.
         </p>
       </aside>
     </div>
@@ -124,6 +131,7 @@ import { pricing } from '../data/pricing.js';
   .btn + .hint { margin-top: 10px; }
   .result { background: var(--green-700); border: 1px solid var(--line); padding: 32px; position: sticky; top: 110px; }
   .big { font-family: var(--font-display); font-size: 4.5rem; font-weight: 900; line-height: 1; color: var(--cream); margin-bottom: 18px; }
+  .cost span:last-child { color: var(--gold); font-weight: 700; }
   .big small { display: block; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-family: var(--font-body); font-weight: 700; margin-top: 8px; }
 </style>
 
@@ -151,10 +159,25 @@ import { pricing } from '../data/pricing.js';
     $('rWaste').textContent = fmt(Math.ceil(withWaste)) + ' sq ft';
     $('hPallets').value = pallets;
     $('hWaste').value = Math.ceil(withWaste);
+
+    // Cost needs a grass as well as an area. "Not sure yet" carries no price,
+    // and neither does a variety whose rate is switched off, so both fall back
+    // to a dash rather than showing $0.
+    const opt = $('grass').selectedOptions[0];
+    const perPallet = parseFloat(opt && opt.dataset.pallet) || 0;
+    if (perPallet > 0) {
+      const cost = pallets * perPallet;
+      $('rCost').textContent = '$' + fmt(cost);
+      $('hCost').value = cost.toFixed(2);
+    } else {
+      $('rCost').textContent = '—';
+      $('hCost').value = '';
+    }
   }
 
   ['length', 'width', 'sqft'].forEach((id) => {
     $(id).addEventListener('input', recalc);
   });
+  $('grass').addEventListener('change', recalc);
   recalc();
 </script>
