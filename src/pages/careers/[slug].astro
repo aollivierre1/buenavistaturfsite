@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { openings } from '../../data/openings.js';
+import { site } from '../../data/site.js';
 
 // Only roles written up in full get a page of their own. The rest link straight
 // to the application form from the Careers index.
@@ -20,10 +21,68 @@ if (role.locationOption) applyQuery.set('location', role.locationOption);
 // that role still goes to the short form on the Careers page.
 const isDriver = /cdl|driver/i.test(role.title);
 const applyHref = `/apply/${isDriver ? 'driver' : 'general'}/?${applyQuery}`;
+
+// JobPosting structured data. This is what puts the role in the Google Jobs
+// box - the panel of listings that appears above the normal results for a
+// search like "sod farm driver jobs near me". A careers page without it is
+// ordinary web content and does not appear there at all, which is the whole
+// reason it is worth carrying.
+//
+// Google requires title, description, datePosted, hiringOrganization and
+// jobLocation. `description` must be a single HTML string, so the write-up is
+// rebuilt here out of the same fields the page renders - no second copy of the
+// text to keep in step.
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const descriptionHtml = [
+  role.about && `<p>${esc(role.about)}</p>`,
+  ...(role.sections || []).map((sec) =>
+    `<h3>${esc(sec.heading)}</h3><ul>${(sec.items || []).map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`),
+  role.requirements?.length
+    && `<h3>Requirements</h3><ul>${role.requirements.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`,
+].filter(Boolean).join('');
+
+// A posting with no end date is dropped from Google Jobs after a while and
+// reads as stale to candidates. Six months from the posted date is the farm's
+// hiring window; re-posting a role means bumping `posted` in openings.js.
+const postedAt = role.posted || '2026-09-18';
+const validThrough = new Date(new Date(postedAt).getTime() + 182 * 864e5).toISOString().slice(0, 10);
+
+// Google maps "Full-time" to FULL_TIME; anything it does not recognise is
+// ignored, so only the two the farm actually posts are mapped.
+const EMPLOYMENT = { 'Full-time': 'FULL_TIME', 'Part-time': 'PART_TIME', 'Seasonal': 'TEMPORARY' };
+
+const jobSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'JobPosting',
+  title: role.title,
+  description: descriptionHtml,
+  datePosted: postedAt,
+  validThrough,
+  employmentType: EMPLOYMENT[role.type] || undefined,
+  // The application is completed on this site, so Google can send candidates
+  // straight here rather than through an aggregator.
+  directApply: true,
+  hiringOrganization: {
+    '@type': 'Organization',
+    name: site.name,
+    sameAs: site.url,
+    logo: new URL('/favicon.png', site.url).href,
+  },
+  jobLocation: (role.locations?.length ? role.locations : ['Ravenna']).map((city) => ({
+    '@type': 'Place',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: city,
+      addressRegion: 'TX',
+      addressCountry: 'US',
+    },
+  })),
+};
 ---
 <Base
   title={`${role.title} — Careers`}
   description={role.summary || role.about}
+  extraSchema={jobSchema}
 >
   <section class="ph"><div class="wrap">
     <a class="back" href="/careers/">&larr; All open roles</a>

@@ -89,6 +89,7 @@ export const openings = [
   {
     title: 'CDL Driver / Delivery',
     slug: 'cdl-driver-delivery',
+    posted: '2026-09-18', // datePosted for Google Jobs - bump when a role is reposted
     type: 'Full-time',
     locations: ['Ravenna', 'Collinsville', 'Ferris'],
     summary:
@@ -143,6 +144,7 @@ export const openings = [
   {
     ...officeAdministrator,
     slug: 'farm-office-administrator-ravenna',
+    posted: '2026-09-18', // datePosted for Google Jobs - bump when a role is reposted
     locations: ['Ravenna'],
     locationOption: 'Ravenna, Fannin County',
     // Spanish is asked for at Ravenna only - this desk coordinates daily with
@@ -152,6 +154,7 @@ export const openings = [
   {
     ...officeAdministrator,
     slug: 'farm-office-administrator-blue-ridge',
+    posted: '2026-09-18', // datePosted for Google Jobs - bump when a role is reposted
     locations: ['Blue Ridge — corporate office'],
     // Blue Ridge is the corporate office, not a farm, so it is not in
     // locations.js. It still needs an option on the application form.
@@ -160,6 +163,7 @@ export const openings = [
   {
     title: 'Farm Help',
     slug: 'farm-help',
+    posted: '2026-09-18', // datePosted for Google Jobs - bump when a role is reposted
     type: 'Full-time',
     locations: ['Ravenna', 'Ivanhoe', 'Ferris'],
     summary:

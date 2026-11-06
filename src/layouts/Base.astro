@@ -5,7 +5,8 @@ import Footer from '../components/Footer.astro';
 import { site, socials, analytics } from '../data/site.js';
 import { locations } from '../data/locations.js';
 
-const { title, description = site.description, image = '/og.jpg', noindex = false } = Astro.props;
+const { title, description = site.description, image = '/og.jpg', noindex = false,
+        extraSchema = null } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | North Texas Sod & Turf Delivery`;
 const chatbaseSnippet = analytics.chatbase
   ? '(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...a)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(a)};window.chatbase=new Proxy(window.chatbase,{get(t,p){if(p==="q"){return t.q}return(...ar)=>t(p,...ar)}})}var onLoad=function(){var s=document.createElement("script");s.src="https://www.chatbase.co/embed.min.js";s.id="'
@@ -58,6 +59,10 @@ const schema = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+    {/* Page-specific structured data (JobPosting, Product, FAQPage ...). The
+        LocalBusiness block above describes the company on every page; this
+        describes the one thing this page is about. */}
+    {extraSchema && <script type="application/ld+json" set:html={JSON.stringify(extraSchema)}></script>}
     {analytics.ga4 && (
       <>
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.ga4}`}></script>
