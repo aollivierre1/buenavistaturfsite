@@ -8,6 +8,7 @@ import { site } from '../data/site.js';
     <span class="eyebrow">Locations</span>
     <h1>Four turf locations serving North Texas with field-level accountability.</h1>
     <p class="lede">Ravenna, Ivanhoe, Collinsville, and Ferris are part of one customer standard.</p>
+    <p class="hrs">{site.hours.display} at every farm. <strong>{site.hours.pickup}.</strong></p>
   </div></section>
   <section><div class="wrap grid g2">
     {locations.map((l) => (
@@ -25,4 +26,8 @@ import { site } from '../data/site.js';
     <a href={site.phoneHref} class="btn">{site.phone}</a>
   </div></section>
 </Base>
-<style>.ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}</style>
+<style>
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
+  .hrs{margin-top:18px;color:var(--muted)}
+  .hrs strong{color:var(--gold)}
+</style>

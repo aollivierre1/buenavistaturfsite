@@ -32,6 +32,10 @@ import { locations } from '../data/locations.js';
     <aside class="card" style="align-self:start">
       <h2>Call us</h2>
       <p><a href={site.phoneHref} style="font-family:var(--font-display);font-size:1.9rem;font-weight:800;color:var(--gold);text-decoration:none">{site.phone}</a></p>
+      <h3 style="margin-top:28px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Hours</h3>
+      <p style="margin:6px 0 0">{site.hours.display}</p>
+      <p style="margin:4px 0 0;color:var(--muted);font-size:.9rem">{site.hours.pickup}</p>
+
       <h3 style="margin-top:28px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Farm locations</h3>
       <ul class="specs">
         {locations.map((l) => <li><span>{l.name}</span><span>{l.county}</span></li>)}

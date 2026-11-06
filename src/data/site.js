@@ -7,6 +7,22 @@ export const site = {
   tagline: 'Family-run standards, field-tested quality.',
   description:
     'North Texas sod farm growing Bermuda, Zoysia, and St Augustine turf. Fresh-cut delivery to DFW homeowners, landscapers, builders, and sports turf managers.',
+  // Office and delivery hours, the same at all four farms. `days`/`opens`/
+  // `closes` feed the openingHoursSpecification in the LocalBusiness schema,
+  // which is what Google reads for the "Hours" line in a local result, so the
+  // 24-hour times matter and the display string is only for people.
+  //
+  // Sod pickup is BY APPOINTMENT ONLY - these hours are when someone is there,
+  // not an invitation to turn up with a trailer. schema.org has no field for
+  // that condition, so it travels as visible text on every page that shows the
+  // hours rather than as structured data.
+  hours: {
+    days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    opens: '08:00',
+    closes: '17:00',
+    display: 'Monday – Friday, 8am – 5pm',
+    pickup: 'Sod pickup by appointment only',
+  },
   serviceArea: [
     'Dallas-Fort Worth',
     'Ravenna',

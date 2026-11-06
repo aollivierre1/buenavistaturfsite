@@ -9,6 +9,7 @@ import { grasses } from '../data/grasses.js';
       <h2 class="ft-logo">Buena Vista Turf Farm</h2>
       <p class="ft-tag">{site.tagline}</p>
       <p><a href={site.phoneHref} class="ft-phone">{site.phone}</a></p>
+      <p class="ft-hours">{site.hours.display}<br /><span>{site.hours.pickup}</span></p>
       <a href="/quote" class="btn">Get a Quote</a>
     </div>
     <div>
@@ -48,6 +49,8 @@ import { grasses } from '../data/grasses.js';
   .ft-logo { font-size: 1.4rem; margin-bottom: 6px; }
   .ft-tag { color: var(--muted); margin-bottom: 14px; }
   .ft-phone { font-size: 1.35rem; font-family: var(--font-display); font-weight: 800; color: var(--gold); text-decoration: none; }
+  .ft-hours { margin: 10px 0 16px; font-size: .92rem; line-height: 1.5; }
+  .ft-hours span { color: var(--muted); font-size: .86rem; }
   .ft h3 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; font-family: var(--font-body); font-weight: 700; }
   .ft ul { list-style: none; padding: 0; margin: 0; }
   .ft li { margin-bottom: 9px; }

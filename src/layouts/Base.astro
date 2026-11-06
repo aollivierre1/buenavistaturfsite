@@ -25,6 +25,15 @@ const schema = {
   image: new URL("/og.jpg", site.url).href,
   telephone: site.phone,
   sameAs: socials.map((s) => s.href),
+  // Google reads this for the "Hours" line in a local result and for the
+  // open/closed state it shows against the business. Days not listed read as
+  // closed, which is correct - the farms are weekdays only.
+  openingHoursSpecification: [{
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: site.hours.days,
+    opens: site.hours.opens,
+    closes: site.hours.closes,
+  }],
   areaServed: site.serviceArea.map((a) => ({ '@type': 'Place', name: a })),
   location: locations.map((l) => ({
     '@type': 'Place',
