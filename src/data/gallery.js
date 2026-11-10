@@ -1,5 +1,12 @@
-// Weekly field photos. Categories and captions recovered from the original
-// site. Add an entry here and drop the file in public/images/ to extend it.
+// Weekly field photos. The first 74 and their categories were recovered from
+// the original site; 075-114 were added from the farm photo library in 2026-11
+// and captioned from what is actually in each frame, because the caption is
+// also the alt text a screen reader reads out.
+//
+// Add an entry here and drop the file in public/images/ to extend it. The
+// filename must start with three digits - scripts/gen-thumbs.mjs uses that
+// prefix to decide which images belong to a grid and need derivatives, so a
+// file named otherwise is served at full size.
 
 export const galleryCategories = [
   "Farm Update",
@@ -453,5 +460,245 @@ export const gallery = [
     "category": "Delivery Day",
     "caption": "Field-tested quality moving from our rows to customer properties across DFW.",
     "src": "/images/074-km-01808_1b15b486.webp"
+  },
+  {
+    "id": "weekly-075",
+    "category": "Harvest & Field Work",
+    "caption": "Fresh-cut rolls stacked on pallets, with the pivot still running on the next field over.",
+    "src": "/images/075-cut-sod-pallets-pivot.jpg"
+  },
+  {
+    "id": "weekly-076",
+    "category": "Behind the Scenes",
+    "caption": "Heading out down the turn row at the start of a cutting day.",
+    "src": "/images/076-loader-farm-road.jpg"
+  },
+  {
+    "id": "weekly-077",
+    "category": "Harvest & Field Work",
+    "caption": "Pallets lined up behind the harvester, ready to be picked up and loaded.",
+    "src": "/images/077-pallet-rows-harvest.jpg"
+  },
+  {
+    "id": "weekly-078",
+    "category": "Harvest & Field Work",
+    "caption": "A full field of cut sod waiting on pickup under a clear Texas sky.",
+    "src": "/images/078-field-pallets-wide.jpg"
+  },
+  {
+    "id": "weekly-079",
+    "category": "Farm Update",
+    "caption": "Clean turn rows and even colour across the block - what we want to see before a cut.",
+    "src": "/images/079-turn-row-green-field.jpg"
+  },
+  {
+    "id": "weekly-080",
+    "category": "Farm Detail",
+    "caption": "Pivot irrigation keeping the grass growing through a dry stretch.",
+    "src": "/images/080-pivot-irrigation.jpg"
+  },
+  {
+    "id": "weekly-081",
+    "category": "Farm Update",
+    "caption": "Weather moving in over a block that is nearly ready to harvest.",
+    "src": "/images/081-field-storm-clouds.jpg"
+  },
+  {
+    "id": "weekly-082",
+    "category": "Farm Detail",
+    "caption": "Late sun across the pivot line.",
+    "src": "/images/082-pivot-sun.jpg"
+  },
+  {
+    "id": "weekly-083",
+    "category": "Behind the Scenes",
+    "caption": "Loading pallets off the field - most of the work happens before anyone sees the grass.",
+    "src": "/images/083-loader-pallets-crew.jpg"
+  },
+  {
+    "id": "weekly-084",
+    "category": "Harvest & Field Work",
+    "caption": "Rolls stacked and strapped, waiting on the truck.",
+    "src": "/images/084-stacked-rolls-sky.jpg"
+  },
+  {
+    "id": "weekly-085",
+    "category": "Harvest & Field Work",
+    "caption": "Large rolls set out along the headland after cutting.",
+    "src": "/images/085-big-rolls-ground.jpg"
+  },
+  {
+    "id": "weekly-086",
+    "category": "Farm Update",
+    "caption": "A green block under the pivot, a few days out from harvest.",
+    "src": "/images/086-field-pivot-cloud.jpg"
+  },
+  {
+    "id": "weekly-087",
+    "category": "Harvest & Field Work",
+    "caption": "Cut strips showing where the harvester has already been through.",
+    "src": "/images/087-harvest-strips.jpg"
+  },
+  {
+    "id": "weekly-088",
+    "category": "Farm Detail",
+    "caption": "Close enough to see the root mat - a clean, tight cut holds together when it is laid.",
+    "src": "/images/088-rolls-closeup-harvester.jpg"
+  },
+  {
+    "id": "weekly-089",
+    "category": "Harvest & Field Work",
+    "caption": "The harvester working its way across the block with pallets dropped behind it.",
+    "src": "/images/089-harvester-working-field.jpg"
+  },
+  {
+    "id": "weekly-090",
+    "category": "Harvest & Field Work",
+    "caption": "One pallet cut and stacked, with the rest of the field still standing.",
+    "src": "/images/090-single-pallet-green.jpg"
+  },
+  {
+    "id": "weekly-091",
+    "category": "Harvest & Field Work",
+    "caption": "Big rolls lined down the field for a large-area job.",
+    "src": "/images/091-big-roll-row.jpg"
+  },
+  {
+    "id": "weekly-092",
+    "category": "Farm Detail",
+    "caption": "A finished pallet - even thickness, square edges, no gaps.",
+    "src": "/images/092-pallet-closeup.jpg"
+  },
+  {
+    "id": "weekly-093",
+    "category": "Delivery Day",
+    "caption": "Texas is our turf - the trailer loaded and ready to roll out.",
+    "src": "/images/093-branded-trailer.jpg"
+  },
+  {
+    "id": "weekly-094",
+    "category": "Harvest & Field Work",
+    "caption": "Cut rolls across the field on a clear morning.",
+    "src": "/images/094-rolls-blue-sky.jpg"
+  },
+  {
+    "id": "weekly-095",
+    "category": "Farm Update",
+    "caption": "A cloud bank rolling over a block of standing grass.",
+    "src": "/images/095-field-cloud-bank.jpg"
+  },
+  {
+    "id": "weekly-096",
+    "category": "Behind the Scenes",
+    "caption": "Forklift moving a double stack off the field.",
+    "src": "/images/096-forklift-pallets.jpg"
+  },
+  {
+    "id": "weekly-097",
+    "category": "Delivery Day",
+    "caption": "Loaded and bound for a job site - sod is perishable, so the delivery is part of the product.",
+    "src": "/images/097-delivery-truck-loaded.jpg"
+  },
+  {
+    "id": "weekly-098",
+    "category": "Behind the Scenes",
+    "caption": "Moving the harvester between blocks.",
+    "src": "/images/098-harvester-road.jpg"
+  },
+  {
+    "id": "weekly-099",
+    "category": "Harvest & Field Work",
+    "caption": "Pallets staged at the edge of the field ahead of loading.",
+    "src": "/images/099-pallets-stacked-yard.jpg"
+  },
+  {
+    "id": "weekly-100",
+    "category": "Delivery Day",
+    "caption": "A trailer loaded out and strapped, ready for an early start.",
+    "src": "/images/100-trailer-loaded-sod.jpg"
+  },
+  {
+    "id": "weekly-101",
+    "category": "Delivery Day",
+    "caption": "Big rolls and the tractor unit that will take them out.",
+    "src": "/images/101-semi-big-rolls.jpg"
+  },
+  {
+    "id": "weekly-102",
+    "category": "Harvest & Field Work",
+    "caption": "A cut pallet sitting on the track, waiting on the loader.",
+    "src": "/images/102-pallet-dirt-track.jpg"
+  },
+  {
+    "id": "weekly-103",
+    "category": "Harvest & Field Work",
+    "caption": "Getting the last of it cut before the weather turns.",
+    "src": "/images/103-rolls-storm-light.jpg"
+  },
+  {
+    "id": "weekly-104",
+    "category": "Behind the Scenes",
+    "caption": "The harvester mid-block, cutting to order.",
+    "src": "/images/104-harvester-field.jpg"
+  },
+  {
+    "id": "weekly-105",
+    "category": "Farm Detail",
+    "caption": "Tight, even rolls - the difference shows up when the crew lays it.",
+    "src": "/images/105-rolls-stacked-pallet.jpg"
+  },
+  {
+    "id": "weekly-106",
+    "category": "Behind the Scenes",
+    "caption": "Loader running pallets in off a freshly cut block.",
+    "src": "/images/106-loader-green-field.jpg"
+  },
+  {
+    "id": "weekly-107",
+    "category": "Delivery Day",
+    "caption": "Pallets staged with the truck pulled alongside.",
+    "src": "/images/107-pallets-truck-ready.jpg"
+  },
+  {
+    "id": "weekly-108",
+    "category": "Behind the Scenes",
+    "caption": "Tractor heading down the turn row between blocks.",
+    "src": "/images/108-tractor-dirt-road.jpg"
+  },
+  {
+    "id": "weekly-109",
+    "category": "Farm Detail",
+    "caption": "A slab turned over on the stack - dense root mat, clean cut underneath.",
+    "src": "/images/109-sod-slab-closeup.jpg"
+  },
+  {
+    "id": "weekly-110",
+    "category": "Harvest & Field Work",
+    "caption": "Harvest under way with the pivot parked at the end of the run.",
+    "src": "/images/110-harvest-pivot-crew.jpg"
+  },
+  {
+    "id": "weekly-111",
+    "category": "Harvest & Field Work",
+    "caption": "Big rolls cut and set out across the block.",
+    "src": "/images/111-big-rolls-field.jpg"
+  },
+  {
+    "id": "weekly-112",
+    "category": "Behind the Scenes",
+    "caption": "Mowing keeps the grass at cutting height between harvests.",
+    "src": "/images/112-tractor-mowing.jpg"
+  },
+  {
+    "id": "weekly-113",
+    "category": "Farm Detail",
+    "caption": "Stacked and squared at the field edge.",
+    "src": "/images/113-pallets-field-edge.jpg"
+  },
+  {
+    "id": "weekly-114",
+    "category": "Harvest & Field Work",
+    "caption": "Pallets on a block with the mowing lines still showing.",
+    "src": "/images/114-pallets-mow-lines.jpg"
   }
 ];
