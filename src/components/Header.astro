@@ -69,10 +69,13 @@ import { site, nav } from '../data/site.js';
   .nav .btn:hover { background: var(--brand-dark); border-color: transparent; }
 
   .menu-btn { display: none; background: rgba(15,31,18,0.5); border: 1px solid rgba(245,241,228,0.45); color: var(--cream); padding: 10px 16px; font-size: 0.72rem; letter-spacing: 0.11em; text-transform: uppercase; cursor: pointer; }
-  /* 1270px is measured, not chosen: it is the narrowest viewport where all
-     eleven items still sit on one row. Below it the row wrapped and "Get a
-     Quote" dropped underneath, so the menu button takes over instead. */
-  @media (max-width: 1269px) {
+  /* Measured, not chosen: the narrowest viewport where every item still sits
+     on one row. Below it the row wraps and "Get a Quote" drops underneath, so
+     the menu button takes over instead.
+     Adding "Contractors" moved this from 1270 to 1340 - RE-MEASURE IT after
+     adding or renaming a nav item, because the failure is a second row that
+     looks deliberate rather than anything obviously broken. */
+  @media (max-width: 1339px) {
     .menu-btn { display: block; }
     .nav { display: none; width: 100%; justify-content: flex-start; padding-bottom: 14px; }
     .nav.open { display: flex; }

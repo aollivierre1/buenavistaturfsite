@@ -42,7 +42,40 @@ const money = (v) => {
   return Number.isFinite(n) ? '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2 }) : String(v);
 };
 
-export function buildItem(data, createdAt) {
+// A trade-account request. Only four fields are asked for, because the real
+// paperwork happens in the DocuSign credit application that Shawn sends after
+// this lands - the form exists to start that, not to replace it.
+function contractorItem(data, createdAt) {
+  // The board row is the ACCOUNT, so it is named after the business; the person
+  // who filled the form goes in the comments rather than being lost.
+  const name = clip(data.business_name, 120) || clip(data.name, 120)
+    || clip(data.email, 120) || 'Trade account request';
+
+  const comments = [
+    data.name && `Contact: ${data.name}`,
+    data.business_name && `Business: ${data.business_name}`,
+    'Requested a trade / contractor account from the website.',
+    'NEXT STEP: send the DocuSign credit application.',
+  ].filter(Boolean).join('\n');
+
+  const values = {
+    [COL.email]: { email: clip(data.email, 160), text: clip(data.email, 160) },
+    [COL.phone]: { phone: clip(data.phone, 40), countryShortName: 'US' },
+    [COL.comments]: clip(comments, 1500),
+    [COL.message]: clip('Trade account request - send DocuSign', 255),
+    [COL.status]: { label: 'New Lead' },
+    [COL.source]: 'Website form lead',
+    [COL.form]: 'contractor',
+    [COL.created]: { date: String(createdAt || new Date().toISOString()).slice(0, 10) },
+  };
+  if (!values[COL.email].email) delete values[COL.email];
+  if (!values[COL.phone].phone) delete values[COL.phone];
+  for (const k of Object.keys(values)) if (values[k] === '') delete values[k];
+  return { name, values };
+}
+
+export function buildItem(data, createdAt, formName = 'quote') {
+  if (formName === 'contractor') return contractorItem(data, createdAt);
   const name = clip(data.name, 120) || clip(data.email, 120) || 'Website quote';
 
   // Everything the form asks that has no column of its own, kept together so
@@ -70,6 +103,9 @@ export function buildItem(data, createdAt) {
     [COL.comments]: clip([comments, data.notes && `Notes: ${data.notes}`].filter(Boolean).join('\n\n'), 1500),
     [COL.message]: clip(data.notes, 255),
     [COL.status]: { label: 'New Lead' },
+    // Something on the board rewrites Source from the group name, so this
+    // often reads "Website Leads" by the time anyone looks. The Form column
+    // below is the one that reliably says which form it came from.
     [COL.source]: 'Website — quote form',
     [COL.form]: 'quote',
     [COL.created]: { date: String(createdAt || new Date().toISOString()).slice(0, 10) },
@@ -86,11 +122,11 @@ export function buildItem(data, createdAt) {
   return { name, values };
 }
 
-export async function createLead(data, createdAt, fetchImpl = fetch) {
+export async function createLead(data, createdAt, formName = 'quote', fetchImpl = fetch) {
   const token = process.env.MONDAY_API_TOKEN;
   if (!token) return { skipped: 'MONDAY_API_TOKEN is not set' };
 
-  const { name, values } = buildItem(data, createdAt);
+  const { name, values } = buildItem(data, createdAt, formName);
   const query = `mutation ($board: ID!, $group: String!, $name: String!, $cols: JSON!) {
     create_item (board_id: $board, group_id: $group, item_name: $name,
                  column_values: $cols, create_labels_if_missing: false) { id }

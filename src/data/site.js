@@ -79,6 +79,7 @@ export const nav = [
   { label: 'Grasses', href: '/grasses' },
   { label: 'Turf Tips', href: '/turf-tips' },
   { label: 'Sod Calculator', href: '/quote' },
+  { label: 'Contractors', href: '/contractors' },
   { label: 'Blog', href: '/blog' },
   { label: 'Managers Pictures', href: '/managers-pictures' },
   { label: 'Locations', href: '/locations' },

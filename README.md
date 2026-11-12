@@ -29,7 +29,8 @@ npm run build    # outputs to dist/
 
 ## Forms
 
-Three Netlify forms are wired: `quote`, `contact`, `application` (with resume upload).
+Four Netlify forms are wired: `quote`, `contact`, `application` (with resume
+upload) and `contractor` (trade account requests).
 
 **After the first deploy**, turn on email notifications — this is a Netlify
 setting, not something the repo can carry:
@@ -40,11 +41,18 @@ Netlify → Site configuration → Forms → Form notifications → Add notifica
 | Field | Value |
 |---|---|
 | Event to listen for | New form submission |
-| Form | `quote`, then `contact`, then `application` |
+| Form | `quote`, `contact`, `application`, then `contractor` |
 | Email to notify | `alfredo@buenavistaturf.com` |
 
-Add it three times, once per form — a notification is bound to a single form, so
-one entry does not cover the other two.
+A notification is bound to ONE form and ONE address, so this is one entry per
+form per recipient — four forms is four entries, and nothing is retroactive.
+
+**`contractor` needs two entries, not one.** A trade account request has to
+reach Shawn as well as Alfredo, because Shawn sends the DocuSign credit
+application, and the website cannot do that part. Add the `contractor`
+notification twice, once to each address. If only one is set up, the other
+person never hears about the lead — it is still in /admin and on the monday
+board, but nobody is told to go and look.
 
 Resumes arrive as a download link in the email rather than an attachment; the
 file itself stays in Netlify.
@@ -83,7 +91,7 @@ in the repo, and the dashboard cannot work without them:
 |---|---|---|
 | `ADMIN_PASSWORD` | **yes** | the passcode for /admin |
 | `NETLIFY_API_TOKEN` | no | only backfills submissions older than the mirror (below) |
-| `MONDAY_API_TOKEN` | no | sends each website quote to the Shawn Lead List board on monday.com |
+| `MONDAY_API_TOKEN` | no | sends each website quote and trade account request to the Shawn Lead List board on monday.com |
 
 `ADMIN_PASSWORD` is the only one the dashboard needs. `netlify/functions/submission-created.mjs`
 copies every submission into Netlify Blobs the moment it arrives, and /admin reads

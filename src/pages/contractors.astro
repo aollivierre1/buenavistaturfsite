@@ -1,0 +1,136 @@
+---
+// Trade account requests from landscapers, builders and contractors.
+//
+// The form asks four things and nothing else. The real paperwork is the
+// DocuSign credit application Shawn sends once this lands, and every extra
+// field here is another reason for a busy contractor to abandon the page
+// before we have any way to contact him.
+//
+// On submit: netlify/functions/submission-created.mjs mirrors it to Blobs for
+// /admin and creates a row on the Shawn Lead List board with Source "Website
+// form lead". The email to Shawn and Alfredo is a Netlify form notification,
+// which is a setting in the Netlify UI rather than anything this repo can
+// carry - see README.
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.js';
+import { locations } from '../data/locations.js';
+
+const buyers = [
+  { who: 'Landscapers', why: 'Repeat installs on a schedule, cut to order so it arrives fresh on the day you lay it.' },
+  { who: 'Builders & developers', why: 'Lot after lot on a build programme, from four farms across North Texas.' },
+  { who: 'Sports & commercial turf', why: 'Large-area orders where the grass has to take traffic and still look right.' },
+  { who: 'Municipalities & schools', why: 'Parks, verges and grounds work, invoiced to an account rather than per load.' },
+];
+---
+<Base
+  title="Trade & Contractor Accounts"
+  description="Open a trade account with Buena Vista Turf Farm. Landscapers, builders and contractors buy fresh-cut Bermuda, Zoysia and St Augustine on account from four North Texas farms. Request an account in under a minute."
+>
+  <section class="ph"><div class="wrap">
+    <span class="eyebrow">For the trade</span>
+    <h1>Open an account and stop paying per load.</h1>
+    <p class="lede">
+      If you buy sod for a living, you should not be quoting every job from scratch.
+      Tell us four things and we will send you a credit application to sign online.
+    </p>
+  </div></section>
+
+  <section><div class="wrap cols">
+    <div>
+      <h2 class="fh">Request a trade account</h2>
+      <form
+        name="contractor"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        action="/thanks"
+      >
+        <input type="hidden" name="form-name" value="contractor" />
+        <p hidden>
+          <label>Leave this blank: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+        </p>
+
+        <label for="cn">Your name</label>
+        <input id="cn" type="text" name="name" required autocomplete="name" />
+
+        <label for="cb">Business name</label>
+        <input id="cb" type="text" name="business_name" required autocomplete="organization" />
+
+        <label for="ce">Email</label>
+        <input id="ce" type="email" name="email" required autocomplete="email" />
+
+        <label for="cp">Phone</label>
+        <input id="cp" type="tel" name="phone" required autocomplete="tel" />
+
+        <button type="submit" class="btn" style="width:100%">Request My Account</button>
+        <p class="hint" style="text-align:center">
+          Four fields, no obligation. The credit application comes by email for you to sign online.
+        </p>
+      </form>
+    </div>
+
+    <aside>
+      <h2 class="fh">What happens next</h2>
+      <ol class="steps">
+        <li>
+          <strong>You send these four details.</strong>
+          <span>That is the whole form. It takes under a minute.</span>
+        </li>
+        <li>
+          <strong>We email you a credit application.</strong>
+          <span>It comes through DocuSign, so you sign it online — no printing, no scanning, no trip to the farm.</span>
+        </li>
+        <li>
+          <strong>Once it is approved, you order on account.</strong>
+          <span>Call, tell us the grass and the quantity, and we schedule the cut.</span>
+        </li>
+      </ol>
+
+      <div class="card">
+        <h3>In a hurry?</h3>
+        <p>
+          You do not need an account to buy. <a href="/quote/">Build a quote</a> or call
+          <a href={site.phoneHref}>{site.phone}</a> and we will get you loaded.
+        </p>
+        <p class="muted">{site.hours.display}. {site.hours.pickup}.</p>
+      </div>
+    </aside>
+  </div></section>
+
+  <section class="section-alt"><div class="wrap">
+    <span class="eyebrow">Who buys on account</span>
+    <h2>Built for people who order sod more than once.</h2>
+    <div class="grid g2">
+      {buyers.map((b) => (
+        <div class="card">
+          <h3>{b.who}</h3>
+          <p>{b.why}</p>
+        </div>
+      ))}
+    </div>
+    <p class="foot">
+      Cutting from {locations.length} farms — {locations.map((l) => l.name).join(', ')} — across
+      Dallas-Fort Worth and North Texas. <a href="/locations/">See which one is closest to your jobs.</a>
+    </p>
+  </div></section>
+</Base>
+
+<style>
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;
+      padding-top:calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px));}
+  .cols{display:grid;gap:44px;align-items:start}
+  @media (min-width:940px){.cols{grid-template-columns:1.1fr 1fr}}
+  .fh{font-size:1.05rem;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);
+      font-family:var(--font-body);font-weight:700;margin:0 0 20px;}
+  .hint{font-size:.84rem;color:var(--muted);margin-top:10px}
+  .steps{list-style:none;counter-reset:s;padding:0;margin:0 0 28px}
+  .steps li{counter-increment:s;position:relative;padding:0 0 18px 42px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .steps li:last-child{border-bottom:0}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;
+    border-radius:50%;background:var(--brand);color:#fff;font-weight:800;font-size:.9rem;
+    display:grid;place-items:center;font-family:var(--font-display)}
+  .steps strong{display:block;margin-bottom:3px}
+  .steps span{color:var(--muted);font-size:.93rem;line-height:1.5}
+  .muted{color:var(--muted);font-size:.88rem}
+  .foot{margin-top:28px;color:var(--muted)}
+</style>

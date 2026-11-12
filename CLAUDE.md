@@ -84,9 +84,14 @@ two ways out are linking the account under Netlify -> team settings ->
   submissions older than that function. Blobs needs no credentials inside a
   function, so don't reintroduce a token dependency — a Netlify personal access
   token is account-wide and can read every site, change DNS and delete projects.
-- **Form notification emails are a Netlify UI setting**, one per form
-  (`quote`, `contact`, `application`), and they are not retroactive.
-- **Quotes also go to monday.com.** `submission-created.mjs` creates a lead on
+- **Form notification emails are a Netlify UI setting**, one per form per
+  recipient (`quote`, `contact`, `application`, `contractor`), and they are not
+  retroactive. `contractor` needs TWO entries - Shawn as well as Alfredo -
+  because Shawn is the one who sends the DocuSign credit application.
+- **Quotes and trade account requests go to monday.com.** `submission-created.mjs`
+  pushes the forms in its `MONDAY_FORMS` set (`quote`, `contractor`); a job
+  applicant is deliberately not one, because an applicant is not a sales lead.
+  It creates a lead on
   the Shawn Lead List board (`6550831664`, group `group_mm0wrgz` "Website
   Leads") for every `quote` submission. It needs `MONDAY_API_TOKEN` in Netlify;
   without it the push is skipped and logged, never fatal. Column ids live in

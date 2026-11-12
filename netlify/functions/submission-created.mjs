@@ -32,6 +32,10 @@ async function markSent(id, mondayId) {
 // row, and the second write would drop the first.
 const keyFor = (formName, createdAt, id) => `${formName}/${createdAt}-${id}`;
 
+// Which forms are sales leads. `application` is deliberately not here - a job
+// applicant is not a lead and does not belong on a sales board.
+const MONDAY_FORMS = new Set(['quote', 'contractor']);
+
 export default async (req) => {
   let payload;
   try {
@@ -60,15 +64,16 @@ export default async (req) => {
     console.error('Could not mirror submission to blobs:', err);
   }
 
-  // A quote is a sales lead, so it also goes on the Shawn Lead List board. Same
-  // rule as the mirror above: this must not be able to fail the submission, and
-  // the lead is in the dashboard and in Netlify Forms regardless.
-  if (formName === 'quote') {
+  // Quotes and trade-account requests are both sales leads, so they go on the
+  // Shawn Lead List board. Same rule as the mirror above: this must not be able
+  // to fail the submission, and the lead is in the dashboard and in Netlify
+  // Forms regardless of what monday.com does.
+  if (MONDAY_FORMS.has(formName)) {
     try {
       if (await alreadySent(id)) {
-        console.log('Quote', id, 'was already sent to monday.com; skipping.');
+        console.log(formName, id, 'was already sent to monday.com; skipping.');
       } else {
-        const out = await createLead(record.data, createdAt);
+        const out = await createLead(record.data, createdAt, formName);
         if (out.skipped) console.warn('Not sent to monday.com:', out.skipped);
         else { await markSent(id, out.id); console.log('Created monday.com lead', out.id, 'for', id); }
       }

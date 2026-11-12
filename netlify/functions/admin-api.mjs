@@ -265,7 +265,7 @@ export default async (req, context) => {
     if (!record) return json(404, { error: 'That submission is no longer stored here.' });
 
     try {
-      const out = await createLead(record.data, record.created_at);
+      const out = await createLead(record.data, record.created_at, record.form_name);
       if (out.skipped) {
         return json(500, { error: 'MONDAY_API_TOKEN is not set on this site, so nothing was sent. '
           + 'Add it in Netlify \u2192 Environment variables, then redeploy.' });
