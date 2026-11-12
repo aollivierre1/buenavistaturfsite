@@ -37,6 +37,14 @@ const schema = {
   image: new URL("/og.jpg", site.url).href,
   telephone: site.phone,
   sameAs: socials.map((s) => s.href),
+  // Trade bodies the farm belongs to. Google treats memberOf as a credibility
+  // signal for a local business, and it costs nothing to state here what the
+  // trust bar already says on the page.
+  memberOf: site.credentials.map((c) => ({
+    '@type': 'Organization',
+    name: c.label,
+    url: c.url,
+  })),
   // Google reads this for the "Hours" line in a local result and for the
   // open/closed state it shows against the business. Days not listed read as
   // closed, which is correct - the farms are weekdays only.

@@ -16,6 +16,25 @@ export const site = {
   // not an invitation to turn up with a trailer. schema.org has no field for
   // that condition, so it travels as visible text on every page that shows the
   // hours rather than as structured data.
+  // Credentials shown in the trust bar under the hero. These are claims about
+  // real organisations made on a public page, so each one has to be true and
+  // current: a lapsed membership or a title a year out of date is worse than
+  // saying nothing, because a customer who checks finds the error.
+  //
+  // ALFREDO: confirm the exact wording of the chairman title (chairman vs
+  // board chair vs past chairman) and that the TNLA membership is current.
+  credentials: [
+    {
+      label: 'Turfgrass Producers of Texas',
+      detail: 'Our CEO serves as Chairman',
+      url: 'https://www.texasturf.com/',
+    },
+    {
+      label: 'Texas Nursery & Landscape Association',
+      detail: 'Member',
+      url: 'https://tnlaonline.org/',
+    },
+  ],
   hours: {
     days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     opens: '08:00',

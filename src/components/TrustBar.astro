@@ -1,0 +1,88 @@
+---
+// The strip under the hero. A first-time visitor arrives knowing nothing about
+// the farm, and the two association credentials are the strongest thing we can
+// say in one line - a competitor can claim to grow good grass, but chairing the
+// state growers' association is checkable and not many can say it.
+//
+// The operational facts beside them come from the data files rather than being
+// typed here, so adding a farm or a grass variety updates the bar instead of
+// quietly making it wrong.
+import { site, socials } from '../data/site.js';
+import { locations } from '../data/locations.js';
+import { grasses } from '../data/grasses.js';
+
+const facts = [
+  { label: `${locations.length} North Texas farms`, detail: 'Ravenna · Ivanhoe · Collinsville · Ferris' },
+  { label: `${grasses.length} grass varieties`, detail: 'Bermuda, Zoysia & St Augustine' },
+];
+---
+<section class="trust" aria-label="Credentials and coverage">
+  <div class="wrap">
+    <ul>
+      {site.credentials.map((c) => (
+        <li class="cred">
+          <a href={c.url} target="_blank" rel="noopener">
+            <strong>{c.label}</strong>
+            <span>{c.detail}</span>
+          </a>
+        </li>
+      ))}
+      {facts.map((f) => (
+        <li>
+          <strong>{f.label}</strong>
+          <span>{f.detail}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .trust {
+    background: var(--green-800);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 22px 0;
+  }
+  .trust ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 18px 28px;
+    grid-template-columns: 1fr;
+  }
+  /* Two up on a phone keeps it to two rows instead of four stacked bands. */
+  @media (min-width: 560px) { .trust ul { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1000px) { .trust ul { grid-template-columns: repeat(4, 1fr); } }
+
+  .trust li { min-width: 0; }
+  .trust strong {
+    display: block;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    color: var(--cream);
+  }
+  .trust span {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  /* The two credentials link out to the associations, because a claim a
+     visitor can check is worth more than one they cannot. */
+  .trust .cred strong { color: var(--gold); }
+  .trust a { text-decoration: none; display: block; }
+  .trust a:hover strong { text-decoration: underline; }
+
+  /* Left rule separating each item, dropped on the first of each row so there
+     is never a stray line against the page edge. */
+  @media (min-width: 560px) {
+    .trust li { padding-left: 20px; border-left: 1px solid var(--line); }
+    .trust li:nth-child(odd) { padding-left: 0; border-left: 0; }
+  }
+  @media (min-width: 1000px) {
+    .trust li:nth-child(odd) { padding-left: 20px; border-left: 1px solid var(--line); }
+    .trust li:first-child { padding-left: 0; border-left: 0; }
+  }
+</style>
