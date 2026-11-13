@@ -700,5 +700,23 @@ export const gallery = [
     "category": "Harvest & Field Work",
     "caption": "Pallets on a block with the mowing lines still showing.",
     "src": "/images/114-pallets-mow-lines.jpg"
+  },
+  {
+    "id": "weekly-115",
+    "category": "Harvest & Field Work",
+    "caption": "Cut and uncut side by side - the bare strip on the right came off this week.",
+    "src": "/images/115-cut-and-uncut-strips.jpg"
+  },
+  {
+    "id": "weekly-116",
+    "category": "Behind the Scenes",
+    "caption": "Harvester and tractor working a block together, dust up behind them.",
+    "src": "/images/116-harvester-tractor-dust.jpg"
+  },
+  {
+    "id": "weekly-117",
+    "category": "Farm Update",
+    "caption": "A pallet standing out on an open block, cut and waiting on the loader.",
+    "src": "/images/117-pallet-open-field.jpg"
   }
 ];
