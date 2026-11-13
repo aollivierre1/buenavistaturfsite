@@ -18,7 +18,11 @@ const { frontmatter } = Astro.props;
   </div></section>
 </Base>
 <style is:global>
-  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0}
+  /* The offset was missing here, so every post's heading sat underneath the
+     overlaying header. This rule is is:global and therefore the one that
+     wins on a post page, which is why the page-level rules did not save it. */
+  .ph{background:linear-gradient(135deg,#24462c,#0f1f12);padding:clamp(60px,9vw,120px) 0;
+      padding-top:calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px))}
   .post{max-width:74ch}
   .post h2{font-size:clamp(1.6rem,2.8vw,2.2rem);margin-top:44px}
   .post h3{margin-top:32px}
