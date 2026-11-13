@@ -48,6 +48,18 @@ const { formName, title, titleEs, intro, steps } = Astro.props;
 </div></section>
 
 <style is:global>
+  /* This rule has to live HERE, beside the markup it styles.
+     Both apply pages carried their own `.ph` rule, but the <section class="ph">
+     is rendered by this component, so Astro scoped those rules to the page's
+     cid and the section - which carries this component's cid - never matched
+     either of them. The result was a hero with no top padding at all and a
+     heading sitting underneath the header, on both application pages, from the
+     day they were written. Nobody saw it because the pages restore saved
+     progress and scroll down on load, which hid the top of the page. */
+  .ph { background: linear-gradient(135deg, #24462c, #0f1f12);
+        padding: clamp(60px, 9vw, 120px) 0;
+        padding-top: calc(var(--topbar-h, 132px) + clamp(36px, 5vw, 72px)); }
+
   .lede-es { color: var(--muted); font-style: italic; margin-top: -8px; }
 
   .rail { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0 0 24px; }

@@ -2,6 +2,19 @@
 import { site, nav } from '../data/site.js';
 ---
 <div class="topbar" id="topbar">
+{site.serviceAlert.active && (
+  <div class="alertbar" role="status">
+    <div class="wrap ab-inner">
+      <svg class="ab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 2 1 21h22L12 2zm0 6 6.5 11h-13L12 8zm-1 3v4h2v-4h-2zm0 5v2h2v-2h-2z"/>
+      </svg>
+      <p>
+        {site.serviceAlert.message}{' '}
+        <a href={site.phoneHref}>Call {site.phone}</a>
+      </p>
+    </div>
+  </div>
+)}
 <div class="weatherbar">
   <div class="wrap wb-inner">
     <span class="wb-label">DFW Weather</span>
@@ -43,6 +56,20 @@ import { site, nav } from '../data/site.js';
     background: linear-gradient(180deg, rgba(9,18,11,0.82) 0%, rgba(9,18,11,0.55) 55%, rgba(9,18,11,0) 100%); }
   .topbar.is-stuck { position: fixed; background-image: none; background-color: var(--green-900); border-bottom: 1px solid var(--line); box-shadow: 0 2px 20px rgba(0,0,0,0.35); }
   .topbar.is-stuck .weatherbar { border-bottom-color: var(--line); }
+  /* The alert keeps its own solid colour when the bar goes solid on scroll -
+     it is already opaque, so it needs nothing from the stuck background. */
+
+  /* Solid and high-contrast on purpose. The rest of the bar is a translucent
+     scrim over the hero photo, which is right for navigation and wrong for a
+     notice somebody has to actually read. Amber rather than red: this is a
+     disruption, not an emergency, and the farm is still trading. */
+  .alertbar { background: #8a5a00; color: #fff8e7; border-bottom: 1px solid rgba(0,0,0,0.3); }
+  .ab-inner { display: flex; gap: 12px; align-items: flex-start; padding: 11px 24px; }
+  .ab-icon { flex: 0 0 auto; width: 19px; height: 19px; fill: #ffd98a; margin-top: 1px; }
+  .alertbar p { margin: 0; font-size: 0.87rem; line-height: 1.45; }
+  .alertbar a { color: #fff; font-weight: 700; white-space: nowrap; }
+  .alertbar a:hover { text-decoration: none; }
+  @media (max-width: 600px) { .alertbar p { font-size: 0.82rem; } .ab-inner { padding: 10px 16px; } }
 
   .weatherbar { background: rgba(15,31,18,0.34); border-bottom: 1px solid rgba(245,241,228,0.12); backdrop-filter: blur(2px); }
   .wb-inner { display: flex; gap: 14px; align-items: center; justify-content: center; padding: 9px 24px; font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
@@ -89,6 +116,15 @@ import { site, nav } from '../data/site.js';
   const publishHeight = () => document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
   publishHeight();
   addEventListener('resize', publishHeight);
+
+  // The bar's height is not settled at first paint. Its text re-wraps when the
+  // webfont swaps in, and the service notice is several lines on a phone, so
+  // the first measurement was 20px short and every hero on the site started
+  // that much too high. Measure again when the fonts land, and keep watching:
+  // a ResizeObserver catches anything else that changes the height, including
+  // the notice being switched off.
+  if (document.fonts?.ready) document.fonts.ready.then(publishHeight);
+  if (window.ResizeObserver) new ResizeObserver(publishHeight).observe(bar);
 
   // Solid background once the hero has scrolled away, or the nav becomes
   // unreadable over page content.

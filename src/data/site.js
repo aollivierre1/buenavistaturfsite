@@ -16,6 +16,22 @@ export const site = {
   // not an invitation to turn up with a trailer. schema.org has no field for
   // that condition, so it travels as visible text on every page that shows the
   // hours rather than as structured data.
+  // Site-wide service notice, shown as a band above the header on every page.
+  //
+  // TO TAKE IT DOWN: set active to false. That is the whole job - nothing else
+  // needs touching, and the message text can stay here for the next time.
+  //
+  // Leave this up only while it is true. A stale outage notice costs more than
+  // no notice at all: a customer who reads "we cannot receive email" a week
+  // after it was fixed stops trusting anything else the site says.
+  serviceAlert: {
+    active: true,
+    message: 'Buena Vista Turf is currently impacted by a widespread Microsoft outage '
+      + 'disrupting Microsoft Outlook and Exchange Online mailboxes. This will impact '
+      + 'services and notifications that rely on email communication. Please continue '
+      + 'to call in or use live messaging for support needs.',
+  },
+
   // Credentials shown in the trust bar under the hero. These are claims about
   // real organisations made on a public page, so each one has to be true and
   // current: a lapsed membership or a title a year out of date is worse than
