@@ -25,7 +25,7 @@ export const site = {
   // no notice at all: a customer who reads "we cannot receive email" a week
   // after it was fixed stops trusting anything else the site says.
   serviceAlert: {
-    active: true,
+    active: false,
     message: 'Buena Vista Turf is currently impacted by a widespread Microsoft outage '
       + 'disrupting Microsoft Outlook and Exchange Online mailboxes. This will impact '
       + 'services and notifications that rely on email communication. Please continue '
