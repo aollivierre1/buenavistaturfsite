@@ -1,0 +1,65 @@
+---
+// The monday.com form, embedded. Used on /quote/ and /contractors/.
+//
+// A FALLBACK LINK SITS UNDER IT ON PURPOSE. The only public URL monday gives
+// for this form is its shortener, and a shortener redirects — which an iframe
+// may or may not be allowed to follow, depending on the framing headers the
+// final page sends. If it is refused the iframe renders blank, and a blank
+// box where the quote form used to be would silently cost every lead on the
+// page. The link below always works, so the worst case is one extra click
+// rather than a dead page.
+//
+// The height is fixed because a cross-origin iframe cannot report its own
+// content height, so the page has no way to size it. Erring tall leaves some
+// empty space under a short form; erring short puts a scrollbar inside the
+// box, which people miss.
+import { site } from '../data/site.js';
+
+const { heading, intro, height = 1150 } = Astro.props;
+---
+<section class="mf"><div class="wrap">
+  {heading && <h2>{heading}</h2>}
+  {intro && <p class="lede">{intro}</p>}
+
+  <div class="mf-frame" style={`--mf-h:${height}px`}>
+    <iframe
+      src={site.mondayForm.url}
+      title={site.mondayForm.title}
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </div>
+
+  <p class="mf-fallback">
+    Form not loading?{' '}
+    <a href={site.mondayForm.url} target="_blank" rel="noopener">Open it in a new tab</a>{' '}
+    or call <a href={site.phoneHref}>{site.phone}</a>.
+  </p>
+</div></section>
+
+<style>
+  .mf { padding-top: 8px; }
+  .mf h2 { margin-bottom: 10px; }
+  .mf .lede { margin-bottom: 26px; }
+  .mf-frame {
+    border: 1px solid var(--line);
+    background: var(--green-700);
+    /* Tall on desktop, taller on a phone where every question wraps. */
+    height: var(--mf-h);
+    overflow: hidden;
+  }
+  @media (max-width: 700px) { .mf-frame { height: calc(var(--mf-h) + 260px); } }
+  .mf-frame iframe {
+    background: var(--green-700);
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .mf-fallback {
+    margin-top: 14px;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .mf-fallback a { color: var(--gold); }
+</style>

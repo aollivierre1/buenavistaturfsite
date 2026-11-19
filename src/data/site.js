@@ -32,6 +32,21 @@ export const site = {
       + 'to call in or use live messaging for support needs.',
   },
 
+  // The monday.com form that quote requests and trade account requests both go
+  // to. Submissions land directly on the Shawn Lead List board; the website is
+  // only showing the form, so there is no Netlify submission, no /admin record
+  // and no notification email for these two any more.
+  //
+  // This is the only public URL monday exposes for the form (its shortener).
+  // If the embed renders monday's full page chrome, or refuses to frame, open
+  // the form in monday -> Share -> Embed and paste the forms.monday.com URL it
+  // gives you here instead. Nothing else needs changing.
+  mondayForm: {
+    url: 'https://wkf.ms/45BxMlD',
+    // Shown as the iframe's accessible name and on the fallback link.
+    title: 'Request a quote from Buena Vista Turf Farm',
+  },
+
   // Credentials shown in the trust bar under the hero. These are claims about
   // real organisations made on a public page, so each one has to be true and
   // current: a lapsed membership or a title a year out of date is worse than

@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { grasses } from '../data/grasses.js';
 import { locations } from '../data/locations.js';
 import { pricing, priceFor } from '../data/pricing.js';
+import MondayForm from '../components/MondayForm.astro';
 ---
 <Base
   title="Sod Calculator & Quote"
@@ -21,17 +22,7 @@ import { pricing, priceFor } from '../data/pricing.js';
 
   <section>
     <div class="wrap qgrid">
-      <form
-        name="quote"
-        method="POST"
-        data-netlify="true"
-        netlify-honeypot="bot-field"
-        action="/thanks"
-        id="quoteForm"
-      >
-        <input type="hidden" name="form-name" value="quote" />
-        <p hidden><label>Leave blank: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
-
+      <div id="quoteForm">
         <h2 class="fh">1. Your area</h2>
         <div class="two">
           <div>
@@ -58,43 +49,10 @@ import { pricing, priceFor } from '../data/pricing.js';
           ))}
         </select>
 
-        <h2 class="fh">3. Delivery</h2>
-        <label for="zone">Delivery</label>
-        <select id="zone" name="delivery" required>
-          {pricing.deliveryZones.map((z) => <option value={z.label}>{z.label}</option>)}
-        </select>
-        <label for="nearest">Nearest farm</label>
-        <select id="nearest" name="nearest_farm">
-          <option value="">No preference</option>
-          {locations.map((l) => <option value={l.name}>{l.name}, {l.county}</option>)}
-        </select>
-        <label for="when">When do you need it?</label>
-        <select id="when" name="timeline">
-          <option>Within a week</option>
-          <option>1–2 weeks</option>
-          <option>This month</option>
-          <option>Just planning / getting a number</option>
-        </select>
-
-        <h2 class="fh">4. Where do we send it?</h2>
-        <div class="two">
-          <div><label for="name">Name</label><input type="text" id="name" name="name" required /></div>
-          <div><label for="phone">Phone</label><input type="tel" id="phone" name="phone" required /></div>
-        </div>
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required />
-        <label for="addr">Job site city / ZIP</label>
-        <input type="text" id="addr" name="job_site" />
-        <label for="notes">Anything we should know?</label>
-        <textarea id="notes" name="notes" rows="4" placeholder="Access, slope, tree cover, old grass removal, tight delivery window..."></textarea>
-
-        <input type="hidden" name="calculated_pallets" id="hPallets" />
-        <input type="hidden" name="calculated_sqft_with_waste" id="hWaste" />
-        <input type="hidden" name="calculated_sod_cost" id="hCost" />
-
-        <button type="submit" class="btn" style="width:100%">Send My Quote Request</button>
-        <p class="hint" style="text-align:center">We reply by phone or email, usually same business day.</p>
-      </form>
+        <input type="hidden" id="hPallets" />
+        <input type="hidden" id="hWaste" />
+        <input type="hidden" id="hCost" />
+      </div>
 
       <aside class="result" aria-live="polite">
         <h2 class="fh">Your estimate</h2>
@@ -106,13 +64,18 @@ import { pricing, priceFor } from '../data/pricing.js';
           <li class="cost"><span>Estimated sod cost</span><span id="rCost">—</span></li>
         </ul>
         <p class="hint" style="margin-top:22px">
-          Sod only — delivery is quoted separately and is not in this figure.
+          An estimate, not a quote. Sod only — delivery is quoted separately and is not in this figure.
           Pallet counts are rounded up, because partial pallets are not sold. Final
           count and pricing are confirmed by our team before anything is scheduled.
         </p>
       </aside>
     </div>
   </section>
+
+  <MondayForm
+    heading="Send us your project"
+    intro="The numbers above are an estimate. Send the details and we will confirm the count, the price and a delivery window."
+  />
 </Base>
 
 <style>
@@ -186,12 +149,14 @@ import { pricing, priceFor } from '../data/pricing.js';
   // so a hand-edited URL cannot inject anything into the form.
   const params = new URLSearchParams(location.search);
   const preselect = (id, value) => {
-    if (!value) return;
     const el = $(id);
+    if (!value || !el || !el.options) return;
     const hit = [...el.options].find((o) => o.value === value);
     if (hit) el.value = hit.value;
   };
-  preselect('nearest', params.get('nearest'));
+  // ?nearest= still arrives from the farm pages. There is no farm field left
+  // to apply it to - the monday form asks its own questions - so it is simply
+  // ignored rather than being an error.
   preselect('grass', params.get('grass'));
 
   recalc();

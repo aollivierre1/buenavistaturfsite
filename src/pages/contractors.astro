@@ -6,12 +6,12 @@
 // field here is another reason for a busy contractor to abandon the page
 // before we have any way to contact him.
 //
-// On submit: netlify/functions/submission-created.mjs mirrors it to Blobs for
-// /admin and creates a row on the Shawn Lead List board with Source "Website
-// form lead". The email to Shawn and Alfredo is a Netlify form notification,
-// which is a setting in the Netlify UI rather than anything this repo can
-// carry - see README.
+// The form is monday.com's, embedded. Submissions go straight to the Shawn
+// Lead List board - they do NOT pass through Netlify, so there is no /admin
+// record, no notification email, and no "send the DocuSign" note added by
+// our own code. Whoever works the board is the only one who finds out.
 import Base from '../layouts/Base.astro';
+import MondayForm from '../components/MondayForm.astro';
 import { site } from '../data/site.js';
 import { locations } from '../data/locations.js';
 
@@ -31,50 +31,17 @@ const buyers = [
     <h1>Open an account and stop paying per load.</h1>
     <p class="lede">
       If you buy sod for a living, you should not be quoting every job from scratch.
-      Tell us four things and we will send you a credit application to sign online.
+      Send us your details and we will email you a credit application to sign online.
     </p>
   </div></section>
 
   <section><div class="wrap cols">
     <div>
-      <h2 class="fh">Request a trade account</h2>
-      <form
-        name="contractor"
-        method="POST"
-        data-netlify="true"
-        netlify-honeypot="bot-field"
-        action="/thanks"
-      >
-        <input type="hidden" name="form-name" value="contractor" />
-        <p hidden>
-          <label>Leave this blank: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
-        </p>
-
-        <label for="cn">Your name</label>
-        <input id="cn" type="text" name="name" required autocomplete="name" />
-
-        <label for="cb">Business name</label>
-        <input id="cb" type="text" name="business_name" required autocomplete="organization" />
-
-        <label for="ce">Email</label>
-        <input id="ce" type="email" name="email" required autocomplete="email" />
-
-        <label for="cp">Phone</label>
-        <input id="cp" type="tel" name="phone" required autocomplete="tel" />
-
-        <button type="submit" class="btn" style="width:100%">Request My Account</button>
-        <p class="hint" style="text-align:center">
-          Four fields, no obligation. The credit application comes by email for you to sign online.
-        </p>
-      </form>
-    </div>
-
-    <aside>
       <h2 class="fh">What happens next</h2>
       <ol class="steps">
         <li>
-          <strong>You send these four details.</strong>
-          <span>That is the whole form. It takes under a minute.</span>
+          <strong>You send us your details.</strong>
+          <span>The form below goes straight to our team.</span>
         </li>
         <li>
           <strong>We email you a credit application.</strong>
@@ -85,17 +52,24 @@ const buyers = [
           <span>Call, tell us the grass and the quantity, and we schedule the cut.</span>
         </li>
       </ol>
+    </div>
 
+    <aside>
       <div class="card">
         <h3>In a hurry?</h3>
         <p>
-          You do not need an account to buy. <a href="/quote/">Build a quote</a> or call
+          You do not need an account to buy. <a href="/quote/">Price your project</a> or call
           <a href={site.phoneHref}>{site.phone}</a> and we will get you loaded.
         </p>
         <p class="muted">{site.hours.display}. {site.hours.pickup}.</p>
       </div>
     </aside>
   </div></section>
+
+  <MondayForm
+    heading="Request a trade account"
+    intro="Tell us about your business and we will get the credit application over to you."
+  />
 
   <section class="section-alt"><div class="wrap">
     <span class="eyebrow">Who buys on account</span>
