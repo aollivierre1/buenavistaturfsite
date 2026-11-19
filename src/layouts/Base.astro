@@ -96,6 +96,7 @@ const schema = {
         LocalBusiness block above describes the company on every page; this
         describes the one thing this page is about. */}
     {extraSchema && <script type="application/ld+json" set:html={JSON.stringify(extraSchema)}></script>}
+    {analytics.pinterest && <meta name="p:domain_verify" content={analytics.pinterest} />}
     {analytics.ga4 && (
       <>
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.ga4}`}></script>

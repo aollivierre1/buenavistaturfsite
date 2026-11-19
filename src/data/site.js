@@ -84,6 +84,7 @@ export const socials = [
 // Google Analytics property, so historical data continues in the same place.
 export const analytics = {
   ga4: 'G-BJPY2EFZFB',
+  pinterest: '905bdc38ac57a1fe54d96c2c4cf4a3d2', // Pinterest domain claim (p:domain_verify)
   metaPixel: null, // <- put the Meta Pixel ID here (digits only) to enable it
   // The farm's existing Chatbase assistant, recovered from the pre-migration
   // site. Set to null to remove the widget.
