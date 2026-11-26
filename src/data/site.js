@@ -16,29 +16,13 @@ export const site = {
   // not an invitation to turn up with a trailer. schema.org has no field for
   // that condition, so it travels as visible text on every page that shows the
   // hours rather than as structured data.
-  // Seasonal greeting band, above the header on every page. Separate from
-  // serviceAlert below on purpose: that one is an amber warning and is the
-  // wrong voice entirely for a holiday message.
+  // Master switch for the seasonal greeting band above the header.
   //
-  // `until` is the exact moment it stops showing, written as a full timestamp
-  // WITH the offset. Without one, browsers parse a bare date as local time and
-  // the band would clear at a different instant for every visitor depending on
-  // where they are; -06:00 is Central Standard, which is the farm's clock in
-  // late November, so everyone sees it go at the same moment Alfredo does.
-  //
-  // It is enforced twice. The build leaves the band out once the moment has
-  // passed, and a few lines in Header.astro remove it in the browser as well -
-  // because a static site only re-renders when something pushes, so the
-  // browser check is the one that actually fires on a given night.
-  //
-  // TO TAKE IT DOWN EARLY: set active to false. TO REUSE IT NEXT YEAR: change
-  // the message and the dates.
-  holiday: {
-    active: true,
-    message: 'Happy Thanksgiving from all of us at Buena Vista Turf Farm.',
-    submessage: 'Thank you for letting us be part of your projects this year.',
-    until: '2026-11-27T00:01:00-06:00',   // 12:01am Friday 27 Nov, Central
-  },
+  // WHICH holidays, their dates, their wording and their colours all live in
+  // src/data/holidays.js. The dates there are computed rather than listed, so
+  // they are right every year without anyone updating them. Set this to false
+  // to turn the whole feature off.
+  holidayBanner: true,
 
   // Site-wide service notice, shown as a band above the header on every page.
   //
