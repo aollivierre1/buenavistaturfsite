@@ -1,7 +1,25 @@
 ---
 import { site, nav } from '../data/site.js';
+
+// Build-time half of the expiry. The browser does the other half, so the band
+// clears on the day even if nothing deploys between now and then.
+const showHoliday = site.holiday.active
+  && new Date() < new Date(site.holiday.until + 'T00:00:00');
 ---
 <div class="topbar" id="topbar">
+{showHoliday && (
+  <div class="holidaybar" id="holidaybar" data-until={site.holiday.until}>
+    <div class="wrap hb-inner">
+      <svg class="hb-leaf" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 21c0-5 1-8 4-11 1.6-1.6 3.4-2.5 6-3-.4 3.3-1.3 5.8-3 7.6-2.2 2.4-4.6 3-7 3.4zM12 21c0-4-1-6.5-3.3-8.7C7 10.7 5.2 9.9 3 9.5c.3 2.8 1.1 4.9 2.6 6.4C7.5 17.8 9.7 18.5 12 19z"/>
+      </svg>
+      <p>
+        <strong>{site.holiday.message}</strong>
+        {site.holiday.submessage && <span>{site.holiday.submessage}</span>}
+      </p>
+    </div>
+  </div>
+)}
 {site.serviceAlert.active && (
   <div class="alertbar" role="status">
     <div class="wrap ab-inner">
@@ -59,6 +77,29 @@ import { site, nav } from '../data/site.js';
   /* The alert keeps its own solid colour when the bar goes solid on scroll -
      it is already opaque, so it needs nothing from the stuck background. */
 
+  /* Warm harvest band. Deliberately not the amber of the service alert below:
+     that one is a warning and has to read as one, this is a greeting. The
+     gradient runs through the brand gold so it sits with the logo rather than
+     fighting it. */
+  .holidaybar {
+    background: linear-gradient(100deg, #6b3410 0%, #8a4a14 38%, #b0761f 100%);
+    color: #fff6e3;
+    border-bottom: 1px solid rgba(0,0,0,0.28);
+  }
+  .hb-inner { display: flex; gap: 12px; align-items: center; justify-content: center;
+    padding: 10px 24px; text-align: center; }
+  .hb-leaf { flex: 0 0 auto; width: 20px; height: 20px; fill: #f3c97a; }
+  .holidaybar p { margin: 0; font-size: 0.92rem; line-height: 1.4; }
+  .holidaybar strong { font-weight: 700; }
+  .holidaybar span { color: #f0dcbc; }
+  /* One line on a wide screen, stacked on a phone, with the leaf kept beside
+     the greeting rather than floating above two lines of text. */
+  @media (min-width: 860px) { .holidaybar span::before { content: ' '; } }
+  @media (max-width: 859px) {
+    .hb-inner { align-items: flex-start; text-align: left; }
+    .holidaybar span { display: block; margin-top: 2px; font-size: 0.84rem; }
+  }
+
   /* Solid and high-contrast on purpose. The rest of the bar is a translucent
      scrim over the hero photo, which is right for navigation and wrong for a
      notice somebody has to actually read. Amber rather than red: this is a
@@ -112,6 +153,14 @@ import { site, nav } from '../data/site.js';
 <script>
   // Sections need to know how tall the overlaying bar is so their content
   // does not start underneath it.
+  // Second half of the holiday expiry. The build drops the band once the date
+  // has passed, but a static site only rebuilds when something pushes, so
+  // without this a greeting could outlive its holiday by weeks. Removing it
+  // here also shrinks the bar, and the ResizeObserver below republishes the
+  // height so every hero re-spaces itself.
+  const hb = document.getElementById('holidaybar');
+  if (hb && new Date() >= new Date(hb.dataset.until + 'T00:00:00')) hb.remove();
+
   const bar = document.getElementById('topbar');
   const publishHeight = () => document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
   publishHeight();

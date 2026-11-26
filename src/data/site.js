@@ -16,6 +16,26 @@ export const site = {
   // not an invitation to turn up with a trailer. schema.org has no field for
   // that condition, so it travels as visible text on every page that shows the
   // hours rather than as structured data.
+  // Seasonal greeting band, above the header on every page. Separate from
+  // serviceAlert below on purpose: that one is an amber warning and is the
+  // wrong voice entirely for a holiday message.
+  //
+  // `until` is the day AFTER the last day it should show, and it is enforced
+  // twice. The build leaves the band out once the date has passed, and a few
+  // lines in Header.astro remove it in the browser as well - because a static
+  // site only re-renders when something pushes, and a Thanksgiving greeting
+  // still sitting there in December reads as a dead site. The client-side
+  // check means it disappears on time whether or not anything deploys.
+  //
+  // TO TAKE IT DOWN EARLY: set active to false. TO REUSE IT NEXT YEAR: change
+  // the message and the dates.
+  holiday: {
+    active: true,
+    message: 'Happy Thanksgiving from all of us at Buena Vista Turf Farm.',
+    submessage: 'Thank you for letting us be part of your projects this year.',
+    until: '2026-11-30',   // clears on 30 Nov, after the long weekend
+  },
+
   // Site-wide service notice, shown as a band above the header on every page.
   //
   // TO TAKE IT DOWN: set active to false. That is the whole job - nothing else
