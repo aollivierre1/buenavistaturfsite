@@ -20,12 +20,16 @@ export const site = {
   // serviceAlert below on purpose: that one is an amber warning and is the
   // wrong voice entirely for a holiday message.
   //
-  // `until` is the day AFTER the last day it should show, and it is enforced
-  // twice. The build leaves the band out once the date has passed, and a few
-  // lines in Header.astro remove it in the browser as well - because a static
-  // site only re-renders when something pushes, and a Thanksgiving greeting
-  // still sitting there in December reads as a dead site. The client-side
-  // check means it disappears on time whether or not anything deploys.
+  // `until` is the exact moment it stops showing, written as a full timestamp
+  // WITH the offset. Without one, browsers parse a bare date as local time and
+  // the band would clear at a different instant for every visitor depending on
+  // where they are; -06:00 is Central Standard, which is the farm's clock in
+  // late November, so everyone sees it go at the same moment Alfredo does.
+  //
+  // It is enforced twice. The build leaves the band out once the moment has
+  // passed, and a few lines in Header.astro remove it in the browser as well -
+  // because a static site only re-renders when something pushes, so the
+  // browser check is the one that actually fires on a given night.
   //
   // TO TAKE IT DOWN EARLY: set active to false. TO REUSE IT NEXT YEAR: change
   // the message and the dates.
@@ -33,7 +37,7 @@ export const site = {
     active: true,
     message: 'Happy Thanksgiving from all of us at Buena Vista Turf Farm.',
     submessage: 'Thank you for letting us be part of your projects this year.',
-    until: '2026-11-30',   // clears on 30 Nov, after the long weekend
+    until: '2026-11-27T00:01:00-06:00',   // 12:01am Friday 27 Nov, Central
   },
 
   // Site-wide service notice, shown as a band above the header on every page.

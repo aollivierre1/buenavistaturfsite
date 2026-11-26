@@ -4,7 +4,7 @@ import { site, nav } from '../data/site.js';
 // Build-time half of the expiry. The browser does the other half, so the band
 // clears on the day even if nothing deploys between now and then.
 const showHoliday = site.holiday.active
-  && new Date() < new Date(site.holiday.until + 'T00:00:00');
+  && new Date() < new Date(site.holiday.until);
 ---
 <div class="topbar" id="topbar">
 {showHoliday && (
@@ -159,7 +159,7 @@ const showHoliday = site.holiday.active
   // here also shrinks the bar, and the ResizeObserver below republishes the
   // height so every hero re-spaces itself.
   const hb = document.getElementById('holidaybar');
-  if (hb && new Date() >= new Date(hb.dataset.until + 'T00:00:00')) hb.remove();
+  if (hb && new Date() >= new Date(hb.dataset.until)) hb.remove();
 
   const bar = document.getElementById('topbar');
   const publishHeight = () => document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
